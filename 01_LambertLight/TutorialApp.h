@@ -41,6 +41,8 @@ public:
 	Matrix  m_View;					// 뷰좌표계 공간으로 변환을 위한 행렬.
 	Matrix  m_Projection;			// 단위장치좌표계( Normalized Device Coordinate) 공간으로 변환을 위한 행렬.
 	Vector4	m_vMeshColor = {0.7f, 0.7f, 0.7f, 1.0f};
+	Vector3	m_vLightDirection = { 0.7f, 0.7f, 0.7f };
+	Vector4	m_vLightColor = { 0.7f, 0.7f, 0.7f, 1.0f };
 
 	virtual bool Initialize(UINT Width, UINT Height);
 	virtual void Update();

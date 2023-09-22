@@ -11,6 +11,7 @@
 struct Vertex
 {
 	Vector3 Pos;		// 정점 위치 정보.
+	//Vector3 Nor;
 	Vector2 Tex;
 };
 
@@ -19,6 +20,12 @@ struct ConstantBuffer
 	Matrix mWorld;
 	Matrix mView;
 	Matrix mProjection;
+};
+
+struct CB_DirectionLight
+{
+	Vector3 Direction;
+	Vector4 Color;
 };
 
 TutorialApp::TutorialApp(HINSTANCE hInstance)
@@ -51,13 +58,8 @@ void TutorialApp::Update()
 	__super::Update();
 
 	float t = GameTimer::m_Instance->TotalTime();
-	// Rotate cube around the origin
-	m_World = XMMatrixRotationY(t);
 
-	// Modify the color
-	m_vMeshColor.x = (sinf(t * 1.0f) + 1.0f) * 0.5f;
-	m_vMeshColor.y = (cosf(t * 3.0f) + 1.0f) * 0.5f;
-	m_vMeshColor.z = (sinf(t * 5.0f) + 1.0f) * 0.5f;
+
 }
 
 void TutorialApp::Render()
