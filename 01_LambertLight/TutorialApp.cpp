@@ -1,7 +1,11 @@
 #include "TutorialApp.h"
+
 #include "../Common/Helper.h"
 #include <d3dcompiler.h>
 #include <Directxtk/DDSTextureLoader.h>
+#include <imgui.h>
+#include <imgui_impl_win32.h>
+#include <imgui_impl_dx11.h>
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
@@ -10,12 +14,12 @@
 // 정점 선언.
 struct Vertex
 {
-	Vector3 Pos;		// 정점 위치 정보.
-	//Vector3 Nor;
+	Vector3 Pos;		// 정점 위치 정보.	
 	Vector2 Tex;
+	Vector3 Nor;
 };
 
-struct ConstantBuffer
+struct CB_Transform
 {
 	Matrix mWorld;
 	Matrix mView;
@@ -25,7 +29,17 @@ struct ConstantBuffer
 struct CB_DirectionLight
 {
 	Vector3 Direction;
-	Vector4 Color;
+	float pad0;
+	Vector3 Color;
+	float pad1;
+};
+
+struct CB_Marterial
+{
+	Vector4 Ambient;
+	Vector4 Diffuse;
+	Vector4 Specular;
+	Vector4 Emissive;
 };
 
 TutorialApp::TutorialApp(HINSTANCE hInstance)
@@ -36,7 +50,8 @@ TutorialApp::TutorialApp(HINSTANCE hInstance)
 
 TutorialApp::~TutorialApp()
 {
-	UninitScene();
+	UninitScene();	
+	UninitImGUI();
 	UninitD3D();
 }
 
@@ -45,6 +60,9 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
 	__super::Initialize(Width, Height);
 
 	if (!InitD3D())
+		return false;
+
+	if (!InitImGUI())
 		return false;
 
 	if (!InitScene())
@@ -59,38 +77,74 @@ void TutorialApp::Update()
 
 	float t = GameTimer::m_Instance->TotalTime();
 
-
+	m_World = Matrix::CreateFromYawPitchRoll(Vector3(XMConvertToRadians(m_Rotation.x), XMConvertToRadians(m_Rotation.y),0));
 }
 
 void TutorialApp::Render()
 {
-	float color[4] = { 0.0f, 0.5f, 0.5f, 1.0f };
-	
 	// Clear the back buffer
-	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
+	const float clear_color_with_alpha[4] = { m_ClearColor.x , m_ClearColor.y , m_ClearColor.z, 1.0f};
+	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, clear_color_with_alpha);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
 
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertexBufferStride, &m_VertexBufferOffset);
 	m_pDeviceContext->IASetInputLayout(m_pInputLayout);
 	m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 	m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
-	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
+	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pCBTransform);
+	m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pCBDirectionLight);
 	m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
-	m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pConstantBuffer);
+	m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pCBTransform);
+	m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pCBDirectionLight);
 	m_pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
 	//
 	// Update matrix variables and lighting variables
 	//
-	ConstantBuffer cb1;
+	CB_Transform cb1;
 	cb1.mWorld = XMMatrixTranspose(m_World);
 	cb1.mView = XMMatrixTranspose(m_View);
 	cb1.mProjection = XMMatrixTranspose(m_Projection);
-	m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+	m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &cb1, 0, 0);
+
+	CB_DirectionLight cb2 = {};
+	cb2.Direction = m_vLightDirection;
+	cb2.Color = m_vLightColor;
+	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &cb2, 0, 0);
+
 
 	m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
+
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	// Start the Dear ImGui frame
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	{
+		ImGui::Begin("Properties");            
+		ImGui::Text("Cube");
+		ImGui::SliderFloat2("Rotation",(float*)&m_Rotation, 0, 90);	
+
+		ImGui::Text("Direction Light");
+		ImGui::SliderFloat3("Direction", (float*)&m_vLightDirection, -1.0f, 1.0f);
+		ImGui::ColorEdit3("Color", (float*)&m_vLightColor);
+
+//		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+//			m_counter++;
+//		ImGui::SameLine();
+//		ImGui::Text("counter = %d", m_counter);	
+
+		ImGui::ColorEdit3("clear color", (float*)&m_ClearColor); // Edit 3 floats representing a color	
+		ImGui::End();
+	}
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 	m_pSwapChain->Present(0, 0);	// Present our back buffer to our front buffer
 }
@@ -193,35 +247,35 @@ bool TutorialApp::InitScene()
 	// Local or Object or Model Space
 	Vertex vertices[] =
 	{
-		{ Vector3(-1.0f, 1.0f, -1.0f), Vector2(1.0f, 0.0f) },
-		{ Vector3(1.0f, 1.0f, -1.0f), Vector2(0.0f, 0.0f) },
-		{ Vector3(1.0f, 1.0f, 1.0f), Vector2(0.0f, 1.0f) },
-		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(1.0f, 1.0f) },
+		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 1.0f, 0.0f) },  // 윗면이라 y전부 +1
+		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 1.0f, 0.0f) },
+		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 1.0f, 0.0f) },
+		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 1.0f, 0.0f) },
 
-		{ Vector3(-1.0f, -1.0f, -1.0f), Vector2(0.0f, 0.0f) },
-		{ Vector3(1.0f, -1.0f, -1.0f), Vector2(1.0f, 0.0f) },
-		{ Vector3(1.0f, -1.0f, 1.0f), Vector2(1.0f, 1.0f) },
-		{ Vector3(-1.0f, -1.0f, 1.0f), Vector2(0.0f, 1.0f) },
+		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f,-1.0f, 0.0f) },  // 아랫면이라 y전부 -1
+		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f,-1.0f, 0.0f) },
+		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
+		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
 
-		{ Vector3(-1.0f, -1.0f, 1.0f), Vector2(0.0f, 1.0f) },
-		{ Vector3(-1.0f, -1.0f, -1.0f), Vector2(1.0f, 1.0f) },
-		{ Vector3(-1.0f, 1.0f, -1.0f), Vector2(1.0f, 0.0f) },
-		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f) },
-
-		{ Vector3(1.0f, -1.0f, 1.0f), Vector2(1.0f, 1.0f) },
-		{ Vector3(1.0f, -1.0f, -1.0f), Vector2(0.0f, 1.0f) },
-		{ Vector3(1.0f, 1.0f, -1.0f), Vector2(0.0f, 0.0f) },
-		{ Vector3(1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f) },
-
-		{ Vector3(-1.0f, -1.0f, -1.0f), Vector2(0.0f, 1.0f) },
-		{ Vector3(1.0f, -1.0f, -1.0f), Vector2(1.0f, 1.0f) },
-		{ Vector3(1.0f, 1.0f, -1.0f), Vector2(1.0f, 0.0f) },
-		{ Vector3(-1.0f, 1.0f, -1.0f), Vector2(0.0f, 0.0f) },
-
-		{ Vector3(-1.0f, -1.0f, 1.0f), Vector2(1.0f, 1.0f) },
-		{ Vector3(1.0f, -1.0f, 1.0f), Vector2(0.0f, 1.0f) },
-		{ Vector3(1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f) },
-		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f) },
+		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f) },	// 왼쪽면 이라 x전부 -1
+		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f) },
+		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f) },
+		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f) },
+														 			    
+		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f) },	// 오른쪽면 이라 x전부 +1
+		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f) },
+		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
+		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
+														 			    
+		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f) },  // 앞면이라 z전부 -1
+		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f) },
+		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
+		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
+														 			    
+		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },	//뒷면이라 z전부 +1
+		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },
+		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f, 1.0f) },
+		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f, 1.0f) },
 	};
 
 	D3D11_BUFFER_DESC bd = {};
@@ -245,8 +299,9 @@ bool TutorialApp::InitScene()
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },	
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL" , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 	hr = m_pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
 		vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout);
@@ -292,10 +347,17 @@ bool TutorialApp::InitScene()
 	// 6. Render() 에서 파이프라인에 바인딩할 상수 버퍼 생성
 	// Create the constant buffer
 	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(ConstantBuffer);
+	bd.ByteWidth = sizeof(CB_Transform);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
-	HR_T( m_pDevice->CreateBuffer(&bd, nullptr, &m_pConstantBuffer));
+	HR_T( m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBTransform));
+
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(CB_DirectionLight);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBDirectionLight));
+
 
 	// Load the Texture
 	HR_T( CreateDDSTextureFromFile(m_pDevice, L"seafloor.dds", nullptr, &m_pTextureRV));
@@ -317,7 +379,7 @@ bool TutorialApp::InitScene()
 
 
 	// Initialize the view matrix
-	XMVECTOR Eye = XMVectorSet(0.0f, 3.0f, -6.0f, 0.0f);
+	XMVECTOR Eye = XMVectorSet(0.0f, 0.0f, -10.0f, 0.0f);
 	XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -331,10 +393,51 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {
+	SAFE_RELEASE(m_pCBTransform);
+	SAFE_RELEASE(m_pCBDirectionLight);
+
 	SAFE_RELEASE(m_pVertexBuffer);
 	SAFE_RELEASE(m_pVertexShader);
 	SAFE_RELEASE(m_pPixelShader);
 	SAFE_RELEASE(m_pInputLayout);
 	SAFE_RELEASE(m_pIndexBuffer);
 	SAFE_RELEASE(m_pDepthStencilView);
+}
+bool TutorialApp::InitImGUI()
+{
+	/*
+		ImGui 초기화.
+	*/
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsLight();
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplWin32_Init(m_hWnd);
+	ImGui_ImplDX11_Init(this->m_pDevice, this->m_pDeviceContext);
+
+	//
+	return true;
+}
+
+void TutorialApp::UninitImGUI()
+{
+	// Cleanup
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+}
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+LRESULT CALLBACK TutorialApp::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+		return true;
+
+	return __super::WndProc(hWnd, message, wParam, lParam);
 }

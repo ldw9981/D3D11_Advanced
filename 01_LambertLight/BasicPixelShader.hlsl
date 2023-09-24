@@ -5,5 +5,9 @@
 //--------------------------------------------------------------------------------------
 float4 main(PS_INPUT input) : SV_Target
 {
-    return txDiffuse.Sample(samLinear, input.Tex);
+    float fNDotL = dot(input.Nor, -LightDirection);
+    
+    float4 FinalColor = saturate(txDiffuse.Sample(samLinear, input.Tex) * fNDotL);
+    
+    return FinalColor;
 }

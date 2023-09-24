@@ -10,6 +10,6 @@ PS_INPUT main(VS_INPUT input)
     output.Pos = mul(output.Pos, View);
     output.Pos = mul(output.Pos, Projection);
     output.Tex = input.Tex;
-    
+    output.Nor = mul(input.Nor, (float3x3) World);
     return output;
 }
