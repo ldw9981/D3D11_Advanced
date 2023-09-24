@@ -51,6 +51,7 @@ void TutorialApp::Update()
 	
 	m_View = XMMatrixLookToLH(m_CameraPos, Vector3(0, 0, 1), Vector3(0, 1, 0));
 
+	m_Light.EyePosition = m_CameraPos;
 
 }
 
