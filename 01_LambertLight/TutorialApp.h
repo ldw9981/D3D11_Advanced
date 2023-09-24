@@ -52,10 +52,6 @@ public:
 	Vector3 m_ClearColor ={ 0.0f, 0.0f, 0.0f};
 	Vector2 m_Rotation = Vector2(0.0f, 0.0f);
 
-	float m_f;
-	int m_counter;
-
-
 	virtual bool Initialize(UINT Width, UINT Height);
 	virtual void Update();
 	virtual void Render();

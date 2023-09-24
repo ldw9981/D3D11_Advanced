@@ -34,14 +34,6 @@ struct CB_DirectionLight
 	float pad1;
 };
 
-struct CB_Marterial
-{
-	Vector4 Ambient;
-	Vector4 Diffuse;
-	Vector4 Specular;
-	Vector4 Emissive;
-};
-
 TutorialApp::TutorialApp(HINSTANCE hInstance)
 	:GameApp(hInstance)
 {
