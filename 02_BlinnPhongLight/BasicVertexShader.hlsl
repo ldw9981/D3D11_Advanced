@@ -14,6 +14,6 @@ PS_INPUT main(VS_INPUT input)
     pos = mul(pos, Projection);  
     output.PosProj = pos;    
     output.TexCoord = input.TexCoord;    
-    output.NorWorld = mul(input.NorModel, (float3x3) World);
+    output.NorWorld = normalize(mul(input.NorModel, (float3x3) World));    // scale 있을수 있으므로 normalize필요
     return output;
 }

@@ -10,7 +10,6 @@
 #pragma comment (lib, "d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
 
-float fScale = 100.0f;
 
 
 TutorialApp::TutorialApp(HINSTANCE hInstance)
@@ -48,7 +47,7 @@ void TutorialApp::Update()
 
 	float t = GameTimer::m_Instance->TotalTime();
 
-	m_World =  Matrix::CreateFromYawPitchRoll(Vector3(XMConvertToRadians(m_Rotation.x), XMConvertToRadians(m_Rotation.y),0));
+	m_World =  Matrix::CreateScale(10.0f) * Matrix::CreateFromYawPitchRoll(Vector3(XMConvertToRadians(m_Rotation.x), XMConvertToRadians(m_Rotation.y),0));
 	
 	m_View = XMMatrixLookToLH(m_CameraPos, Vector3(0, 0, 1), Vector3(0, 1, 0));
 
@@ -223,35 +222,35 @@ bool TutorialApp::InitScene()
 	// Local or Object or Model Space
 	Vertex vertices[] =
 	{
-		{ Vector3(-1.0f*fScale, 1.0f*fScale,-1.0f*fScale), Vector2(1.0f, 0.0f),Vector3( 0.0f, 1.0f, 0.0f) },  // 윗면이라 y전부 +1
-		{ Vector3( 1.0f*fScale, 1.0f*fScale,-1.0f*fScale), Vector2(0.0f, 0.0f),Vector3( 0.0f, 1.0f, 0.0f) },
-		{ Vector3( 1.0f*fScale, 1.0f*fScale, 1.0f*fScale), Vector2(0.0f, 1.0f),Vector3( 0.0f, 1.0f, 0.0f) },
-		{ Vector3(-1.0f*fScale, 1.0f*fScale, 1.0f*fScale), Vector2(1.0f, 1.0f),Vector3( 0.0f, 1.0f, 0.0f) },
+		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 1.0f, 0.0f) },  // 윗면이라 y전부 +1
+		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 1.0f, 0.0f) },
+		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 1.0f, 0.0f) },
+		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 1.0f, 0.0f) },
 					
-		{ Vector3(-1.0f*fScale,-1.0f*fScale,-1.0f*fScale), Vector2(0.0f, 0.0f),Vector3( 0.0f,-1.0f, 0.0f) },  // 아랫면이라 y전부 -1
-		{ Vector3( 1.0f*fScale,-1.0f*fScale,-1.0f*fScale), Vector2(1.0f, 0.0f),Vector3( 0.0f,-1.0f, 0.0f) },
-		{ Vector3( 1.0f*fScale,-1.0f*fScale, 1.0f*fScale), Vector2(1.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
-		{ Vector3(-1.0f*fScale,-1.0f*fScale, 1.0f*fScale), Vector2(0.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
+		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f,-1.0f, 0.0f) },  // 아랫면이라 y전부 -1
+		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f,-1.0f, 0.0f) },
+		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
+		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
 					 
-		{ Vector3(-1.0f*fScale,-1.0f*fScale, 1.0f*fScale), Vector2(0.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f) },	// 왼쪽면 이라 x전부 -1
-		{ Vector3(-1.0f*fScale,-1.0f*fScale,-1.0f*fScale), Vector2(1.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f) },
-		{ Vector3(-1.0f*fScale, 1.0f*fScale,-1.0f*fScale), Vector2(1.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f) },
-		{ Vector3(-1.0f*fScale, 1.0f*fScale, 1.0f*fScale), Vector2(0.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f) },
-								 			    
-		{ Vector3( 1.0f*fScale,-1.0f*fScale, 1.0f*fScale), Vector2(1.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f) },	// 오른쪽면 이라 x전부 +1
-		{ Vector3( 1.0f*fScale,-1.0f*fScale,-1.0f*fScale), Vector2(0.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f) },
-		{ Vector3( 1.0f*fScale, 1.0f*fScale,-1.0f*fScale), Vector2(0.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
-		{ Vector3( 1.0f*fScale, 1.0f*fScale, 1.0f*fScale), Vector2(1.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
-								    
-		{ Vector3(-1.0f*fScale,-1.0f*fScale,-1.0f*fScale), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f) },  // 앞면이라 z전부 -1
-		{ Vector3( 1.0f*fScale,-1.0f*fScale,-1.0f*fScale), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f) },
-		{ Vector3( 1.0f*fScale, 1.0f*fScale,-1.0f*fScale), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
-		{ Vector3(-1.0f*fScale, 1.0f*fScale,-1.0f*fScale), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
-							 			    
-		{ Vector3(-1.0f*fScale,-1.0f*fScale, 1.0f*fScale), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },	//뒷면이라 z전부 +1
-		{ Vector3( 1.0f*fScale,-1.0f*fScale, 1.0f*fScale), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },
-		{ Vector3( 1.0f*fScale, 1.0f*fScale, 1.0f*fScale), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f, 1.0f) },
-		{ Vector3(-1.0f*fScale, 1.0f*fScale, 1.0f*fScale), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f, 1.0f) },
+		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f) },	// 왼쪽면 이라 x전부 -1
+		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f) },
+		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f) },
+		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f) },
+						 	    
+		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f) },	// 오른쪽면 이라 x전부 +1
+		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f) },
+		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
+		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
+						    
+		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f) },  // 앞면이라 z전부 -1
+		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f) },
+		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
+		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
+							    
+		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },	//뒷면이라 z전부 +1
+		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },
+		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f, 1.0f) },
+		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f, 1.0f) },
 	};
 
 	D3D11_BUFFER_DESC bd = {};

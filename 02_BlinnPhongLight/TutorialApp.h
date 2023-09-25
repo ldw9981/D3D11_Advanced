@@ -87,7 +87,7 @@ public:
 
 	Vector3 m_ClearColor ={ 0.0f, 0.0f, 0.0f};
 	Vector2 m_Rotation = Vector2(0.0f, 0.0f);	
-	Vector3 m_CameraPos = Vector3(0.0f, 0.0f, -50.0f);
+	Vector3 m_CameraPos = Vector3(0.0f, 0.0f, -100.0f);
 
 	CB_Transform m_Transform;
 	CB_Marterial m_Material;
