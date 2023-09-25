@@ -20,18 +20,29 @@ cbuffer DirectionLight : register(b1)
     float3 EyePosition;
 }
 
+cbuffer Material : register(b2)
+{
+    float3 Ambient;
+    float dummy0;
+    float3 Diffuse;
+    float dummy1;
+    float3 Specular;
+    float SpecularPower;
+}
+
 
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
 {
-    float4 Pos : POSITION;    
-    float2 Tex : TEXCOORD0;
-    float3 Nor : NORMAL0;
+    float4 PosModel : POSITION;    
+    float2 TexCoord : TEXCOORD0;
+    float3 NorModel : NORMAL;
 };
 
 struct PS_INPUT
 {
-    float4 Pos : SV_POSITION;   
-    float2 Tex : TEXCOORD0;
-    float3 Nor : TEXCOORD1;
+    float4 PosProj : SV_POSITION;   
+    float3 PosWorld : POSITION;
+    float2 TexCoord : TEXCOORD0;
+    float3 NorWorld : NORMAL;
 };

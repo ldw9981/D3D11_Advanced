@@ -10,6 +10,7 @@
 #pragma comment (lib, "d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
 
+float fScale = 100.0f;
 
 
 TutorialApp::TutorialApp(HINSTANCE hInstance)
@@ -47,7 +48,7 @@ void TutorialApp::Update()
 
 	float t = GameTimer::m_Instance->TotalTime();
 
-	m_World = Matrix::CreateFromYawPitchRoll(Vector3(XMConvertToRadians(m_Rotation.x), XMConvertToRadians(m_Rotation.y),0));
+	m_World =  Matrix::CreateFromYawPitchRoll(Vector3(XMConvertToRadians(m_Rotation.x), XMConvertToRadians(m_Rotation.y),0));
 	
 	m_View = XMMatrixLookToLH(m_CameraPos, Vector3(0, 0, 1), Vector3(0, 1, 0));
 
@@ -73,6 +74,7 @@ void TutorialApp::Render()
 	m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pCBTransform);
 	m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pCBDirectionLight);
+	m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pCBMaterial);
 	m_pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
@@ -84,6 +86,7 @@ void TutorialApp::Render()
 	m_Transform.mProjection = XMMatrixTranspose(m_Projection);
 	m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &m_Transform, 0, 0);
 	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &m_Light, 0, 0);
+	m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_Material, 0, 0);
 
 	m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
@@ -97,15 +100,16 @@ void TutorialApp::Render()
 
 	{
 		ImGui::Begin("Properties");            
-		ImGui::Text("Cube");
-		ImGui::SliderFloat2("Rotation",(float*)&m_Rotation, 0, 90);	
 
-		ImGui::Text("Direction Light");
-		ImGui::SliderFloat3("Direction", (float*)&m_Light.Direction, -1.0f, 1.0f);
-		ImGui::ColorEdit3("Color", (float*)&m_Light.Color);
+		ImGui::SliderFloat2("Cube Rotation",(float*)&m_Rotation, 0, 90);	
 
-		ImGui::Text("Camera");
-		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -10.0f, 10.0f);
+		ImGui::SliderFloat3("LightDirection", (float*)&m_Light.Direction, -1.0f, 1.0f);
+		ImGui::ColorEdit3("LightColor", (float*)&m_Light.Color);
+
+		ImGui::SliderFloat3("Camera Position", (float*)&m_CameraPos, -1000.0f, 1000.0f);
+
+
+		ImGui::SliderFloat("SpecularPower", (float*)&m_Material.SpecularPower,2.0f, 4096.0f);
 
 //		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 //			m_counter++;
@@ -219,35 +223,35 @@ bool TutorialApp::InitScene()
 	// Local or Object or Model Space
 	Vertex vertices[] =
 	{
-		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 1.0f, 0.0f) },  // 윗면이라 y전부 +1
-		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 1.0f, 0.0f) },
-		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 1.0f, 0.0f) },
-		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 1.0f, 0.0f) },
-
-		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f,-1.0f, 0.0f) },  // 아랫면이라 y전부 -1
-		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f,-1.0f, 0.0f) },
-		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
-		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
-
-		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f) },	// 왼쪽면 이라 x전부 -1
-		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f) },
-		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f) },
-		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f) },
-														 			    
-		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f) },	// 오른쪽면 이라 x전부 +1
-		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f) },
-		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
-		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
-														 			    
-		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f) },  // 앞면이라 z전부 -1
-		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f) },
-		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
-		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
-														 			    
-		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },	//뒷면이라 z전부 +1
-		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },
-		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f, 1.0f) },
-		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f, 1.0f) },
+		{ Vector3(-1.0f*fScale, 1.0f*fScale,-1.0f*fScale), Vector2(1.0f, 0.0f),Vector3( 0.0f, 1.0f, 0.0f) },  // 윗면이라 y전부 +1
+		{ Vector3( 1.0f*fScale, 1.0f*fScale,-1.0f*fScale), Vector2(0.0f, 0.0f),Vector3( 0.0f, 1.0f, 0.0f) },
+		{ Vector3( 1.0f*fScale, 1.0f*fScale, 1.0f*fScale), Vector2(0.0f, 1.0f),Vector3( 0.0f, 1.0f, 0.0f) },
+		{ Vector3(-1.0f*fScale, 1.0f*fScale, 1.0f*fScale), Vector2(1.0f, 1.0f),Vector3( 0.0f, 1.0f, 0.0f) },
+					
+		{ Vector3(-1.0f*fScale,-1.0f*fScale,-1.0f*fScale), Vector2(0.0f, 0.0f),Vector3( 0.0f,-1.0f, 0.0f) },  // 아랫면이라 y전부 -1
+		{ Vector3( 1.0f*fScale,-1.0f*fScale,-1.0f*fScale), Vector2(1.0f, 0.0f),Vector3( 0.0f,-1.0f, 0.0f) },
+		{ Vector3( 1.0f*fScale,-1.0f*fScale, 1.0f*fScale), Vector2(1.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
+		{ Vector3(-1.0f*fScale,-1.0f*fScale, 1.0f*fScale), Vector2(0.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
+					 
+		{ Vector3(-1.0f*fScale,-1.0f*fScale, 1.0f*fScale), Vector2(0.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f) },	// 왼쪽면 이라 x전부 -1
+		{ Vector3(-1.0f*fScale,-1.0f*fScale,-1.0f*fScale), Vector2(1.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f) },
+		{ Vector3(-1.0f*fScale, 1.0f*fScale,-1.0f*fScale), Vector2(1.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f) },
+		{ Vector3(-1.0f*fScale, 1.0f*fScale, 1.0f*fScale), Vector2(0.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f) },
+								 			    
+		{ Vector3( 1.0f*fScale,-1.0f*fScale, 1.0f*fScale), Vector2(1.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f) },	// 오른쪽면 이라 x전부 +1
+		{ Vector3( 1.0f*fScale,-1.0f*fScale,-1.0f*fScale), Vector2(0.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f) },
+		{ Vector3( 1.0f*fScale, 1.0f*fScale,-1.0f*fScale), Vector2(0.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
+		{ Vector3( 1.0f*fScale, 1.0f*fScale, 1.0f*fScale), Vector2(1.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
+								    
+		{ Vector3(-1.0f*fScale,-1.0f*fScale,-1.0f*fScale), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f) },  // 앞면이라 z전부 -1
+		{ Vector3( 1.0f*fScale,-1.0f*fScale,-1.0f*fScale), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f) },
+		{ Vector3( 1.0f*fScale, 1.0f*fScale,-1.0f*fScale), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
+		{ Vector3(-1.0f*fScale, 1.0f*fScale,-1.0f*fScale), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
+							 			    
+		{ Vector3(-1.0f*fScale,-1.0f*fScale, 1.0f*fScale), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },	//뒷면이라 z전부 +1
+		{ Vector3( 1.0f*fScale,-1.0f*fScale, 1.0f*fScale), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },
+		{ Vector3( 1.0f*fScale, 1.0f*fScale, 1.0f*fScale), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f, 1.0f) },
+		{ Vector3(-1.0f*fScale, 1.0f*fScale, 1.0f*fScale), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f, 1.0f) },
 	};
 
 	D3D11_BUFFER_DESC bd = {};
@@ -330,6 +334,12 @@ bool TutorialApp::InitScene()
 	bd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBDirectionLight));
 
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(CB_Marterial);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBMaterial));
+
 
 	// Load the Texture
 	HR_T( CreateDDSTextureFromFile(m_pDevice, L"seafloor.dds", nullptr, &m_pTextureRV));
@@ -351,14 +361,14 @@ bool TutorialApp::InitScene()
 
 
 	// Initialize the view matrix
-	XMVECTOR Eye = XMVectorSet(0.0f, 0.0f, -10.0f, 0.0f);
+	XMVECTOR Eye = XMVectorSet(0.0f, 0.0f, -1000.0f, 0.0f);
 	XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	m_View = XMMatrixLookAtLH(Eye, At, Up);
 
 	// Initialize the projection matrix
-	m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 100.0f);
+	m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 10000.0f);
 
 
 	m_Light.Direction = { 0.0f, 0.0f, 1.0f };
@@ -368,6 +378,7 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {
+	SAFE_RELEASE(m_pCBMaterial);
 	SAFE_RELEASE(m_pCBTransform);
 	SAFE_RELEASE(m_pCBDirectionLight);
 

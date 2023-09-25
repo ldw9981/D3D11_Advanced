@@ -6,10 +6,14 @@
 PS_INPUT main(VS_INPUT input)
 {
     PS_INPUT output = (PS_INPUT) 0;
-    output.Pos = mul(input.Pos, World);
-    output.Pos = mul(output.Pos, View);
-    output.Pos = mul(output.Pos, Projection);
-    output.Tex = input.Tex;
-    output.Nor = mul(input.Nor, (float3x3) World);
+    float4 pos = input.PosModel;
+    pos = mul(pos, World);
+    output.PosWorld = pos.xyz;
+    
+    pos = mul(pos, View);
+    pos = mul(pos, Projection);  
+    output.PosProj = pos;    
+    output.TexCoord = input.TexCoord;    
+    output.NorWorld = mul(input.NorModel, (float3x3) World);
     return output;
 }

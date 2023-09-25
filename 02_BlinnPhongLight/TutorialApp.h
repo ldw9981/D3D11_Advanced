@@ -36,10 +36,12 @@ struct CB_DirectionLight
 
 struct CB_Marterial
 {
-	Vector4 Ambient;
-	Vector4 Diffuse;
-	Vector4 Specular;
-	Vector4 Emissive;
+	Vector3 Ambient;
+	float dummy0;
+	Vector3 Diffuse;
+	float dummy1;
+	Vector3 Specular;
+	float  SpecularPower=4096;
 };
 
 class TutorialApp :
@@ -66,6 +68,7 @@ public:
 	ID3D11ShaderResourceView* m_pTextureRV = nullptr;	// 텍스처 리소스 뷰.
 	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 상태.
 
+	ID3D11Buffer* m_pCBMaterial = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBTransform = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBDirectionLight = nullptr;		// 상수 버퍼: 방향광
 	ID3D11Buffer* m_pCBRotation = nullptr;				// 상수 버퍼: 회전
@@ -84,7 +87,7 @@ public:
 
 	Vector3 m_ClearColor ={ 0.0f, 0.0f, 0.0f};
 	Vector2 m_Rotation = Vector2(0.0f, 0.0f);	
-	Vector3 m_CameraPos = Vector3(0.0f, 0.0f, -10.0f);
+	Vector3 m_CameraPos = Vector3(0.0f, 0.0f, -50.0f);
 
 	CB_Transform m_Transform;
 	CB_Marterial m_Material;
