@@ -31,8 +31,11 @@ struct CB_DirectionLight
 	Vector3 Color;
 	float pad1;
 	Vector3 EyePosition;
-	float pad2;
+	bool UseBlinnPhong=false;
 };
+
+static_assert((sizeof(CB_DirectionLight) % 16) == 0,
+	"Constant Buffer size must be 16-byte aligned");
 
 struct CB_Marterial
 {

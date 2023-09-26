@@ -14,18 +14,19 @@ cbuffer Transform : register(b0)
 cbuffer DirectionLight : register(b1)
 {
     float3 LightDirection;
-    float pad0;
+    float DL_pad0;
     float3 LightColor;
-    float pad1;
+    float DL_pad1;
     float3 EyePosition;
+    bool useBlinnPhong;
 }
 
 cbuffer Material : register(b2)
 {
     float3 Ambient;
-    float dummy0;
+    float M_pad0;
     float3 Diffuse;
-    float dummy1;
+    float M_pad1;
     float3 Specular;
     float SpecularPower;
 }

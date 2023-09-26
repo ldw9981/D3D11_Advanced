@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
+#include <vector>
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
@@ -282,7 +283,13 @@ bool TutorialApp::InitScene()
 
 	// 2. Render() 에서 파이프라인에 바인딩할 InputLayout 생성 	
 	ID3D10Blob* vertexShaderBuffer = nullptr;
-	HR_T(CompileShaderFromFile(L"BasicVertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
+	hr = CompileShaderFromFile(L"01_LambertLight_VS.hlsl", "main", "vs_4_0", &vertexShaderBuffer);
+	if (FAILED(hr))
+	{
+		hr = D3DReadFileToBlob(L"01_LambertLight_VS.cso", &vertexShaderBuffer);
+	}
+	HR_T(hr);
+
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -323,13 +330,19 @@ bool TutorialApp::InitScene()
 	HR_T(m_pDevice->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
 
 
-	// 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성
+	// 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성	
 	ID3D10Blob* pixelShaderBuffer = nullptr;
-	HR_T(CompileShaderFromFile(L"BasicPixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
+	hr = CompileShaderFromFile(L"01_LambertLight_PS.hlsl", "main", "ps_4_0", &pixelShaderBuffer);
+	if (FAILED(hr))
+	{
+		hr = D3DReadFileToBlob(L"01_LambertLight_PS.cso", &pixelShaderBuffer);
+	}
+	HR_T(hr);
+
 	HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
 		pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
 	SAFE_RELEASE(pixelShaderBuffer);
-
+	
 
 	// 6. Render() 에서 파이프라인에 바인딩할 상수 버퍼 생성
 	// Create the constant buffer
