@@ -47,7 +47,7 @@ void TutorialApp::Update()
 
 	float t = GameTimer::m_Instance->TotalTime();
 
-	m_World =  Matrix::CreateScale(10.0f) * Matrix::CreateFromYawPitchRoll(Vector3(XMConvertToRadians(m_Rotation.x), XMConvertToRadians(m_Rotation.y),0));
+	m_World =  Matrix::CreateScale(m_MeshScale) * Matrix::CreateFromYawPitchRoll(Vector3(XMConvertToRadians(m_Rotation.x), XMConvertToRadians(m_Rotation.y),0));
 	
 	m_View = XMMatrixLookToLH(m_CameraPos, Vector3(0, 0, 1), Vector3(0, 1, 0));
 
@@ -98,24 +98,28 @@ void TutorialApp::Render()
 	ImGui::NewFrame();
 
 	{
-		ImGui::Begin("Properties");            
+		ImGui::Begin("Properties");
+		ImGui::Text("Cube");            
+		ImGui::SliderFloat("Scale", (float*)&m_MeshScale, 10, 1000);
+		ImGui::SliderFloat2("Rotation",(float*)&m_Rotation, 0, 90);	
 
-		ImGui::SliderFloat2("Cube Rotation",(float*)&m_Rotation, 0, 90);	
-
+		ImGui::Text("Light");
 		ImGui::SliderFloat3("LightDirection", (float*)&m_Light.Direction, -1.0f, 1.0f);
-		ImGui::ColorEdit3("LightColor", (float*)&m_Light.Color);
+		ImGui::ColorEdit4("LightAmbient", (float*)&m_Light.Ambient);
+		ImGui::ColorEdit4("LightDiffuse", (float*)&m_Light.Diffuse);
+		ImGui::ColorEdit4("LightSpecular", (float*)&m_Light.Specular);
 
-		ImGui::SliderFloat3("Camera Position", (float*)&m_CameraPos, -1000.0f, 1000.0f);
+		ImGui::Text("Material");
+		ImGui::ColorEdit4("MaterialAmbient", (float*)&m_Material.Ambient);
+		ImGui::ColorEdit4("MaterialDiffuse", (float*)&m_Material.Diffuse);
+		ImGui::ColorEdit4("MaterialSpecular", (float*)&m_Material.Specular);
+		ImGui::SliderFloat("MaterialSpecularPower", (float*)&m_Material.SpecularPower, 2.0f, 4096.0f);
 
+		ImGui::Text("Camera");
+		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -5000.0f, 5000.0f);
 
-		ImGui::SliderFloat("SpecularPower", (float*)&m_Material.SpecularPower,2.0f, 4096.0f);
-
-//		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-//			m_counter++;
-//		ImGui::SameLine();
-//		ImGui::Text("counter = %d", m_counter);	
-
-		ImGui::ColorEdit3("clear color", (float*)&m_ClearColor); // Edit 3 floats representing a color	
+		ImGui::Text("BackBuffer");
+		ImGui::ColorEdit4("clear color", (float*)&m_ClearColor); // Edit 3 floats representing a color	
 		ImGui::End();
 	}
 	ImGui::Render();
@@ -270,7 +274,7 @@ bool TutorialApp::InitScene()
 
 	// 2. Render() 에서 파이프라인에 바인딩할 InputLayout 생성 	
 	ID3D10Blob* vertexShaderBuffer = nullptr;
-	HR_T(CompileShaderFromFile(L"BasicVertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
+	HR_T(CompileShaderFromFile(L"02_BlinnPhong_VS.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -313,7 +317,7 @@ bool TutorialApp::InitScene()
 
 	// 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성
 	ID3D10Blob* pixelShaderBuffer = nullptr;
-	HR_T(CompileShaderFromFile(L"BasicPixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
+	HR_T(CompileShaderFromFile(L"02_BlinnPhong_PS.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
 	HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
 		pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
 	SAFE_RELEASE(pixelShaderBuffer);
@@ -371,7 +375,7 @@ bool TutorialApp::InitScene()
 
 
 	m_Light.Direction = { 0.0f, 0.0f, 1.0f };
-	m_Light.Color = { 0.7f, 0.7f, 0.7f };
+	m_Light.Diffuse = { 1.0f, 1.0f, 1.0f,1.0f };
 	return true;
 }
 

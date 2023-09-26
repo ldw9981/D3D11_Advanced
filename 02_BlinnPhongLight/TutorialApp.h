@@ -28,8 +28,9 @@ struct CB_DirectionLight
 {
 	Vector3 Direction;
 	float pad0;
-	Vector3 Color;
-	float pad1;
+	Vector4 Ambient=	{ 0.1f,0.1f,0.1f,0.1f};
+	Vector4 Diffuse =	{ 1.0f,1.0f,1.0f,1.0f };
+	Vector4 Specular =	{ 1.0f,1.0f,1.0f,1.0f };
 	Vector3 EyePosition;
 	bool UseBlinnPhong=false;
 };
@@ -39,12 +40,11 @@ static_assert((sizeof(CB_DirectionLight) % 16) == 0,
 
 struct CB_Marterial
 {
-	Vector3 Ambient;
-	float dummy0;
-	Vector3 Diffuse;
-	float dummy1;
-	Vector3 Specular;
-	float  SpecularPower=4096;
+	Vector4 Ambient = { 1.0f,1.0f,1.0f,1.0f };
+	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
+	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
+	float  SpecularPower=512;
+	Vector3 dummy;
 };
 
 class TutorialApp :
@@ -85,16 +85,15 @@ public:
 	Matrix	m_World;				// 월드좌표계 공간으로 변환을 위한 행렬.
 	Matrix  m_View;					// 뷰좌표계 공간으로 변환을 위한 행렬.
 	Matrix  m_Projection;			// 단위장치좌표계( Normalized Device Coordinate) 공간으로 변환을 위한 행렬.
-	Vector4	m_vMeshColor = {0.7f, 0.7f, 0.7f, 1.0f};
-
 
 	Vector3 m_ClearColor ={ 0.0f, 0.0f, 0.0f};
 	Vector2 m_Rotation = Vector2(0.0f, 0.0f);	
-	Vector3 m_CameraPos = Vector3(0.0f, 0.0f, -100.0f);
+	Vector3 m_CameraPos = Vector3(0.0f, 0.0f, -1000.0f);
 
 	CB_Transform m_Transform;
 	CB_Marterial m_Material;
 	CB_DirectionLight m_Light;
+	float m_MeshScale=100.0f;
 
 	virtual bool Initialize(UINT Width, UINT Height);
 	virtual void Update();
