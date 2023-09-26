@@ -384,9 +384,6 @@ bool TutorialApp::InitScene()
 	// Initialize the projection matrix
 	m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 10000.0f);
 
-
-	m_Light.Direction = { 0.0f, 0.0f, 1.0f };
-	m_Light.Diffuse = { 1.0f, 1.0f, 1.0f,1.0f };
 	return true;
 }
 
