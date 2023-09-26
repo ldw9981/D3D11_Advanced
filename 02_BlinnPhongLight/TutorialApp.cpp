@@ -274,7 +274,12 @@ bool TutorialApp::InitScene()
 
 	// 2. Render() 에서 파이프라인에 바인딩할 InputLayout 생성 	
 	ID3D10Blob* vertexShaderBuffer = nullptr;
-	HR_T(CompileShaderFromFile(L"02_BlinnPhong_VS.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
+	hr = CompileShaderFromFile(L"02_BlinnPhong_VS.hlsl", "main", "vs_4_0", &vertexShaderBuffer);
+	if (FAILED(hr))
+	{
+		hr = D3DReadFileToBlob(L"02_BlinnPhong_VS.cso", &vertexShaderBuffer);
+	}
+	HR_T(hr);
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -317,7 +322,13 @@ bool TutorialApp::InitScene()
 
 	// 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성
 	ID3D10Blob* pixelShaderBuffer = nullptr;
-	HR_T(CompileShaderFromFile(L"02_BlinnPhong_PS.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
+	hr = CompileShaderFromFile(L"02_BlinnPhong_PS.hlsl", "main", "ps_4_0", &pixelShaderBuffer);
+	if (FAILED(hr))
+	{
+		hr = D3DReadFileToBlob(L"02_BlinnPhong_PS.cso", &pixelShaderBuffer);
+	}
+	HR_T(hr);
+
 	HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
 		pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
 	SAFE_RELEASE(pixelShaderBuffer);
