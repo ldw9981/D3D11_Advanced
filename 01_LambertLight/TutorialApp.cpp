@@ -30,8 +30,7 @@ struct CB_DirectionLight
 {
 	Vector3 Direction;
 	float pad0;
-	Vector3 Color;
-	float pad1;
+	Vector4 Color;
 };
 
 TutorialApp::TutorialApp(HINSTANCE hInstance)
@@ -75,7 +74,7 @@ void TutorialApp::Update()
 void TutorialApp::Render()
 {
 	// Clear the back buffer
-	const float clear_color_with_alpha[4] = { m_ClearColor.x , m_ClearColor.y , m_ClearColor.z, 1.0f};
+	const float clear_color_with_alpha[4] = { m_ClearColor.x , m_ClearColor.y , m_ClearColor.z, m_ClearColor.w};
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, clear_color_with_alpha);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
@@ -125,14 +124,10 @@ void TutorialApp::Render()
 
 		ImGui::Text("Direction Light");
 		ImGui::SliderFloat3("Direction", (float*)&m_vLightDirection, -1.0f, 1.0f);
-		ImGui::ColorEdit3("Color", (float*)&m_vLightColor);
+		ImGui::ColorEdit4("Color", (float*)&m_vLightColor);
 
-//		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-//			m_counter++;
-//		ImGui::SameLine();
-//		ImGui::Text("counter = %d", m_counter);	
-
-		ImGui::ColorEdit3("clear color", (float*)&m_ClearColor); // Edit 3 floats representing a color	
+		ImGui::Text("BackBuffer");
+		ImGui::ColorEdit4("clear color", (float*)&m_ClearColor); // Edit 3 floats representing a color	
 		ImGui::End();
 	}
 	ImGui::Render();

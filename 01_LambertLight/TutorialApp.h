@@ -47,9 +47,9 @@ public:
 	Matrix  m_Projection;			// 단위장치좌표계( Normalized Device Coordinate) 공간으로 변환을 위한 행렬.
 	Vector4	m_vMeshColor = {0.7f, 0.7f, 0.7f, 1.0f};
 	Vector3	m_vLightDirection = { 0.0f, 0.0f, 1.0f };
-	Vector3	m_vLightColor = { 0.7f, 0.7f, 0.7f };
+	Vector4	m_vLightColor = { 1.0f, 1.0f, 1.0f,1.0f };
 
-	Vector3 m_ClearColor ={ 0.0f, 0.0f, 0.0f};
+	Vector4 m_ClearColor ={ 0.0f, 0.0f, 0.0f,0.0f};
 	Vector2 m_Rotation = Vector2(0.0f, 0.0f);
 
 	virtual bool Initialize(UINT Width, UINT Height);

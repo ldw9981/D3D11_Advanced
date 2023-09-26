@@ -15,8 +15,7 @@ cbuffer DirectionLight : register(b1)
 {
     float3 LightDirection;
     float pad0;
-    float3 LightColor;
-    float pad1;
+    float4 LightColor;
 }
 
 
