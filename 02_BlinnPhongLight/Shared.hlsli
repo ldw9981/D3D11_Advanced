@@ -19,7 +19,7 @@ cbuffer DirectionLight : register(b1)
     float4 LightDiffuse;
     float4 LightSpecular;
     float3 EyePosition;
-    bool useBlinnPhong;
+    bool UseBlinnPhong;
 
 }
 

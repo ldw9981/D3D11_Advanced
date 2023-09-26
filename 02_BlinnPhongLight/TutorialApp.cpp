@@ -104,6 +104,7 @@ void TutorialApp::Render()
 		ImGui::SliderFloat2("Rotation",(float*)&m_Rotation, 0, 90);	
 
 		ImGui::Text("Light");
+		ImGui::Checkbox("UseBlinnPhong", &m_Light.UseBlinnPhong);
 		ImGui::SliderFloat3("LightDirection", (float*)&m_Light.Direction, -1.0f, 1.0f);
 		ImGui::ColorEdit4("LightAmbient", (float*)&m_Light.Ambient);
 		ImGui::ColorEdit4("LightDiffuse", (float*)&m_Light.Diffuse);
@@ -116,7 +117,7 @@ void TutorialApp::Render()
 		ImGui::SliderFloat("MaterialSpecularPower", (float*)&m_Material.SpecularPower, 2.0f, 4096.0f);
 
 		ImGui::Text("Camera");
-		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -5000.0f, 5000.0f);
+		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -10000.0f, 10000.0f);
 
 		ImGui::Text("BackBuffer");
 		ImGui::ColorEdit4("clear color", (float*)&m_ClearColor); // Edit 3 floats representing a color	
@@ -382,7 +383,7 @@ bool TutorialApp::InitScene()
 	m_View = XMMatrixLookAtLH(Eye, At, Up);
 
 	// Initialize the projection matrix
-	m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 10000.0f);
+	m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 20000.0f);
 
 	return true;
 }
