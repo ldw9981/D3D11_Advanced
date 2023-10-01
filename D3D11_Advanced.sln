@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_LambertLight", "01_Lambe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02_BlinnPhongLight", "02_BlinnPhongLight\02_BlinnPhongLight.vcxproj", "{438C9ADD-E6D4-4EEE-BE1A-CB4080096E39}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03_NormalMapping", "03_NormalMapping\03_NormalMapping.vcxproj", "{DC7EC492-1338-45FF-BB02-ED3A0072E045}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -81,6 +83,14 @@ Global
 		{438C9ADD-E6D4-4EEE-BE1A-CB4080096E39}.Release|x64.Build.0 = Release|x64
 		{438C9ADD-E6D4-4EEE-BE1A-CB4080096E39}.Release|x86.ActiveCfg = Release|Win32
 		{438C9ADD-E6D4-4EEE-BE1A-CB4080096E39}.Release|x86.Build.0 = Release|Win32
+		{DC7EC492-1338-45FF-BB02-ED3A0072E045}.Debug|x64.ActiveCfg = Debug|x64
+		{DC7EC492-1338-45FF-BB02-ED3A0072E045}.Debug|x64.Build.0 = Debug|x64
+		{DC7EC492-1338-45FF-BB02-ED3A0072E045}.Debug|x86.ActiveCfg = Debug|Win32
+		{DC7EC492-1338-45FF-BB02-ED3A0072E045}.Debug|x86.Build.0 = Debug|Win32
+		{DC7EC492-1338-45FF-BB02-ED3A0072E045}.Release|x64.ActiveCfg = Release|x64
+		{DC7EC492-1338-45FF-BB02-ED3A0072E045}.Release|x64.Build.0 = Release|x64
+		{DC7EC492-1338-45FF-BB02-ED3A0072E045}.Release|x86.ActiveCfg = Release|Win32
+		{DC7EC492-1338-45FF-BB02-ED3A0072E045}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

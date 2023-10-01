@@ -107,9 +107,7 @@ inline void HR_T(HRESULT hr)
 //--------------------------------------------------------------------------------------
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 
-
-
-
+HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11ShaderResourceView** textureView);
 
 	inline std::vector<uint8_t> ReadData(_In_z_ const wchar_t* name)
 	{
