@@ -33,7 +33,7 @@ struct CB_DirectionLight
 	Vector4 Diffuse =	{ 1.0f,1.0f,1.0f,1.0f };
 	Vector4 Specular =	{ 1.0f,1.0f,1.0f,1.0f };
 	Vector3 EyePosition;
-	bool UseBlinnPhong=false;
+	bool UseNormalMap=true;
 };
 
 static_assert((sizeof(CB_DirectionLight) % 16) == 0,
@@ -44,7 +44,7 @@ struct CB_Marterial
 	Vector4 Ambient = { 1.0f,1.0f,1.0f,1.0f };
 	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
 	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
-	float  SpecularPower=2000;
+	float  SpecularPower=80;
 	Vector3 dummy;
 };
 
@@ -88,12 +88,12 @@ public:
 
 	Vector3 m_ClearColor ={ 0.0f, 0.0f, 0.0f};
 	Vector2 m_Rotation = Vector2(0.0f, 0.0f);	
-	Vector3 m_CameraPos = Vector3(0.0f, 0.0f, -1000.0f);
+	Vector3 m_CameraPos = Vector3(0.0f, 0.0f, -200.0f);
 
 	CB_Transform m_Transform;
 	CB_Marterial m_Material;
 	CB_DirectionLight m_Light;
-	float m_MeshScale=100.0f;
+	float m_MeshScale=50.0f;
 
 	virtual bool Initialize(UINT Width, UINT Height);
 	virtual void Update();

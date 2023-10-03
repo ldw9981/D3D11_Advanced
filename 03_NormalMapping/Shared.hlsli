@@ -2,6 +2,8 @@
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
 Texture2D txDiffuse : register(t0);
+Texture2D txNormal : register(t1);
+
 SamplerState samLinear : register(s0);
 
 cbuffer Transform : register(b0)
@@ -19,8 +21,7 @@ cbuffer DirectionLight : register(b1)
     float4 LightDiffuse;
     float4 LightSpecular;
     float3 EyePosition;
-    bool UseBlinnPhong;
-
+    bool UseNormalMap;
 }
 
 cbuffer Material : register(b2)
@@ -36,15 +37,17 @@ cbuffer Material : register(b2)
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
 {
-    float4 PosModel : POSITION;    
+    float4 PositionModel : POSITION;    
     float2 TexCoord : TEXCOORD0;
-    float3 NorModel : NORMAL;
+    float3 NormalModel : NORMAL;
+    float3 TangentModel : TANGENT;
 };
 
 struct PS_INPUT
 {
-    float4 PosProj : SV_POSITION;   
-    float3 PosWorld : POSITION;
+    float4 PositionProj : SV_POSITION;   
+    float3 PositionWorld : POSITION;
     float2 TexCoord : TEXCOORD0;
-    float3 NorWorld : NORMAL;
+    float3 NormalWorld : NORMAL;
+    float3 TangentWorld : TANGENT;
 };

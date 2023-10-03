@@ -75,6 +75,7 @@ void TutorialApp::Render()
 	m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pCBDirectionLight);
 	m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pCBMaterial);
 	m_pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
+	m_pDeviceContext->PSSetShaderResources(1, 1, &m_pNormalRV);
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
 	//
@@ -84,6 +85,8 @@ void TutorialApp::Render()
 	m_Transform.mView = XMMatrixTranspose(m_View);
 	m_Transform.mProjection = XMMatrixTranspose(m_Projection);
 	m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &m_Transform, 0, 0);
+
+	m_Light.Direction.Normalize();
 	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &m_Light, 0, 0);
 	m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_Material, 0, 0);
 
@@ -99,12 +102,14 @@ void TutorialApp::Render()
 
 	{
 		ImGui::Begin("Properties");
+
+		ImGui::Checkbox("UseNormalMap", &m_Light.UseNormalMap);
+
 		ImGui::Text("Cube");            
 		ImGui::SliderFloat("Scale", (float*)&m_MeshScale, 10, 1000);
-		ImGui::SliderFloat2("Rotation",(float*)&m_Rotation, 0, 90);	
+		ImGui::SliderFloat2("Rotation",(float*)&m_Rotation, -90, 90);	
 
 		ImGui::Text("Light");
-		ImGui::Checkbox("UseBlinnPhong", &m_Light.UseBlinnPhong);
 		ImGui::SliderFloat3("LightDirection", (float*)&m_Light.Direction, -1.0f, 1.0f);
 		ImGui::ColorEdit4("LightAmbient", (float*)&m_Light.Ambient);
 		ImGui::ColorEdit4("LightDiffuse", (float*)&m_Light.Diffuse);
@@ -247,10 +252,10 @@ bool TutorialApp::InitScene()
 		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
 		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
 						    
-		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f) },  // 앞면이라 z전부 -1
-		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f) },
-		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
-		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
+		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f),Vector3(1.0f, 0.0f, 0.0f) },  // 앞면이라 z전부 -1
+		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f),Vector3(1.0f, 0.0f, 0.0f) },
+		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f),Vector3(1.0f, 0.0f, 0.0f) },
+		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f),Vector3(1.0f, 0.0f, 0.0f) },
 							    
 		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },	//뒷면이라 z전부 +1
 		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },

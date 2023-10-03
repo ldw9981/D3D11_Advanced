@@ -62,3 +62,23 @@ HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName
 	}
 	return S_OK;
 }
+
+
+DirectX::SimpleMath::Vector3 CalculateTangent(Vector3 v0, Vector3 v1, Vector3 v2, Vector2 tex0, Vector2 tex1, Vector2 tex2)
+{
+	Vector3 e0 = v1 - v0;
+	Vector3 e1 = v2 - v0;
+	Vector2 deltaUV1 = tex1 - tex0;
+	Vector2 deltaUV2 = tex2 - tex0;
+	
+	float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+	Vector3 tangent;
+	tangent.x = f * (deltaUV2.y * e0.x - deltaUV1.y * e1.x);
+	tangent.y = f * (deltaUV2.y * e0.y - deltaUV1.y * e1.y);
+	tangent.z = f * (deltaUV2.y * e0.z - deltaUV1.y * e1.z);
+
+	tangent.Normalize();
+
+	return tangent;
+}

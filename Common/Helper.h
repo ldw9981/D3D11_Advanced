@@ -10,6 +10,8 @@
 #include <stdexcept>
 #include <system_error>
 #include <vector>
+#include <directxtk/SimpleMath.h>
+using namespace DirectX::SimpleMath;
 
 #define LOG_ERROR(...) \
 { \
@@ -108,6 +110,8 @@ inline void HR_T(HRESULT hr)
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 
 HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11ShaderResourceView** textureView);
+
+Vector3 CalculateTangent(Vector3 v1,Vector3 v2,Vector3 v3,Vector2 tex1, Vector2 tex2, Vector2 tex3);
 
 	inline std::vector<uint8_t> ReadData(_In_z_ const wchar_t* name)
 	{
