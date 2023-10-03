@@ -27,7 +27,7 @@ struct CB_Transform
 
 struct CB_DirectionLight
 {
-	Vector3 Direction = { 0.0f, 0.0f, 1.0f };
+	Vector3 Direction = { 0.5f, 0.0f, 0.8f };
 	float pad0;
 	Vector4 Ambient=	{ 0.1f,0.1f,0.1f,0.1f};
 	Vector4 Diffuse =	{ 1.0f,1.0f,1.0f,1.0f };
