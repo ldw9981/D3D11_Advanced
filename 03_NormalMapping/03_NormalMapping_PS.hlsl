@@ -13,8 +13,7 @@ float4 main(PS_INPUT input) : SV_Target
     {
         float3 vNormalTangentSpace = txNormal.Sample(samLinear, input.TexCoord).rgb * 2.0f - 1.0f;
         float3x3 WorldTransform = float3x3(vTangent, vBiTanget, vNormal);
-        vNormal = mul(vNormalTangentSpace, WorldTransform);  //아래와 같은 결과
-        //vNormal = (vNormalTangentSpace.x * vTangent) + (vNormalTangentSpace.y * vBiTanget) + (vNormalTangentSpace.z * vNormal);
+        vNormal = mul(vNormalTangentSpace, WorldTransform); 
         vNormal = normalize(vNormal);
     }
     
