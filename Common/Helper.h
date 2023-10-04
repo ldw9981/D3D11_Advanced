@@ -96,7 +96,7 @@ private:
 inline void HR_T(HRESULT hr)
 {
 	if (FAILED(hr))
-	{
+	{		
 		throw com_exception(hr);
 	}
 }
