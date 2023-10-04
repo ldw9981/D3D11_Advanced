@@ -365,9 +365,9 @@ bool TutorialApp::InitScene()
 
 
 	// Load the Texture
-	HR_T( CreateTextureFromFile(m_pDevice, L"../Resource/Bricks059_1k-JPG_Color.jpg", &m_pDiffuseRV));
-	HR_T( CreateTextureFromFile(m_pDevice, L"../Resource/Bricks059_1k-JPG_NormalDX.jpg", &m_pNormalRV));
-	HR_T (CreateTextureFromFile(m_pDevice, L"../Resource/Bricks059_Specular.png", &m_pSpecularRV));
+	HR_T( CreateTextureFromFile(m_pDevice, L"Bricks059_1k-JPG_Color.jpg", &m_pDiffuseRV));
+	HR_T( CreateTextureFromFile(m_pDevice, L"Bricks059_1k-JPG_NormalDX.jpg", &m_pNormalRV));
+	HR_T (CreateTextureFromFile(m_pDevice, L"Bricks059_Specular.png", &m_pSpecularRV));
 
 	// Create the sample state
 	D3D11_SAMPLER_DESC sampDesc = {};

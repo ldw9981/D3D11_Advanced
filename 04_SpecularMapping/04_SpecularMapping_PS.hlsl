@@ -17,13 +17,15 @@ float4 main(PS_INPUT input) : SV_Target
         vNormal = normalize(vNormal);
     }
     
+    float4 fTxDiffuse = txDiffuse.Sample(samLinear, input.TexCoord);
     float fNDotL = max(dot(vNormal, -LightDirection), 0);
     float3 vView = normalize(EyePosition - input.PositionWorld.xyz);    
     float4 Ambient = LightAmbient * MaterialAmbient;
-    float4 fTxDiffuse = txDiffuse.Sample(samLinear, input.TexCoord);
+   
     float4 Diffuse = LightDiffuse * MaterialDiffuse * fNDotL;
     if (UseDiffuseMap)
     {
+        Ambient *= fTxDiffuse;
         Diffuse *= fTxDiffuse;
     }
     // ºí¸°Æþ
