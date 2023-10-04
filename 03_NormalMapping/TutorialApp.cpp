@@ -242,15 +242,15 @@ bool TutorialApp::InitScene()
 		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
 		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
 					 
-		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f) },	// 왼쪽면 이라 x전부 -1
-		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f) },
-		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f) },
-		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f) },
+		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },	// 왼쪽면 이라 x전부 -1
+		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
+		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
+		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
 						 	    
-		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f) },	// 오른쪽면 이라 x전부 +1
-		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f) },
-		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
-		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f) },
+		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f),Vector3(0.0f, 0.0f, 1.0f) },	// 오른쪽면 이라 x전부 +1
+		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f),Vector3(0.0f, 0.0f, 1.0f) },
+		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f),Vector3(0.0f, 0.0f, 1.0f) },
+		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f),Vector3(0.0f, 0.0f, 1.0f) },
 						    
 		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f),Vector3(1.0f, 0.0f, 0.0f) },  // 앞면이라 z전부 -1
 		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f),Vector3(1.0f, 0.0f, 0.0f) },
