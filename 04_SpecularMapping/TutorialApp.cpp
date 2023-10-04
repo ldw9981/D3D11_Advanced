@@ -115,7 +115,6 @@ void TutorialApp::Render()
 		ImGui::ColorEdit4("LightSpecular", (float*)&m_Light.Specular);
 
 		ImGui::Text("Material");
-		ImGui::Checkbox("UseDiffuseMap", &m_Material.UseDiffuseMap);
 		ImGui::Checkbox("UseNormalMap", &m_Material.UseNormalMap);
 		ImGui::Checkbox("UseSpecularMap", &m_Material.UseSpecularMap);
 		ImGui::ColorEdit4("MaterialAmbient", (float*)&m_Material.Ambient);

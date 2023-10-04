@@ -44,12 +44,11 @@ struct CB_Marterial
 	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
 	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
 	float  SpecularPower = 80;
-	bool UseDiffuseMap = true;
-	bool pad0[3];
 	bool UseNormalMap = true;
 	bool pad1[3];
 	bool UseSpecularMap = true;
 	bool pad2[3];
+	float pad0;
 };
 
 
