@@ -84,6 +84,7 @@ void TutorialApp::Render()
 	m_Transform.mView = XMMatrixTranspose(m_View);
 	m_Transform.mProjection = XMMatrixTranspose(m_Projection);
 	m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &m_Transform, 0, 0);
+	m_Light.Direction.Normalize();
 	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &m_Light, 0, 0);
 	m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_Material, 0, 0);
 

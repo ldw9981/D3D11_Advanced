@@ -32,7 +32,7 @@ struct CB_DirectionLight
 	Vector4 Diffuse =	{ 1.0f,1.0f,1.0f,1.0f };
 	Vector4 Specular =	{ 1.0f,1.0f,1.0f,1.0f };
 	Vector3 EyePosition;
-	bool UseBlinnPhong=false;
+	bool UseBlinnPhong=true;
 };
 
 static_assert((sizeof(CB_DirectionLight) % 16) == 0,

@@ -103,6 +103,7 @@ void TutorialApp::Render()
 	m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &cb1, 0, 0);
 
 	CB_DirectionLight cb2 = {};
+	m_vLightDirection.Normalize();
 	cb2.Direction = m_vLightDirection;
 	cb2.Color = m_vLightColor;
 	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &cb2, 0, 0);
