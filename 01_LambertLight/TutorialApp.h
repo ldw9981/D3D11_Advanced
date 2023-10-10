@@ -34,9 +34,6 @@ public:
 
 	ID3D11Buffer* m_pCBTransform = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBDirectionLight = nullptr;		// 상수 버퍼: 방향광
-	ID3D11Buffer* m_pCBRotation = nullptr;				// 상수 버퍼: 회전
-
-
 
 	// 렌더링 파이프라인에 적용하는 정보
 	UINT m_VertexBufferStride = 0;						// 버텍스 하나의 크기.

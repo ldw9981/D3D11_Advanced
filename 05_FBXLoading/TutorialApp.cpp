@@ -66,12 +66,15 @@ void TutorialApp::Render()
 	const float clear_color_with_alpha[4] = { m_ClearColor.x , m_ClearColor.y , m_ClearColor.z, 1.0f};
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, clear_color_with_alpha);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertexBufferStride, &m_VertexBufferOffset);
 	m_pDeviceContext->IASetInputLayout(m_pInputLayout);
-	m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+	
+	m_pDeviceContext->IASetVertexBuffers(0, 1,&m_MeshCube.m_pVertexBuffer, &m_MeshCube.m_VertexBufferStride, &m_MeshCube.m_VertexBufferOffset);
+	m_pDeviceContext->IASetIndexBuffer(m_MeshCube.m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+	//m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertexBufferStride, &m_VertexBufferOffset);
+	//m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
 	m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
 	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pCBTransform);
 	m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pCBDirectionLight);
@@ -95,8 +98,24 @@ void TutorialApp::Render()
 	m_Light.Direction.Normalize();
 	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &m_Light, 0, 0);
 	m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_Material, 0, 0);
+	//m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
-	m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
+
+	//m_pDeviceContext->DrawIndexed(m_MeshCube.m_IndexCount, 0, 0);
+
+	
+	for (size_t i = 0; i < 10; i++)
+	{
+		if(m_Meshes[i].m_VertexCount == 0)
+			continue;
+
+		m_pDeviceContext->IASetIndexBuffer(m_Meshes[i].m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+		m_pDeviceContext->IASetVertexBuffers(0, 1,&m_Meshes[i].m_pVertexBuffer, &m_Meshes[i].m_VertexBufferStride, &m_Meshes[i].m_VertexBufferOffset);
+		m_pDeviceContext->DrawIndexed(m_Meshes[i].m_IndexCount, 0, 0);
+	}
+	
+	
+
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -110,8 +129,8 @@ void TutorialApp::Render()
 		ImGui::Begin("Properties");
 
 		ImGui::Text("Cube");            
-		ImGui::SliderFloat("Scale", (float*)&m_MeshScale, 10, 1000);
-		ImGui::SliderFloat2("Rotation",(float*)&m_Rotation, -90, 90);	
+		ImGui::SliderFloat("Scale", (float*)&m_MeshScale,1,100);
+		ImGui::SliderFloat2("Rotation",(float*)&m_Rotation, -180, 180);	
 
 		ImGui::Text("Light");
 		ImGui::SliderFloat3("LightDirection", (float*)&m_Light.Direction, -1.0f, 1.0f);
@@ -277,19 +296,22 @@ bool TutorialApp::InitScene()
 
 	D3D11_SUBRESOURCE_DATA vbData = {};
 	vbData.pSysMem = vertices;
-	HR_T( m_pDevice->CreateBuffer(&bd, &vbData, &m_pVertexBuffer));	
+	HR_T(m_pDevice->CreateBuffer(&bd, &vbData, &m_pVertexBuffer));
 
 	// 버텍스 버퍼 정보
 	m_VertexBufferStride = sizeof(Vertex);
 	m_VertexBufferOffset = 0;
 
 
+	m_MeshCube.CreateVertexBuffer(m_pDevice,vertices, ARRAYSIZE(vertices));
+
+
 	// 2. Render() 에서 파이프라인에 바인딩할 InputLayout 생성 	
 	ID3D10Blob* vertexShaderBuffer = nullptr;
-	hr = CompileShaderFromFile(L"04_SpecularMapping_VS.hlsl", "main", "vs_4_0", &vertexShaderBuffer);
+	hr = CompileShaderFromFile(L"05_FBXLoading_VS.hlsl", "main", "vs_4_0", &vertexShaderBuffer);
 	if (FAILED(hr))
 	{
-		hr = D3DReadFileToBlob(L"04_SpecularMapping_VS.cso", &vertexShaderBuffer);
+		hr = D3DReadFileToBlob(L"05_FBXLoading_VS.cso", &vertexShaderBuffer);
 	}
 	HR_T(hr);
 
@@ -331,14 +353,16 @@ bool TutorialApp::InitScene()
 	D3D11_SUBRESOURCE_DATA ibData = {};
 	ibData.pSysMem = indices;
 	HR_T(m_pDevice->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
+	
+	m_MeshCube.CreateIndexBuffer(m_pDevice, indices, ARRAYSIZE(indices));
 
 
 	// 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성
 	ID3D10Blob* pixelShaderBuffer = nullptr;
-	hr = CompileShaderFromFile(L"04_SpecularMapping_PS.hlsl", "main", "ps_4_0", &pixelShaderBuffer);
+	hr = CompileShaderFromFile(L"05_FBXLoading_PS.hlsl", "main", "ps_4_0", &pixelShaderBuffer);
 	if (FAILED(hr))
 	{
-		hr = D3DReadFileToBlob(L"04_SpecularMapping_PS.cso", &pixelShaderBuffer);
+		hr = D3DReadFileToBlob(L"05_FBXLoading_PS.cso", &pixelShaderBuffer);
 	}
 	HR_T(hr);
 
@@ -349,6 +373,7 @@ bool TutorialApp::InitScene()
 
 	// 6. Render() 에서 파이프라인에 바인딩할 상수 버퍼 생성
 	// Create the constant buffer
+	bd = {};
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(CB_Transform);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -369,9 +394,9 @@ bool TutorialApp::InitScene()
 
 
 	// Load the Texture
-//	HR_T( CreateTextureFromFile(m_pDevice, L"Bricks059_1k-JPG_Color.jpg", &m_pDiffuseRV));
-//	HR_T( CreateTextureFromFile(m_pDevice, L"Bricks059_1k-JPG_NormalDX.jpg", &m_pNormalRV));
-//	HR_T (CreateTextureFromFile(m_pDevice, L"Bricks059_Specular.png", &m_pSpecularRV));
+	HR_T( CreateTextureFromFile(m_pDevice, L"../Resource/zelda_diff.png", &m_pDiffuseRV));
+	HR_T( CreateTextureFromFile(m_pDevice, L"../Resource/Bricks059_1k-JPG_NormalDX.jpg", &m_pNormalRV));
+	//HR_T (CreateTextureFromFile(m_pDevice, L"../Resource/Bricks059_Specular.png", &m_pSpecularRV));
 
 	// Create the sample state
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -401,10 +426,9 @@ bool TutorialApp::InitScene()
 
 	// FBX Loading
 	Assimp::Importer importer;
-	unsigned int importFlags = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | 
-		aiProcess_GenUVCoords | aiProcess_MakeLeftHanded | aiProcess_CalcTangentSpace;
-	//const aiScene* scene = importer.ReadFile("../Resource/zeldaPosed001.fbx", importFlags);
-	const aiScene* scene = importer.ReadFile("../Resource/CubeParent.fbx", importFlags);
+	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_ConvertToLeftHanded | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace;
+	const aiScene* scene = importer.ReadFile("../Resource/zeldaPosed001.fbx", importFlags);
+	
 	
 	if (!scene) {
 		LOG_ERRORA("Error loading FBX file: %s", importer.GetErrorString());
@@ -413,11 +437,11 @@ bool TutorialApp::InitScene()
 
 	// Now, you can access the loaded scene data, such as meshes and materials
 	// For example, you can iterate through the meshes in the scene like this:
-	for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
-		aiMesh* mesh = scene->mMeshes[i];
 
-		// Access mesh data here, e.g., vertices, normals, UVs, etc.
-		// You can access vertices using mesh->mVertices, normals using mesh->mNormals, etc.
+	
+
+	for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
+		m_Meshes[i].Create(m_pDevice, scene->mMeshes[i]);
 	}
 
 	importer.FreeScene();
@@ -433,11 +457,11 @@ void TutorialApp::UninitScene()
 	SAFE_RELEASE(m_pCBTransform);
 	SAFE_RELEASE(m_pCBDirectionLight);
 
-	SAFE_RELEASE(m_pVertexBuffer);
+
 	SAFE_RELEASE(m_pVertexShader);
 	SAFE_RELEASE(m_pPixelShader);
 	SAFE_RELEASE(m_pInputLayout);
-	SAFE_RELEASE(m_pIndexBuffer);
+
 	SAFE_RELEASE(m_pDepthStencilView);
 }
 bool TutorialApp::InitImGUI()

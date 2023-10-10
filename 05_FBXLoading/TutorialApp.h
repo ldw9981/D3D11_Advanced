@@ -1,22 +1,16 @@
 #pragma once
 #include <windows.h>
 #include "../Common/GameApp.h"
+#include "../Common/Mesh.h"
+
+
 #include <d3d11.h>
 #include <directxtk/SimpleMath.h>
-
+#include <vector>
+#include <memory>
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
-
-
-// 정점 선언.
-struct Vertex
-{
-	Vector3 Position;		// 정점 위치 정보.	
-	Vector2 TexCoord;
-	Vector3 Normal;
-	Vector3 Tangent;
-};
 
 struct CB_Transform
 {
@@ -82,7 +76,6 @@ public:
 	ID3D11Buffer* m_pCBMaterial = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBTransform = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBDirectionLight = nullptr;		// 상수 버퍼: 방향광
-	ID3D11Buffer* m_pCBRotation = nullptr;				// 상수 버퍼: 회전
 
 	// 렌더링 파이프라인에 적용하는 정보
 	UINT m_VertexBufferStride = 0;						// 버텍스 하나의 크기.
@@ -94,12 +87,15 @@ public:
 
 	Vector3 m_ClearColor ={ 0.0f, 0.0f, 0.0f};
 	Vector2 m_Rotation = Vector2(0.0f, 0.0f);	
-	Vector3 m_CameraPos = Vector3(0.0f, 0.0f, -200.0f);
+	Vector3 m_CameraPos = Vector3(0.0f, 200.0f, -1000.0f);
 
 	CB_Transform m_Transform;
 	CB_Marterial m_Material;
 	CB_DirectionLight m_Light;
-	float m_MeshScale=50.0f;
+	float m_MeshScale=1.0f;
+
+	Mesh m_MeshCube;
+	Mesh m_Meshes[10];
 
 	virtual bool Initialize(UINT Width, UINT Height);
 	virtual void Update();
