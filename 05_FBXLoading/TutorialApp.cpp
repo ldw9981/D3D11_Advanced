@@ -435,17 +435,18 @@ bool TutorialApp::InitScene()
 		LOG_ERRORA("Error loading FBX file: %s", importer.GetErrorString());
 		return false;
 	}
-
+	
+	m_Materials.resize(scene->mNumMaterials);
 	for (unsigned int i = 0; i < scene->mNumMaterials; ++i) 
 	{
 		m_Materials[i].Create(m_pDevice, scene->mMaterials[i]);
 	}
 
+	m_Meshes.resize(scene->mNumMeshes);
 	for (unsigned int i = 0; i < scene->mNumMeshes; ++i) 
 	{
 		m_Meshes[i].Create(m_pDevice, scene->mMeshes[i]);
 	}
-
 	importer.FreeScene();
 	return true;
 }

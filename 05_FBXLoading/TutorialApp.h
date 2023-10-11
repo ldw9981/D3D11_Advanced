@@ -89,8 +89,9 @@ public:
 	float m_MeshScale=1.0f;
 
 	Mesh m_MeshCube;
-	Mesh m_Meshes[10];
-	Material m_Materials[10];
+	
+	vector<Mesh> m_Meshes;	
+	vector<Material> m_Materials;
 
 	virtual bool Initialize(UINT Width, UINT Height);
 	virtual void Update();
