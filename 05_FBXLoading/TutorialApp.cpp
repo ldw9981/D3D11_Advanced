@@ -148,7 +148,7 @@ void TutorialApp::Render()
 		ImGui::SliderFloat("MaterialSpecularPower", (float*)&m_CBMaterial.SpecularPower, 2.0f, 4096.0f);
 
 		ImGui::Text("Camera");
-		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -10000.0f, 10000.0f);
+		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -1000.0f, 1000.0f);
 
 		ImGui::Text("BackBuffer");
 		ImGui::ColorEdit4("clear color", (float*)&m_ClearColor); // Edit 3 floats representing a color	
@@ -428,7 +428,7 @@ bool TutorialApp::InitScene()
 	// FBX Loading
 	Assimp::Importer importer;
 	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_ConvertToLeftHanded | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace;
-	const aiScene* scene = importer.ReadFile("../Resource/zeldaPosed001.fbx", importFlags);
+	const aiScene* scene = importer.ReadFile("../Resource/ZeldaPosed001.fbx", importFlags);
 	
 	
 	if (!scene) {
@@ -436,14 +436,15 @@ bool TutorialApp::InitScene()
 		return false;
 	}
 
-	for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
-		m_Meshes[i].Create(m_pDevice, scene->mMeshes[i]);
-	}
-
-	for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
+	for (unsigned int i = 0; i < scene->mNumMaterials; ++i) 
+	{
 		m_Materials[i].Create(m_pDevice, scene->mMaterials[i]);
 	}
 
+	for (unsigned int i = 0; i < scene->mNumMeshes; ++i) 
+	{
+		m_Meshes[i].Create(m_pDevice, scene->mMeshes[i]);
+	}
 
 	importer.FreeScene();
 	return true;

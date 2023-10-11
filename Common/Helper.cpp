@@ -82,3 +82,9 @@ DirectX::SimpleMath::Vector3 CalculateTangent(Vector3 v0, Vector3 v1, Vector3 v2
 
 	return tangent;
 }
+
+std::wstring ToWString(const std::string& s)
+{
+	std::wstring wsTmp(s.begin(), s.end());
+	return wsTmp;
+}

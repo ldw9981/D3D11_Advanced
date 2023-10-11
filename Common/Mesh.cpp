@@ -50,11 +50,10 @@ void Mesh::CreateIndexBuffer(ID3D11Device* device, WORD* indices, UINT indexCoun
 
 void Mesh::Create(ID3D11Device* device, aiMesh* mesh)
 {
+	m_MaterialIndex = mesh->mMaterialIndex;
+
 	// 버텍스 정보 생성
 	unique_ptr<Vertex[]> vertices(new Vertex[mesh->mNumVertices]);
-
-	
-
 	for (UINT i = 0; i < mesh->mNumVertices; ++i)
 	{
 		memcpy_s(&vertices[i].Position, sizeof(vertices[i].Position),&mesh->mVertices[i],sizeof(mesh->mVertices[i]));
@@ -75,6 +74,5 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh)
 	}
 
 	CreateIndexBuffer(device, indices.get(), mesh->mNumFaces * 3);
-
 }
 

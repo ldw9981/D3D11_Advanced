@@ -12,7 +12,11 @@
 #include <vector>
 #include <directxtk/SimpleMath.h>
 #include <stdio.h>
+#include <locale>
+#include <codecvt>
+
 using namespace DirectX::SimpleMath;
+using namespace std;
 
 #define LOG_ERROR(...) \
 { \
@@ -195,3 +199,6 @@ Vector3 CalculateTangent(Vector3 v1,Vector3 v2,Vector3 v3,Vector2 tex1, Vector2 
 
 		return blob;
 	}
+
+
+	std::wstring ToWString(const std::string& s);

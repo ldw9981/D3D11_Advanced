@@ -10,9 +10,11 @@
 // 여기에 미리 컴파일하려는 헤더 추가
 #include "framework.h"
 #include <windows.h>
-#include <d3d11.h>
-#include <directxtk/SimpleMath.h>
-#include <wrl/client.h>
 #include <vector>
-#include <memory>
+#include <DirectXMath.h>
+#include <wrl/client.h>
+#include <directxtk/SimpleMath.h>
+#include <d3d11.h>
+#include <string>
+#include <filesystem>
 #endif //PCH_H

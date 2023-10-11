@@ -43,4 +43,7 @@
     <FxCompile Include="05_FBXLoading_PS.hlsl" />
     <FxCompile Include="05_FBXLoading_VS.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
+  </ItemGroup>
 </Project>

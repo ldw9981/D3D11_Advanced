@@ -32,6 +32,6 @@ float4 main(PS_INPUT input) : SV_Target
         Specular *= txSpecular.Sample(samLinear, input.TexCoord);
     }
     
-    float4 FinalColor = fNDotL; //+Specular + Ambient;
+    float4 FinalColor = fNDotL + Ambient; //+Specular + 
     return FinalColor;
 }
