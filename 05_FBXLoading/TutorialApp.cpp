@@ -105,10 +105,13 @@ void TutorialApp::Render()
 	//m_pDeviceContext->DrawIndexed(m_MeshCube.m_IndexCount, 0, 0);
 
 	
-	for (size_t i = 0; i < 10; i++)
+	for (size_t i = 0; i < m_Meshes.size(); i++)
 	{
-		if(m_Meshes[i].m_VertexCount == 0)
-			continue;
+		size_t mi = m_Meshes[i].m_MaterialIndex;
+		
+		m_pDeviceContext->PSSetShaderResources(0, 1, &m_Materials[mi].m_pDiffuseRV);
+		m_pDeviceContext->PSSetShaderResources(1, 1, &m_Materials[mi].m_pNormalRV);
+		m_pDeviceContext->PSSetShaderResources(2, 1, &m_Materials[mi].m_pSpecularRV);
 
 		m_pDeviceContext->IASetIndexBuffer(m_Meshes[i].m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 		m_pDeviceContext->IASetVertexBuffers(0, 1,&m_Meshes[i].m_pVertexBuffer, &m_Meshes[i].m_VertexBufferStride, &m_Meshes[i].m_VertexBufferOffset);
@@ -394,11 +397,6 @@ bool TutorialApp::InitScene()
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBMaterial));
 
 
-	// Load the Texture
-	HR_T( CreateTextureFromFile(m_pDevice, L"../Resource/zelda_diff.png", &m_pDiffuseRV));
-	HR_T( CreateTextureFromFile(m_pDevice, L"../Resource/Bricks059_1k-JPG_NormalDX.jpg", &m_pNormalRV));
-	//HR_T (CreateTextureFromFile(m_pDevice, L"../Resource/Bricks059_Specular.png", &m_pSpecularRV));
-
 	// Create the sample state
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -428,8 +426,8 @@ bool TutorialApp::InitScene()
 	// FBX Loading
 	Assimp::Importer importer;
 	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_ConvertToLeftHanded | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace;
-	const aiScene* scene = importer.ReadFile("../Resource/ZeldaPosed001.fbx", importFlags);
-	
+	const aiScene* scene = importer.ReadFile("../Resource/Character.fbx", importFlags);
+	//const aiScene* scene = importer.ReadFile("../Resource/Tiger.fbx", importFlags);
 	
 	if (!scene) {
 		LOG_ERRORA("Error loading FBX file: %s", importer.GetErrorString());
@@ -453,9 +451,6 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {	
-	SAFE_RELEASE(m_pDiffuseRV);
-	SAFE_RELEASE(m_pNormalRV);
-
 	SAFE_RELEASE(m_pCBMaterial);
 	SAFE_RELEASE(m_pCBTransform);
 	SAFE_RELEASE(m_pCBDirectionLight);
