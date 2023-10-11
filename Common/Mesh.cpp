@@ -10,7 +10,8 @@ Mesh::Mesh()
 
 Mesh::~Mesh()
 {
-
+	SAFE_RELEASE(m_pVertexBuffer);
+	SAFE_RELEASE(m_pIndexBuffer);
 }
 
 void Mesh::CreateVertexBuffer(ID3D11Device* device, Vertex* vertices, UINT vertexCount)

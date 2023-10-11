@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "TutorialApp.h"
 
 #include "../Common/Helper.h"
@@ -97,7 +98,7 @@ void TutorialApp::Render()
 
 	m_Light.Direction.Normalize();
 	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &m_Light, 0, 0);
-	m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_Material, 0, 0);
+	m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_CBMaterial, 0, 0);
 	//m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
 
@@ -139,12 +140,12 @@ void TutorialApp::Render()
 		ImGui::ColorEdit4("LightSpecular", (float*)&m_Light.Specular);
 
 		ImGui::Text("Material");
-		ImGui::Checkbox("UseNormalMap", &m_Material.UseNormalMap);
-		ImGui::Checkbox("UseSpecularMap", &m_Material.UseSpecularMap);
-		ImGui::ColorEdit4("MaterialAmbient", (float*)&m_Material.Ambient);
-		ImGui::ColorEdit4("MaterialDiffuse", (float*)&m_Material.Diffuse);
-		ImGui::ColorEdit4("MaterialSpecular", (float*)&m_Material.Specular);
-		ImGui::SliderFloat("MaterialSpecularPower", (float*)&m_Material.SpecularPower, 2.0f, 4096.0f);
+		ImGui::Checkbox("UseNormalMap", &m_CBMaterial.UseNormalMap);
+		ImGui::Checkbox("UseSpecularMap", &m_CBMaterial.UseSpecularMap);
+		ImGui::ColorEdit4("MaterialAmbient", (float*)&m_CBMaterial.Ambient);
+		ImGui::ColorEdit4("MaterialDiffuse", (float*)&m_CBMaterial.Diffuse);
+		ImGui::ColorEdit4("MaterialSpecular", (float*)&m_CBMaterial.Specular);
+		ImGui::SliderFloat("MaterialSpecularPower", (float*)&m_CBMaterial.SpecularPower, 2.0f, 4096.0f);
 
 		ImGui::Text("Camera");
 		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -10000.0f, 10000.0f);
@@ -435,14 +436,14 @@ bool TutorialApp::InitScene()
 		return false;
 	}
 
-	// Now, you can access the loaded scene data, such as meshes and materials
-	// For example, you can iterate through the meshes in the scene like this:
-
-	
-
 	for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
 		m_Meshes[i].Create(m_pDevice, scene->mMeshes[i]);
 	}
+
+	for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
+		m_Materials[i].Create(m_pDevice, scene->mMaterials[i]);
+	}
+
 
 	importer.FreeScene();
 	return true;

@@ -1,14 +1,8 @@
 #pragma once
-#include <vector>
-#include <DirectXMath.h>
-#include <wrl/client.h>
-#include <directxtk/SimpleMath.h>
-#include <d3d11.h>
 
 using namespace Microsoft::WRL;
 using namespace DirectX::SimpleMath;
 using namespace std;
-
 
 // 정점 선언.
 struct Vertex

@@ -1,13 +1,7 @@
 #pragma once
-#include <windows.h>
 #include "../Common/GameApp.h"
 #include "../Common/Mesh.h"
-
-
-#include <d3d11.h>
-#include <directxtk/SimpleMath.h>
-#include <vector>
-#include <memory>
+#include "../Common/Material.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
@@ -90,12 +84,13 @@ public:
 	Vector3 m_CameraPos = Vector3(0.0f, 200.0f, -1000.0f);
 
 	CB_Transform m_Transform;
-	CB_Marterial m_Material;
+	CB_Marterial m_CBMaterial;
 	CB_DirectionLight m_Light;
 	float m_MeshScale=1.0f;
 
 	Mesh m_MeshCube;
 	Mesh m_Meshes[10];
+	Material m_Materials[10];
 
 	virtual bool Initialize(UINT Width, UINT Height);
 	virtual void Update();

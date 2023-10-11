@@ -1,5 +1,6 @@
 ﻿// 01_imgui.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
+#include "pch.h"
 #include "TutorialApp.h"
 
 
@@ -13,7 +14,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 
 	TutorialApp App(hInstance);  // 생성자에서 아이콘,윈도우 이름만 바꾼다
-	if (!App.Initialize(1920, 1280))
+	if (!App.Initialize(1280,960))
 		return -1;	
 
 	return App.Run();

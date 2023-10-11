@@ -88,7 +88,7 @@ public:
 	Vector3 m_CameraPos = Vector3(0.0f, 0.0f, -1000.0f);
 
 	CB_Transform m_Transform;
-	CB_Marterial m_Material;
+	CB_Marterial m_CBMaterial;
 	CB_DirectionLight m_Light;
 	float m_MeshScale=100.0f;
 
