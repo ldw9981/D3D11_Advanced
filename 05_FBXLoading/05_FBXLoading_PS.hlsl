@@ -24,7 +24,7 @@ float4 main(PS_INPUT input) : SV_Target
     float4 Diffuse = LightDiffuse * MaterialDiffuse * fNDotL;
     if (UseDiffuseMap)
     {
-        Diffuse = LightDiffuse * MaterialDiffuse * fTxDiffuse * fNDotL;
+        Diffuse *= fTxDiffuse;
     }
 
  
