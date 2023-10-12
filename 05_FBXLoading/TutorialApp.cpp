@@ -352,8 +352,7 @@ bool TutorialApp::InitScene()
 	Assimp::Importer importer;
 	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace |
 		aiProcess_ConvertToLeftHanded;
-		//aiProcess_FlipUVs |aiProcess_FlipWindingOrder ;
-	//const aiScene* scene = importer.ReadFile("../Resource/Monkey.fbx", importFlags);
+	
 	const aiScene* scene = importer.ReadFile("../Resource/Character.fbx", importFlags);
 	
 	if (!scene) {
