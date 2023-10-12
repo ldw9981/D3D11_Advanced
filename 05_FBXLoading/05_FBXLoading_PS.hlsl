@@ -37,6 +37,12 @@ float4 main(PS_INPUT input) : SV_Target
         Specular *= txSpecular.Sample(samLinear, input.TexCoord);
     }
     
-    float4 FinalColor = Diffuse + Ambient + Specular;
+    float4 Emissive = 0;
+    if (UseSpecularMap)
+    {
+        Emissive = txEmissive.Sample(samLinear, input.TexCoord);
+    }
+    
+    float4 FinalColor = Diffuse + Ambient + Specular + Emissive;
     return FinalColor;
 }

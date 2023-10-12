@@ -71,9 +71,6 @@ void TutorialApp::Render()
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_pDeviceContext->IASetInputLayout(m_pInputLayout);
-	
-	m_pDeviceContext->IASetVertexBuffers(0, 1,&m_MeshCube.m_pVertexBuffer, &m_MeshCube.m_VertexBufferStride, &m_MeshCube.m_VertexBufferOffset);
-	m_pDeviceContext->IASetIndexBuffer(m_MeshCube.m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
 
 	m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
@@ -106,10 +103,12 @@ void TutorialApp::Render()
 		m_pDeviceContext->PSSetShaderResources(0, 1, &m_Materials[mi].m_pDiffuseRV);
 		m_pDeviceContext->PSSetShaderResources(1, 1, &m_Materials[mi].m_pNormalRV);
 		m_pDeviceContext->PSSetShaderResources(2, 1, &m_Materials[mi].m_pSpecularRV);
+		m_pDeviceContext->PSSetShaderResources(3, 1, &m_Materials[mi].m_pEmissiveRV);
 
 		m_CBMaterial.UseDiffuseMap = m_Materials[mi].m_pDiffuseRV != nullptr ? true : false ;
 		m_CBMaterial.UseNormalMap = m_Materials[mi].m_pNormalRV != nullptr ? true : false;
 		m_CBMaterial.UseSpecularMap = m_Materials[mi].m_pSpecularRV != nullptr ? true : false;
+		m_CBMaterial.UseEmissiveMap = m_Materials[mi].m_pEmissiveRV != nullptr ? true : false;
 		
 		m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_CBMaterial, 0, 0);
 

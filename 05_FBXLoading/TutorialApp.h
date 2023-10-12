@@ -28,16 +28,19 @@ struct CB_DirectionLight
 
 struct CB_Marterial
 {
-	Vector4 Ambient = { 1.0f,1.0f,1.0f,1.0f };
-	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
-	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
-	float  SpecularPower = 80;
-	bool UseDiffuseMap = true;
-	bool pad1[3];
+	Vector4 Ambient = { 1.0f,1.0f,1.0f,1.0f };	// 16byte
+	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };	// 16byte
+	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };  // 16byte
+	float  SpecularPower = 80;					// 4byte
+	bool UseDiffuseMap = true;					
+	bool pad1[3];								
 	bool UseNormalMap = true;
-	bool pad2[3];
+	bool pad2[3];								
 	bool UseSpecularMap = true;
-	bool pad3[3];
+	bool pad3[3];								// 16byte				
+	bool UseEmissiveMap = true;			
+	bool pad4[3];								
+	Vector3 pad5;								// 16byte
 };
 
 
@@ -86,8 +89,7 @@ public:
 	CB_Marterial m_CBMaterial;
 	CB_DirectionLight m_Light;
 	float m_MeshScale=1.0f;
-
-	Mesh m_MeshCube;
+	
 	
 	vector<Mesh> m_Meshes;	
 	vector<Material> m_Materials;

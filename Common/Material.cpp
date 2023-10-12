@@ -16,6 +16,7 @@ Material::~Material()
 	SAFE_RELEASE(m_pDiffuseRV);
 	SAFE_RELEASE(m_pNormalRV);
 	SAFE_RELEASE(m_pSpecularRV);
+	SAFE_RELEASE(m_pEmissiveRV);
 }
 
 void Material::Create(ID3D11Device* device,aiMaterial* pMaterial)
@@ -45,5 +46,12 @@ void Material::Create(ID3D11Device* device,aiMaterial* pMaterial)
 		path = ToWString(string(texturePath.C_Str()));
 		finalPath = basePath + path.filename().wstring();
 		HR_T(CreateTextureFromFile(device, finalPath.c_str(), &m_pSpecularRV));
+	}
+
+	if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &texturePath))
+	{
+		path = ToWString(string(texturePath.C_Str()));
+		finalPath = basePath + path.filename().wstring();
+		HR_T(CreateTextureFromFile(device, finalPath.c_str(), &m_pEmissiveRV));
 	}
 }
