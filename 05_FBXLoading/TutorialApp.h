@@ -32,11 +32,12 @@ struct CB_Marterial
 	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
 	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
 	float  SpecularPower = 80;
-	bool UseNormalMap = true;
+	bool UseDiffuseMap = true;
 	bool pad1[3];
-	bool UseSpecularMap = true;
+	bool UseNormalMap = true;
 	bool pad2[3];
-	float pad0;
+	bool UseSpecularMap = true;
+	bool pad3[3];
 };
 
 
@@ -62,9 +63,7 @@ public:
 	ID3D11PixelShader* m_pPixelShader = nullptr;		// 픽셀 셰이더.
 	ID3D11PixelShader* m_pPixelShaderSolid = nullptr;	// 픽셀 셰이더.
 	ID3D11InputLayout* m_pInputLayout = nullptr;		// 입력 레이아웃.
-	ID3D11ShaderResourceView* m_pDiffuseRV = nullptr;	// 텍스처 리소스 뷰.
-	ID3D11ShaderResourceView* m_pNormalRV = nullptr;	// 노말맵 리소스 뷰.
-	ID3D11ShaderResourceView* m_pSpecularRV = nullptr;	// 스페큘러맵 리소스 뷰.
+
 	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 상태.
 
 	ID3D11Buffer* m_pCBMaterial = nullptr;				// 상수 버퍼: 변환행렬

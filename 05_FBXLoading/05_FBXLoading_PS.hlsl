@@ -21,7 +21,12 @@ float4 main(PS_INPUT input) : SV_Target
     float fNDotL = max(dot(vNormal, -LightDirection), 0);
     float3 vView = normalize(EyePosition - input.PositionWorld.xyz);    
     float4 Ambient = LightAmbient * MaterialAmbient * fTxDiffuse;   
-    float4 Diffuse = LightDiffuse * MaterialDiffuse * fTxDiffuse * fNDotL;
+    float4 Diffuse = LightDiffuse * MaterialDiffuse * fNDotL;
+    if (UseDiffuseMap)
+    {
+        Diffuse = LightDiffuse * MaterialDiffuse * fTxDiffuse * fNDotL;
+    }
+
  
     // ºí¸°Æþ
     float3 HalfVector = normalize(-LightDirection + vView);

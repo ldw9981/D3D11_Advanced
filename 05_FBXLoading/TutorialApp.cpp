@@ -26,6 +26,8 @@ TutorialApp::TutorialApp(HINSTANCE hInstance)
 
 TutorialApp::~TutorialApp()
 {
+	m_Meshes.clear();
+	m_Materials.clear();
 	UninitScene();	
 	UninitImGUI();
 	UninitD3D();
@@ -73,8 +75,6 @@ void TutorialApp::Render()
 	m_pDeviceContext->IASetVertexBuffers(0, 1,&m_MeshCube.m_pVertexBuffer, &m_MeshCube.m_VertexBufferStride, &m_MeshCube.m_VertexBufferOffset);
 	m_pDeviceContext->IASetIndexBuffer(m_MeshCube.m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
-	//m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertexBufferStride, &m_VertexBufferOffset);
-	//m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
 	m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
 	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pCBTransform);
@@ -83,9 +83,7 @@ void TutorialApp::Render()
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pCBTransform);
 	m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pCBDirectionLight);
 	m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pCBMaterial);
-	m_pDeviceContext->PSSetShaderResources(0, 1, &m_pDiffuseRV);
-	m_pDeviceContext->PSSetShaderResources(1, 1, &m_pNormalRV);
-	m_pDeviceContext->PSSetShaderResources(2, 1, &m_pSpecularRV);
+
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
 	//
@@ -98,12 +96,8 @@ void TutorialApp::Render()
 
 	m_Light.Direction.Normalize();
 	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &m_Light, 0, 0);
-	m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_CBMaterial, 0, 0);
-	//m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
-
-
-	//m_pDeviceContext->DrawIndexed(m_MeshCube.m_IndexCount, 0, 0);
-
+	
+	
 	
 	for (size_t i = 0; i < m_Meshes.size(); i++)
 	{
@@ -112,6 +106,12 @@ void TutorialApp::Render()
 		m_pDeviceContext->PSSetShaderResources(0, 1, &m_Materials[mi].m_pDiffuseRV);
 		m_pDeviceContext->PSSetShaderResources(1, 1, &m_Materials[mi].m_pNormalRV);
 		m_pDeviceContext->PSSetShaderResources(2, 1, &m_Materials[mi].m_pSpecularRV);
+
+		m_CBMaterial.UseDiffuseMap = m_Materials[mi].m_pDiffuseRV != nullptr ? true : false ;
+		m_CBMaterial.UseNormalMap = m_Materials[mi].m_pNormalRV != nullptr ? true : false;
+		m_CBMaterial.UseSpecularMap = m_Materials[mi].m_pSpecularRV != nullptr ? true : false;
+		
+		m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_CBMaterial, 0, 0);
 
 		m_pDeviceContext->IASetIndexBuffer(m_Meshes[i].m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 		m_pDeviceContext->IASetVertexBuffers(0, 1,&m_Meshes[i].m_pVertexBuffer, &m_Meshes[i].m_VertexBufferStride, &m_Meshes[i].m_VertexBufferOffset);
@@ -143,8 +143,6 @@ void TutorialApp::Render()
 		ImGui::ColorEdit4("LightSpecular", (float*)&m_Light.Specular);
 
 		ImGui::Text("Material");
-		ImGui::Checkbox("UseNormalMap", &m_CBMaterial.UseNormalMap);
-		ImGui::Checkbox("UseSpecularMap", &m_CBMaterial.UseSpecularMap);
 		ImGui::ColorEdit4("MaterialAmbient", (float*)&m_CBMaterial.Ambient);
 		ImGui::ColorEdit4("MaterialDiffuse", (float*)&m_CBMaterial.Diffuse);
 		ImGui::ColorEdit4("MaterialSpecular", (float*)&m_CBMaterial.Specular);
@@ -257,58 +255,9 @@ void TutorialApp::UninitD3D()
 bool TutorialApp::InitScene()
 {
 	HRESULT hr=0; // 결과값.
-	// 1. Render() 에서 파이프라인에 바인딩할 버텍스 버퍼및 버퍼 정보 준비
-	// Local or Object or Model Space,   Tanget가 비었다.
-	Vertex vertices[] =		
-	{
-		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 1.0f, 0.0f) },  // 윗면이라 y전부 +1
-		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 1.0f, 0.0f) },
-		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 1.0f, 0.0f) },
-		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 1.0f, 0.0f) },
-					
-		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f,-1.0f, 0.0f) },  // 아랫면이라 y전부 -1
-		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f,-1.0f, 0.0f) },
-		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
-		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f,-1.0f, 0.0f) },
-					 
-		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },	// 왼쪽면 이라 x전부 -1
-		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3(-1.0f, 0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
-		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
-		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f),Vector3(-1.0f, 0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f) },
-						 	    
-		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f),Vector3(0.0f, 0.0f, 1.0f) },	// 오른쪽면 이라 x전부 +1
-		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 1.0f, 0.0f, 0.0f),Vector3(0.0f, 0.0f, 1.0f) },
-		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f),Vector3(0.0f, 0.0f, 1.0f) },
-		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f),Vector3( 1.0f, 0.0f, 0.0f),Vector3(0.0f, 0.0f, 1.0f) },
-						    
-		{ Vector3(-1.0f,-1.0f,-1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f),Vector3(1.0f, 0.0f, 0.0f) },  // 앞면이라 z전부 -1
-		{ Vector3( 1.0f,-1.0f,-1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f,-1.0f),Vector3(1.0f, 0.0f, 0.0f) },
-		{ Vector3( 1.0f, 1.0f,-1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f),Vector3(1.0f, 0.0f, 0.0f) },
-		{ Vector3(-1.0f, 1.0f,-1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f,-1.0f),Vector3(1.0f, 0.0f, 0.0f) },
-							    
-		{ Vector3(-1.0f,-1.0f, 1.0f), Vector2(1.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },	//뒷면이라 z전부 +1
-		{ Vector3( 1.0f,-1.0f, 1.0f), Vector2(0.0f, 1.0f),Vector3( 0.0f, 0.0f, 1.0f) },
-		{ Vector3( 1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f),Vector3( 0.0f, 0.0f, 1.0f) },
-		{ Vector3(-1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f),Vector3( 0.0f, 0.0f, 1.0f) },
-	};
+	
 
-	D3D11_BUFFER_DESC bd = {};
-	bd.ByteWidth = sizeof(Vertex) * ARRAYSIZE(vertices);
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.CPUAccessFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA vbData = {};
-	vbData.pSysMem = vertices;
-	HR_T(m_pDevice->CreateBuffer(&bd, &vbData, &m_pVertexBuffer));
-
-	// 버텍스 버퍼 정보
-	m_VertexBufferStride = sizeof(Vertex);
-	m_VertexBufferOffset = 0;
-
-
-	m_MeshCube.CreateVertexBuffer(m_pDevice,vertices, ARRAYSIZE(vertices));
-
+	// 1. Render() 에서 파이프라인에 바인딩할 버텍스 버퍼및 버퍼 정보 준비	
 
 	// 2. Render() 에서 파이프라인에 바인딩할 InputLayout 생성 	
 	ID3D10Blob* vertexShaderBuffer = nullptr;
@@ -333,33 +282,7 @@ bool TutorialApp::InitScene()
 	HR_T(m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
 		vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader));
 	SAFE_RELEASE(vertexShaderBuffer);
-
-	// 4. Render() 에서 파이프라인에 바인딩할 인덱스 버퍼 생성
-	WORD indices[] =
-	{
-		3,1,0, 2,1,3,
-		6,4,5, 7,4,6,
-		11,9,8, 10,9,11,
-		14,12,13, 15,12,14,
-		19,17,16, 18,17,19,
-		22,20,21, 23,20,22
-	};
-
-	// 인덱스 개수 저장.
-	m_nIndices = ARRAYSIZE(indices);
-
-	bd = {};
-	bd.ByteWidth = sizeof(WORD) * ARRAYSIZE(indices);
-	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.CPUAccessFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA ibData = {};
-	ibData.pSysMem = indices;
-	HR_T(m_pDevice->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
 	
-	m_MeshCube.CreateIndexBuffer(m_pDevice, indices, ARRAYSIZE(indices));
-
 
 	// 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성
 	ID3D10Blob* pixelShaderBuffer = nullptr;
@@ -377,6 +300,7 @@ bool TutorialApp::InitScene()
 
 	// 6. Render() 에서 파이프라인에 바인딩할 상수 버퍼 생성
 	// Create the constant buffer
+	D3D11_BUFFER_DESC bd = {};
 	bd = {};
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(CB_Transform);
@@ -427,7 +351,7 @@ bool TutorialApp::InitScene()
 	Assimp::Importer importer;
 	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_ConvertToLeftHanded | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace;
 	const aiScene* scene = importer.ReadFile("../Resource/Character.fbx", importFlags);
-	//const aiScene* scene = importer.ReadFile("../Resource/Tiger.fbx", importFlags);
+	//const aiScene* scene = importer.ReadFile("../Resource/Wood_Tower.fbx", importFlags);
 	
 	if (!scene) {
 		LOG_ERRORA("Error loading FBX file: %s", importer.GetErrorString());

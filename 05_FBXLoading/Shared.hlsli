@@ -31,9 +31,9 @@ cbuffer Material : register(b2)
     float4 MaterialDiffuse;
     float4 MaterialSpecular;
     float MaterialSpecularPower;
+    bool UseDiffuseMap;
     bool UseNormalMap;
-    bool UseSpecularMap;
-    float MaterialPad0;
+    bool UseSpecularMap;    
 }
 
 
