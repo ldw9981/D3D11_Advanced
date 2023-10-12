@@ -149,7 +149,8 @@ void TutorialApp::Render()
 		ImGui::SliderFloat("MaterialSpecularPower", (float*)&m_CBMaterial.SpecularPower, 2.0f, 4096.0f);
 
 		ImGui::Text("Camera");
-		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -1000.0f, 1000.0f);
+		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -2000.0f, 2000.0f);
+		
 
 		ImGui::Text("BackBuffer");
 		ImGui::ColorEdit4("clear color", (float*)&m_ClearColor); // Edit 3 floats representing a color	
@@ -349,9 +350,11 @@ bool TutorialApp::InitScene()
 
 	// FBX Loading
 	Assimp::Importer importer;
-	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_ConvertToLeftHanded | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace;
+	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace |
+		aiProcess_ConvertToLeftHanded;
+		//aiProcess_FlipUVs |aiProcess_FlipWindingOrder ;
+	//const aiScene* scene = importer.ReadFile("../Resource/Monkey.fbx", importFlags);
 	const aiScene* scene = importer.ReadFile("../Resource/Character.fbx", importFlags);
-	//const aiScene* scene = importer.ReadFile("../Resource/Wood_Tower.fbx", importFlags);
 	
 	if (!scene) {
 		LOG_ERRORA("Error loading FBX file: %s", importer.GetErrorString());
