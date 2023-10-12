@@ -31,6 +31,7 @@ struct CB_Marterial
 	Vector4 Ambient = { 1.0f,1.0f,1.0f,1.0f };	// 16byte
 	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };	// 16byte
 	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };  // 16byte
+	Vector4 Emissive = { 1.0f,1.0f,1.0f,1.0f };  // 16byte
 	float  SpecularPower = 80;					// 4byte
 	bool UseDiffuseMap = true;					
 	bool pad1[3];								

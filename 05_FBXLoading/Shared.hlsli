@@ -31,6 +31,7 @@ cbuffer Material : register(b2)
     float4 MaterialAmbient;
     float4 MaterialDiffuse;
     float4 MaterialSpecular;
+    float4 MaterialEmissive;
     float MaterialSpecularPower;
     bool UseDiffuseMap;
     bool UseNormalMap;

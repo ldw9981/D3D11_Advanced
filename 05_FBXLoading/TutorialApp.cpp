@@ -145,6 +145,7 @@ void TutorialApp::Render()
 		ImGui::ColorEdit4("MaterialAmbient", (float*)&m_CBMaterial.Ambient);
 		ImGui::ColorEdit4("MaterialDiffuse", (float*)&m_CBMaterial.Diffuse);
 		ImGui::ColorEdit4("MaterialSpecular", (float*)&m_CBMaterial.Specular);
+		ImGui::ColorEdit4("MaterialEmissive", (float*)&m_CBMaterial.Emissive);
 		ImGui::SliderFloat("MaterialSpecularPower", (float*)&m_CBMaterial.SpecularPower, 2.0f, 4096.0f);
 
 		ImGui::Text("Camera");
