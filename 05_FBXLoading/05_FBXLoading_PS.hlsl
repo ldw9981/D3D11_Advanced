@@ -8,6 +8,7 @@ float4 main(PS_INPUT input) : SV_Target
     float3 vNormal = normalize(input.NormalWorld);
     float3 vTangent = normalize(input.TangentWorld);
     float3 vBiTanget = cross(vNormal, vTangent);
+    float Opacity = 1.0f;
     
     if (UseNormalMap)
     {
@@ -24,7 +25,7 @@ float4 main(PS_INPUT input) : SV_Target
     float4 Diffuse = LightDiffuse * MaterialDiffuse * fNDotL;
     if (UseDiffuseMap)
     {
-        Diffuse *= fTxDiffuse;
+        Diffuse *= fTxDiffuse; 
     }
 
  
@@ -43,6 +44,11 @@ float4 main(PS_INPUT input) : SV_Target
         Emissive = txEmissive.Sample(samLinear, input.TexCoord) * MaterialEmissive;
     }
     
+    if (UseOpacityMap)
+    {
+        Opacity = txOpacity.Sample(samLinear, input.TexCoord).a;
+    }    
+    
     float4 FinalColor = Diffuse + Ambient + Specular + Emissive;
-    return FinalColor;
+    return float4(FinalColor.rgb,Opacity);
 }

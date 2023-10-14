@@ -32,16 +32,18 @@ struct CB_Marterial
 	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };	// 16byte
 	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };  // 16byte
 	Vector4 Emissive = { 1.0f,1.0f,1.0f,1.0f };  // 16byte
-	float  SpecularPower = 80;					// 4byte
+	float  SpecularPower = 80;					// 4
 	bool UseDiffuseMap = true;					
-	bool pad1[3];								
+	bool pad1[3];								// 8
 	bool UseNormalMap = true;
-	bool pad2[3];								
+	bool pad2[3];								// 12
 	bool UseSpecularMap = true;
 	bool pad3[3];								// 16byte				
 	bool UseEmissiveMap = true;			
-	bool pad4[3];								
-	Vector3 pad5;								// 16byte
+	bool pad4[3];								// 4
+	bool UseOpacityMap = true;
+	bool pad5[3];								// 8
+	Vector2 pad6;								// 16byte
 };
 
 
@@ -67,9 +69,8 @@ public:
 	ID3D11PixelShader* m_pPixelShader = nullptr;		// 픽셀 셰이더.
 	ID3D11PixelShader* m_pPixelShaderSolid = nullptr;	// 픽셀 셰이더.
 	ID3D11InputLayout* m_pInputLayout = nullptr;		// 입력 레이아웃.
-
 	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 상태.
-
+	ID3D11BlendState* m_AlphaBlendState = nullptr;		// 블렌드 상태 변경 (반투명처리를위한 블렌드상태)
 	ID3D11Buffer* m_pCBMaterial = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBTransform = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBDirectionLight = nullptr;		// 상수 버퍼: 방향광

@@ -104,14 +104,20 @@ void TutorialApp::Render()
 		m_pDeviceContext->PSSetShaderResources(1, 1, &m_Materials[mi].m_pNormalRV);
 		m_pDeviceContext->PSSetShaderResources(2, 1, &m_Materials[mi].m_pSpecularRV);
 		m_pDeviceContext->PSSetShaderResources(3, 1, &m_Materials[mi].m_pEmissiveRV);
+		m_pDeviceContext->PSSetShaderResources(4, 1, &m_Materials[mi].m_pOpacityRV);
 
 		m_CBMaterial.UseDiffuseMap = m_Materials[mi].m_pDiffuseRV != nullptr ? true : false ;
 		m_CBMaterial.UseNormalMap = m_Materials[mi].m_pNormalRV != nullptr ? true : false;
 		m_CBMaterial.UseSpecularMap = m_Materials[mi].m_pSpecularRV != nullptr ? true : false;
 		m_CBMaterial.UseEmissiveMap = m_Materials[mi].m_pEmissiveRV != nullptr ? true : false;
-		
-		m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_CBMaterial, 0, 0);
+		m_CBMaterial.UseOpacityMap = m_Materials[mi].m_pOpacityRV != nullptr ? true : false;
 
+		if(m_CBMaterial.UseOpacityMap)
+			m_pDeviceContext->OMSetBlendState(m_AlphaBlendState, nullptr, 0xffffffff);
+		else
+			m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+
+		m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_CBMaterial, 0, 0);
 		m_pDeviceContext->IASetIndexBuffer(m_Meshes[i].m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 		m_pDeviceContext->IASetVertexBuffers(0, 1,&m_Meshes[i].m_pVertexBuffer, &m_Meshes[i].m_VertexBufferStride, &m_Meshes[i].m_VertexBufferOffset);
 		m_pDeviceContext->DrawIndexed(m_Meshes[i].m_IndexCount, 0, 0);
@@ -235,6 +241,25 @@ bool TutorialApp::InitD3D()
 	SAFE_RELEASE(textureDepthStencil);
 
 	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+
+	
+	//7. 투명처리를 위한 블렌드 상태 생성
+	D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.AlphaToCoverageEnable = false; // <- 주의: FALSE
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+		D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	HR_T(m_pDevice->CreateBlendState(&blendDesc, &m_AlphaBlendState));
+
+
 	return true;
 }
 
@@ -353,13 +378,13 @@ bool TutorialApp::InitScene()
 	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace |
 		aiProcess_ConvertToLeftHanded;
 	
-	const aiScene* scene = importer.ReadFile("../Resource/Character.fbx", importFlags);
+	const aiScene* scene = importer.ReadFile("../Resource/ZeldaPosed001.fbx", importFlags);
 	
 	if (!scene) {
 		LOG_ERRORA("Error loading FBX file: %s", importer.GetErrorString());
 		return false;
 	}
-	
+
 	m_Materials.resize(scene->mNumMaterials);
 	for (unsigned int i = 0; i < scene->mNumMaterials; ++i) 
 	{

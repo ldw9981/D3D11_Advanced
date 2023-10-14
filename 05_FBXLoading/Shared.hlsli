@@ -5,6 +5,7 @@ Texture2D txDiffuse : register(t0);
 Texture2D txNormal : register(t1);
 Texture2D txSpecular : register(t2);
 Texture2D txEmissive : register(t3);
+Texture2D txOpacity : register(t4);
 
 SamplerState samLinear : register(s0);
 
@@ -37,7 +38,8 @@ cbuffer Material : register(b2)
     bool UseNormalMap;
     bool UseSpecularMap;    
     bool UseEmissiveMap;
-    float3 MaterialPad0;
+    bool UseOpacityMap;
+    float2 MaterialPad0;
 }
 
 
