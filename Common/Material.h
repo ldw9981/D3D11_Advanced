@@ -14,11 +14,6 @@ public:
 	Material();
 	~Material();
 
-	Vector4 m_Ambient = { 1.0f,1.0f,1.0f,1.0f };
-	Vector4 m_Diffuse = { 1.0f,1.0f,1.0f,1.0f };
-	Vector4 m_Specular = { 1.0f,1.0f,1.0f,1.0f };
-	Vector4 m_Emissive = { 1.0f,1.0f,1.0f,1.0f };
-	
 	void Create(ID3D11Device* device,aiMaterial* pMaterial);
 	ID3D11ShaderResourceView* m_pDiffuseRV = nullptr;	// 咆胶贸 府家胶 轰.
 	ID3D11ShaderResourceView* m_pNormalRV = nullptr;	// 畴富甘 府家胶 轰.

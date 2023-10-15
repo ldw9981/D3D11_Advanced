@@ -29,6 +29,7 @@ void Material::Create(ID3D11Device* device,aiMaterial* pMaterial)
 	wstring finalPath;
 	string name = pMaterial->GetName().C_Str();
 
+
 	if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath)) 
 	{
 		path = ToWString(string(texturePath.C_Str()));		

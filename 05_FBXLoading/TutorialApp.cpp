@@ -103,7 +103,7 @@ void TutorialApp::Render()
 		m_pDeviceContext->PSSetShaderResources(2, 1, &m_Materials[mi].m_pSpecularRV);
 		m_pDeviceContext->PSSetShaderResources(3, 1, &m_Materials[mi].m_pEmissiveRV);
 		m_pDeviceContext->PSSetShaderResources(4, 1, &m_Materials[mi].m_pOpacityRV);
-
+		
 		m_CBMaterial.UseDiffuseMap = m_Materials[mi].m_pDiffuseRV != nullptr ? true : false ;
 		m_CBMaterial.UseNormalMap = m_Materials[mi].m_pNormalRV != nullptr ? true : false;
 		m_CBMaterial.UseSpecularMap = m_Materials[mi].m_pSpecularRV != nullptr ? true : false;
@@ -153,8 +153,7 @@ void TutorialApp::Render()
 		ImGui::SliderFloat("MaterialSpecularPower", (float*)&m_CBMaterial.SpecularPower, 2.0f, 4096.0f);
 
 		ImGui::Text("Camera");
-		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -2000.0f, 2000.0f);
-		
+		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -2000.0f, 2000.0f);		
 
 		ImGui::Text("BackBuffer");
 		ImGui::ColorEdit4("clear color", (float*)&m_ClearColor); // Edit 3 floats representing a color	
@@ -376,7 +375,7 @@ bool TutorialApp::InitScene()
 	if (!scene) {
 		LOG_ERRORA("Error loading FBX file: %s", importer.GetErrorString());
 		return false;
-	}
+	}	
 
 	m_Materials.resize(scene->mNumMaterials);
 	for (unsigned int i = 0; i < scene->mNumMaterials; ++i) 
