@@ -371,7 +371,7 @@ bool TutorialApp::InitScene()
 	m_View = XMMatrixLookAtLH(Eye, At, Up);
 
 	// Initialize the projection matrix
-	m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 20000.0f);
+	m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 10000.0f);
 
 	// FBX Loading
 	Assimp::Importer importer;
