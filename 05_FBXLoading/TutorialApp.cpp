@@ -26,8 +26,6 @@ TutorialApp::TutorialApp(HINSTANCE hInstance)
 
 TutorialApp::~TutorialApp()
 {
-	m_Meshes.clear();
-	m_Materials.clear();
 	UninitScene();	
 	UninitImGUI();
 	UninitD3D();
@@ -113,9 +111,9 @@ void TutorialApp::Render()
 		m_CBMaterial.UseOpacityMap = m_Materials[mi].m_pOpacityRV != nullptr ? true : false;
 
 		if(m_CBMaterial.UseOpacityMap)
-			m_pDeviceContext->OMSetBlendState(m_AlphaBlendState, nullptr, 0xffffffff);
+			m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState, nullptr, 0xffffffff); // 알파블렌드 상태설정 , 다른옵션은 기본값 
 		else
-			m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+			m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);	// 설정해제 , 다른옵션은 기본값
 
 		m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_CBMaterial, 0, 0);
 		m_pDeviceContext->IASetIndexBuffer(m_Meshes[i].m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
@@ -254,10 +252,9 @@ bool TutorialApp::InitD3D()
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].RenderTargetWriteMask =
-		D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-	HR_T(m_pDevice->CreateBlendState(&blendDesc, &m_AlphaBlendState));
+	HR_T(m_pDevice->CreateBlendState(&blendDesc, &m_pAlphaBlendState));
 
 
 	return true;
@@ -266,10 +263,11 @@ bool TutorialApp::InitD3D()
 void TutorialApp::UninitD3D()
 {
 	// Cleanup DirectX
+	SAFE_RELEASE(m_pRenderTargetView);
+	SAFE_RELEASE(m_pDepthStencilView);
 	SAFE_RELEASE(m_pDevice);
 	SAFE_RELEASE(m_pDeviceContext);
 	SAFE_RELEASE(m_pSwapChain);
-	SAFE_RELEASE(m_pRenderTargetView);
 }
 
 // 1. Render() 에서 파이프라인에 바인딩할 버텍스 버퍼및 버퍼 정보 준비
@@ -278,6 +276,8 @@ void TutorialApp::UninitD3D()
 // 4. Render() 에서 파이프라인에 바인딩할 인덱스 버퍼 생성
 // 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성
 // 6. Render() 에서 파이프라인에 바인딩할 상수 버퍼 생성
+// 7. Render() 에서 파이프라인에 바인딩할 텍스처 샘플러 생성
+// 8. assimp를 이용한  FBX 로딩
 bool TutorialApp::InitScene()
 {
 	HRESULT hr=0; // 결과값.
@@ -346,8 +346,7 @@ bool TutorialApp::InitScene()
 	bd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBMaterial));
 
-
-	// Create the sample state
+    // 7. 텍스처 샘플러 생성
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -361,19 +360,13 @@ bool TutorialApp::InitScene()
 
 	// Initialize the world matrix
 	m_World = XMMatrixIdentity();
-
-
-	// Initialize the view matrix
 	XMVECTOR Eye = XMVectorSet(0.0f, 0.0f, -1000.0f, 0.0f);
 	XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
 	m_View = XMMatrixLookAtLH(Eye, At, Up);
-
-	// Initialize the projection matrix
 	m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 10000.0f);
 
-	// FBX Loading
+	// 8. FBX Loading
 	Assimp::Importer importer;
 	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace |
 		aiProcess_ConvertToLeftHanded;
@@ -402,16 +395,17 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {	
+	m_Meshes.clear();
+	m_Materials.clear();
+
 	SAFE_RELEASE(m_pCBMaterial);
 	SAFE_RELEASE(m_pCBTransform);
 	SAFE_RELEASE(m_pCBDirectionLight);
-
-
+	SAFE_RELEASE(m_pAlphaBlendState);
 	SAFE_RELEASE(m_pVertexShader);
 	SAFE_RELEASE(m_pPixelShader);
 	SAFE_RELEASE(m_pInputLayout);
-
-	SAFE_RELEASE(m_pDepthStencilView);
+	SAFE_RELEASE(m_pSamplerLinear);
 }
 bool TutorialApp::InitImGUI()
 {

@@ -63,14 +63,12 @@ public:
 	ID3D11DepthStencilView* m_pDepthStencilView = nullptr;	// 깊이/스텐실 뷰
 
 	// 렌더링 파이프라인에 적용하는 리소스 객체의 인터페이스
-	ID3D11Buffer* m_pVertexBuffer = nullptr;			// 정점 버퍼.
-	ID3D11Buffer* m_pIndexBuffer = nullptr;				// 인덱스 버퍼.
+
 	ID3D11VertexShader* m_pVertexShader = nullptr;		// 정점 셰이더.
 	ID3D11PixelShader* m_pPixelShader = nullptr;		// 픽셀 셰이더.
-	ID3D11PixelShader* m_pPixelShaderSolid = nullptr;	// 픽셀 셰이더.
 	ID3D11InputLayout* m_pInputLayout = nullptr;		// 입력 레이아웃.
 	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 상태.
-	ID3D11BlendState* m_AlphaBlendState = nullptr;		// 블렌드 상태 변경 (반투명처리를위한 블렌드상태)
+	ID3D11BlendState* m_pAlphaBlendState = nullptr;		// 블렌드 상태 변경 (반투명처리를위한 블렌드상태)
 	ID3D11Buffer* m_pCBMaterial = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBTransform = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBDirectionLight = nullptr;		// 상수 버퍼: 방향광
