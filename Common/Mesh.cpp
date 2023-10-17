@@ -57,12 +57,6 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh)
 	unique_ptr<Vertex[]> vertices(new Vertex[mesh->mNumVertices]);
 	for (UINT i = 0; i < mesh->mNumVertices; ++i)
 	{
-		/* 회전옵션 테스트
-		Vector4 Position(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z,1);		
-		Matrix Rotation = Matrix::CreateRotationX(XMConvertToRadians(90));		
-		Position = Vector4::Transform(Position,Rotation);
-		vertices[i].Position = Vector3(Position.x,Position.y,Position.z);
-		*/
 		memcpy_s(&vertices[i].Position, sizeof(vertices[i].Position),&mesh->mVertices[i],sizeof(mesh->mVertices[i]));		
 		memcpy_s(&vertices[i].Normal, sizeof(vertices[i].Normal), &mesh->mNormals[i], sizeof(mesh->mNormals[i]));
 		memcpy_s(&vertices[i].TexCoord, sizeof(Vector2), &mesh->mTextureCoords[0][i], sizeof(Vector2));
