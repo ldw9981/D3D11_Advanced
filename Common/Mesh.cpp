@@ -57,10 +57,10 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh)
 	unique_ptr<Vertex[]> vertices(new Vertex[mesh->mNumVertices]);
 	for (UINT i = 0; i < mesh->mNumVertices; ++i)
 	{
-		memcpy_s(&vertices[i].Position, sizeof(vertices[i].Position),&mesh->mVertices[i],sizeof(mesh->mVertices[i]));		
-		memcpy_s(&vertices[i].Normal, sizeof(vertices[i].Normal), &mesh->mNormals[i], sizeof(mesh->mNormals[i]));
-		memcpy_s(&vertices[i].TexCoord, sizeof(Vector2), &mesh->mTextureCoords[0][i], sizeof(Vector2));
-		memcpy_s(&vertices[i].Tangent, sizeof(vertices[i].Tangent), &mesh->mTangents[i], sizeof(mesh->mTangents[i]));
+		vertices[i].Position  = Vector3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		vertices[i].Normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		vertices[i].TexCoord = Vector2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+		vertices[i].Tangent = Vector3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);	
 	}
 	CreateVertexBuffer(device, vertices.get(), mesh->mNumVertices);
 
