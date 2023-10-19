@@ -1,8 +1,7 @@
 #include "pch.h"
 #include "Helper.h"
 #include "Material.h"
-#include <assimp/scene.h>
-#include <assimp/Importer.hpp>
+
 
 
 

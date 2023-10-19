@@ -17,6 +17,4 @@
 #include <d3d11.h>
 #include <string>
 #include <filesystem>
-#include <assimp/scene.h>
-#include <assimp/Importer.hpp>
 #endif //PCH_H
