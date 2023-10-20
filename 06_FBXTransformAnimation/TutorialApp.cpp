@@ -392,11 +392,19 @@ bool TutorialApp::InitScene()
 	{
 		m_Meshes[i].Create(m_pDevice, scene->mMeshes[i]);
 	}
-
-	const aiAnimation* animation = scene->mAnimations[0];
 	
-	Animation Key;
-	Key.Create(animation->mChannels[0]);
+	unsigned int numAimation = scene->mNumAnimations;
+	for (size_t iAnimation = 0; iAnimation < numAimation; iAnimation++)
+	{
+		const aiAnimation* animation = scene->mAnimations[iAnimation];
+		unsigned int numChannels = animation->mNumChannels;
+		for (size_t iChannel = 0; iChannel < numChannels; iChannel++)
+		{
+			aiNodeAnim* nodeAnim = animation->mChannels[iChannel];
+			Animation Key;
+			Key.Create(nodeAnim);
+		}
+	}
 	importer.FreeScene();
 	return true;
 }
