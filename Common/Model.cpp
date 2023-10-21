@@ -67,13 +67,16 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 	m_RootNode.Create(this,scene->mRootNode);
 
 	const aiAnimation* animation = scene->mAnimations[0];
-	unsigned int numChannels = animation->mNumChannels;
-	assert(animation->mNumChannels > 1); // 애니메이션 되는 노드(Bone)는 하나 이상 있어야한다.
-	m_NodeAnimations.resize(animation->mNumChannels);
-	for (size_t iChannel = 0; iChannel < numChannels; iChannel++)
+	// 채널수는 aiAnimation 안에서 애니메이션 정보를  표현하는 aiNode의 개수이다.
+	assert(animation->mNumChannels > 1); // 애니메이션이 있다면 aiNode 는 하나 이상 있어야한다.
+
+	m_ClipAnimations.resize(1);
+	m_ClipAnimations[0].NodeAnimations.resize(animation->mNumChannels);
+	
+	for (size_t iChannel = 0; iChannel < animation->mNumChannels; iChannel++)
 	{
 		aiNodeAnim* nodeAnim = animation->mChannels[iChannel];
-		NodeAnimation animation;
+		NodeAnimation& animation = m_ClipAnimations[0].NodeAnimations[iChannel];
 		animation.Create(nodeAnim);
 	}
 	importer.FreeScene();
@@ -88,5 +91,23 @@ Material* Model::GetMaterial(UINT index)
 }
 void Model::Update(float deltaTime)
 {
-	m_RootNode.Update(deltaTime);
+	if (!m_ClipAnimations.empty())
+	{
+		m_AnimationProressTime += deltaTime;
+		m_AnimationProressTime = fmod(m_AnimationProressTime, m_ClipAnimations[0].Duration);
+		m_RootNode.UpdateAnimation(m_AnimationProressTime);
+		return;
+	}
+}
+
+void Model::UpdateNodeAnimationReference(UINT clipIndex)
+{
+	assert(clipIndex < m_ClipAnimations.size());
+	ClipAnimation& clipAnimation = m_ClipAnimations[clipIndex];
+	for (size_t i = 0; i < clipAnimation.NodeAnimations.size(); i++)
+	{
+		NodeAnimation& nodeAnimation = clipAnimation.NodeAnimations[i];
+		Node* node = m_RootNode.FindNode(nodeAnimation.NodeName);
+		node->m_pNodeAnimation = &clipAnimation.NodeAnimations[i];
+	}
 }

@@ -148,7 +148,6 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="RootNode.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="Node.h" />
@@ -166,7 +165,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="RootNode.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="TimeSystem.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

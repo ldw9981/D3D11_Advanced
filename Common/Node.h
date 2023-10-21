@@ -2,6 +2,7 @@
 
 struct aiNode;
 class Model;
+struct NodeAnimation;
 class Node
 {
 public:
@@ -14,10 +15,11 @@ public:
 	Math::Matrix m_World;
 	Math::Matrix m_Local;
 	std::vector<UINT> m_MeshIndices;
-
+	NodeAnimation* m_pNodeAnimation = nullptr;
 
 	void Create(Model* model,aiNode* node);
-	void Update(float deltaTime);
+	void UpdateAnimation(float progressTime);
 	
+	Node* FindNode(const std::string& name);
 };	
 

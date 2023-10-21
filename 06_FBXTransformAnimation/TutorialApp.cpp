@@ -58,7 +58,7 @@ void TutorialApp::Update()
 
 	m_Light.EyePosition = m_CameraPos;
 
-	m_Model.Update(t);
+	m_Model.Update(GameTimer::m_Instance->DeltaTime());
 }
 
 void TutorialApp::Render()
@@ -371,6 +371,7 @@ bool TutorialApp::InitScene()
 	// 8. FBX Loading
 
 	m_Model.ReadFile(m_pDevice,"../Resource/1CubeAnim.fbx");
+	m_Model.UpdateNodeAnimationReference(0);
 	return true;
 }
 

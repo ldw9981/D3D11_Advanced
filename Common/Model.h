@@ -15,15 +15,16 @@ public:
 	std::vector<Mesh> m_Meshes;
 	std::vector<Matrix*> m_MeshesWorldMatrix;
 	std::vector<Material> m_Materials;
-	std::vector<NodeAnimation> m_NodeAnimations;
+	std::vector<ClipAnimation> m_ClipAnimations;
+	float m_AnimationProressTime = 0.0f;
 	Node m_RootNode;
 
 	bool ReadFile(ID3D11Device* device,const char* filePath);
-
-	void LinkInstance();
+		
 	Material* GetMaterial(UINT index);
 
-	void Update(float deltaTime);
+	void Update(float deltaTime);	
 
+	void UpdateNodeAnimationReference(UINT clipIndex);
 };
 

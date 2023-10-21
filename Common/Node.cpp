@@ -31,9 +31,20 @@ void Node::Create(Model* model,aiNode* node)
 	}
 }
 
-void Node::Update(float deltaTime)
+void Node::UpdateAnimation(float progressTime)
 {
-	// 부모 노드의 월드 행렬을 계산한다.
+	// 노드의 애니메이션이 있다면 애니메이션을 업데이트한다.
+	if (m_pNodeAnimation != nullptr)
+	{
+		Math::Vector3 position;
+		Math::Quaternion rotation;
+		Math::Vector3 scaling;
+		m_pNodeAnimation->Evaluate(progressTime, position,rotation,scaling);
+
+		m_Local = Math::Matrix::CreateScale(scaling) * Math::Matrix::CreateFromQuaternion(rotation) * Math::Matrix::CreateTranslation(position);	
+	}
+
+	// 부모 노드가 있다면 부모 노드의 WorldMatrix를 곱해서 자신의 WorldMatrix를 만든다.
 	if (m_pParent != nullptr)
 	{
 		m_World = m_Local * m_pParent->m_World;
@@ -46,7 +57,22 @@ void Node::Update(float deltaTime)
 	// 자식 노드들의 Update()를 호출한다.
 	for (auto& child : m_Children)
 	{
-		child.Update(deltaTime);
+		child.UpdateAnimation(progressTime);
 	}
+}
+
+Node* Node::FindNode(const std::string& name)
+{
+	if (m_Name == name)
+		return this;
+
+	for (auto& child : m_Children)
+	{
+		Node* found = child.FindNode(name);
+		if (found != nullptr)
+			return found;
+	}
+
+	return nullptr;
 }
 

@@ -23,8 +23,37 @@ void NodeAnimation::Create(aiNodeAnim* nodeAnimation)
 		assert(rot.mTime == scl.mTime);
 
 		AnimationKeys[i].Time = pos.mTime;
-		AnimationKeys[i].Position = Vector3(pos.mValue.x,pos.mValue.y,pos.mValue.z);
-		AnimationKeys[i].Rotation = Quaternion(rot.mValue.x, rot.mValue.y, rot.mValue.z, rot.mValue.w);
-		AnimationKeys[i].Scaling = Vector3(scl.mValue.x,scl.mValue.y,scl.mValue.z);
+		AnimationKeys[i].Position = { pos.mValue.x,pos.mValue.y,pos.mValue.z };
+		AnimationKeys[i].Rotation = { rot.mValue.x,rot.mValue.y,rot.mValue.z, rot.mValue.w };
+		AnimationKeys[i].Scaling =  { scl.mValue.x,scl.mValue.y,scl.mValue.z };
 	}
 }
+
+void NodeAnimation::Evaluate(float time, Vector3& position, Quaternion& rotation, Vector3& scaling)
+{
+	assert(AnimationKeys.size() > 0);
+	size_t i = 0;
+	for (i=0;i< AnimationKeys.size();i++)
+	{
+		if (AnimationKeys[i].Time > time)
+		{
+			break;	
+		}
+	}		
+
+	if (i == 0)
+	{
+		position = AnimationKeys[i].Position;
+		rotation = AnimationKeys[i].Rotation;
+		scaling = AnimationKeys[i].Scaling;
+	}
+	else
+	{
+		float t = (time - AnimationKeys[i - 1].Time) / (AnimationKeys[i].Time - AnimationKeys[i - 1].Time);
+		position = Vector3::Lerp(AnimationKeys[i - 1].Position, AnimationKeys[i].Position, t);
+		rotation = Quaternion::Slerp(AnimationKeys[i - 1].Rotation, AnimationKeys[i].Rotation, t);
+		scaling = Vector3::Lerp(AnimationKeys[i - 1].Scaling, AnimationKeys[i].Scaling, t);
+	}
+}
+
+
