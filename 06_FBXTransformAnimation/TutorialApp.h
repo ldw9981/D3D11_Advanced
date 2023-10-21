@@ -2,7 +2,9 @@
 #include "../Common/GameApp.h"
 #include "../Common/Mesh.h"
 #include "../Common/Material.h"
-
+#include "../Common/Animation.h"
+#include "../Common/Node.h"
+#include "../Common/Model.h"
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
 
@@ -16,12 +18,12 @@ struct CB_Transform
 struct CB_DirectionLight
 {
 	Vector3 Direction = { 0.5f, 0.0f, 0.8f };
-	float pad0;
+	float pad0 =0.0f;
 	Vector4 Ambient = { 0.1f,0.1f,0.1f,0.1f };
 	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
 	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
-	Vector3 EyePosition;
-	float pad1;
+	Vector3 EyePosition = {};
+	float pad1 = 0.0f;
 };
 
 
@@ -34,15 +36,15 @@ struct CB_Marterial
 	Vector4 Emissive = { 1.0f,1.0f,1.0f,1.0f };  // 16byte
 	float  SpecularPower = 80;					// 4
 	bool UseDiffuseMap = true;					
-	bool pad1[3];								// 8
+	bool pad1[3] = {};								// 8
 	bool UseNormalMap = true;
-	bool pad2[3];								// 12
+	bool pad2[3] = {};								// 12
 	bool UseSpecularMap = true;
-	bool pad3[3];								// 16byte				
+	bool pad3[3] = {};								// 16byte				
 	bool UseEmissiveMap = true;			
-	bool pad4[3];								// 4
+	bool pad4[3] = {};								// 4
 	bool UseOpacityMap = true;
-	bool pad5[3];								// 8
+	bool pad5[3] = {};								// 8
 	Vector2 pad6;								// 16byte
 };
 
@@ -90,13 +92,15 @@ public:
 	CB_DirectionLight m_Light;
 	float m_MeshScale=1.0f;
 	
-	
-	vector<Mesh> m_Meshes;	
-	vector<Material> m_Materials;
+	Model m_Model;
+
 
 	virtual bool Initialize(UINT Width, UINT Height);
 	virtual void Update();
 	virtual void Render();
+
+	void ApplyMaterial(Material* pMaterial);
+
 
 	bool InitD3D();			
 	void UninitD3D();

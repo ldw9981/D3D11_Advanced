@@ -8,9 +8,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+
 
 #include "../Common/Animation.h"
 
@@ -60,6 +58,7 @@ void TutorialApp::Update()
 
 	m_Light.EyePosition = m_CameraPos;
 
+	m_Model.Update(t);
 }
 
 void TutorialApp::Render()
@@ -82,48 +81,25 @@ void TutorialApp::Render()
 
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
-	//
-	// Update matrix variables and lighting variables
-	//
-	m_Transform.mWorld = XMMatrixTranspose(m_World);
-	m_Transform.mView = XMMatrixTranspose(m_View);
-	m_Transform.mProjection = XMMatrixTranspose(m_Projection);
-	m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &m_Transform, 0, 0);
-
 	m_Light.Direction.Normalize();
 	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &m_Light, 0, 0);
 	
-	
-	
-	for (size_t i = 0; i < m_Meshes.size(); i++)
+
+	for (size_t i = 0; i < m_Model.m_Meshes.size(); i++)
 	{
-		size_t mi = m_Meshes[i].m_MaterialIndex;
-		
-		m_pDeviceContext->PSSetShaderResources(0, 1, &m_Materials[mi].m_pDiffuseRV);
-		m_pDeviceContext->PSSetShaderResources(1, 1, &m_Materials[mi].m_pNormalRV);
-		m_pDeviceContext->PSSetShaderResources(2, 1, &m_Materials[mi].m_pSpecularRV);
-		m_pDeviceContext->PSSetShaderResources(3, 1, &m_Materials[mi].m_pEmissiveRV);
-		m_pDeviceContext->PSSetShaderResources(4, 1, &m_Materials[mi].m_pOpacityRV);
-		
-		m_CBMaterial.UseDiffuseMap = m_Materials[mi].m_pDiffuseRV != nullptr ? true : false ;
-		m_CBMaterial.UseNormalMap = m_Materials[mi].m_pNormalRV != nullptr ? true : false;
-		m_CBMaterial.UseSpecularMap = m_Materials[mi].m_pSpecularRV != nullptr ? true : false;
-		m_CBMaterial.UseEmissiveMap = m_Materials[mi].m_pEmissiveRV != nullptr ? true : false;
-		m_CBMaterial.UseOpacityMap = m_Materials[mi].m_pOpacityRV != nullptr ? true : false;
+		Mesh& mesh = m_Model.m_Meshes[i];
 
-		if(m_CBMaterial.UseOpacityMap)
-			m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState, nullptr, 0xffffffff); // 알파블렌드 상태설정 , 다른옵션은 기본값 
-		else
-			m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);	// 설정해제 , 다른옵션은 기본값
+		// Update Trasnform
+		m_Transform.mWorld = mesh.m_pWorldMatrix->Transpose();
+		m_Transform.mView = m_View.Transpose();
+		m_Transform.mProjection = m_Projection.Transpose();
+		m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &m_Transform, 0, 0);
 
-		m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_CBMaterial, 0, 0);
-		m_pDeviceContext->IASetIndexBuffer(m_Meshes[i].m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-		m_pDeviceContext->IASetVertexBuffers(0, 1,&m_Meshes[i].m_pVertexBuffer, &m_Meshes[i].m_VertexBufferStride, &m_Meshes[i].m_VertexBufferOffset);
-		m_pDeviceContext->DrawIndexed(m_Meshes[i].m_IndexCount, 0, 0);
+		ApplyMaterial( m_Model.GetMaterial(mesh.m_MaterialIndex));
+		m_pDeviceContext->IASetIndexBuffer(mesh.m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+		m_pDeviceContext->IASetVertexBuffers(0, 1,&mesh.m_pVertexBuffer, &mesh.m_VertexBufferStride, &mesh.m_VertexBufferOffset);
+		m_pDeviceContext->DrawIndexed(mesh.m_IndexCount, 0, 0);
 	}
-	
-	
-
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -165,6 +141,29 @@ void TutorialApp::Render()
 
 	m_pSwapChain->Present(0, 0);	// Present our back buffer to our front buffer
 }
+
+void TutorialApp::ApplyMaterial(Material* pMaterial)
+{
+	m_pDeviceContext->PSSetShaderResources(0, 1, &pMaterial->m_pDiffuseRV);
+	m_pDeviceContext->PSSetShaderResources(1, 1, &pMaterial->m_pNormalRV);
+	m_pDeviceContext->PSSetShaderResources(2, 1, &pMaterial->m_pSpecularRV);
+	m_pDeviceContext->PSSetShaderResources(3, 1, &pMaterial->m_pEmissiveRV);
+	m_pDeviceContext->PSSetShaderResources(4, 1, &pMaterial->m_pOpacityRV);
+
+	m_CBMaterial.UseDiffuseMap = pMaterial->m_pDiffuseRV != nullptr ? true : false;
+	m_CBMaterial.UseNormalMap = pMaterial->m_pNormalRV != nullptr ? true : false;
+	m_CBMaterial.UseSpecularMap = pMaterial->m_pSpecularRV != nullptr ? true : false;
+	m_CBMaterial.UseEmissiveMap = pMaterial->m_pEmissiveRV != nullptr ? true : false;
+	m_CBMaterial.UseOpacityMap = pMaterial->m_pOpacityRV != nullptr ? true : false;
+
+	if (m_CBMaterial.UseOpacityMap)
+		m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState, nullptr, 0xffffffff); // 알파블렌드 상태설정 , 다른옵션은 기본값 
+	else
+		m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);	// 설정해제 , 다른옵션은 기본값
+
+	m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_CBMaterial, 0, 0);
+}
+
 
 bool TutorialApp::InitD3D()
 {
@@ -370,50 +369,13 @@ bool TutorialApp::InitScene()
 	m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_ClientWidth / (FLOAT)m_ClientHeight, 1.0f, 10000.0f);
 
 	// 8. FBX Loading
-	Assimp::Importer importer;
-	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace |
-		aiProcess_ConvertToLeftHanded;
-	
-	const aiScene* scene = importer.ReadFile("../Resource/1CubeAnim.fbx", importFlags);
-	
-	if (!scene) {
-		LOG_ERRORA("Error loading FBX file: %s", importer.GetErrorString());
-		return false;
-	}	
 
-	m_Materials.resize(scene->mNumMaterials);
-	for (unsigned int i = 0; i < scene->mNumMaterials; ++i) 
-	{
-		m_Materials[i].Create(m_pDevice, scene->mMaterials[i]);
-	}
-
-	m_Meshes.resize(scene->mNumMeshes);
-	for (unsigned int i = 0; i < scene->mNumMeshes; ++i) 
-	{
-		m_Meshes[i].Create(m_pDevice, scene->mMeshes[i]);
-	}
-	
-	unsigned int numAimation = scene->mNumAnimations;
-	for (size_t iAnimation = 0; iAnimation < numAimation; iAnimation++)
-	{
-		const aiAnimation* animation = scene->mAnimations[iAnimation];
-		unsigned int numChannels = animation->mNumChannels;
-		for (size_t iChannel = 0; iChannel < numChannels; iChannel++)
-		{
-			aiNodeAnim* nodeAnim = animation->mChannels[iChannel];
-			Animation Key;
-			Key.Create(nodeAnim);
-		}
-	}
-	importer.FreeScene();
+	m_Model.ReadFile(m_pDevice,"../Resource/1CubeAnim.fbx");
 	return true;
 }
 
 void TutorialApp::UninitScene()
 {	
-	m_Meshes.clear();
-	m_Materials.clear();
-
 	SAFE_RELEASE(m_pCBMaterial);
 	SAFE_RELEASE(m_pCBTransform);
 	SAFE_RELEASE(m_pCBDirectionLight);

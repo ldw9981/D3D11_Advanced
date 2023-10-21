@@ -7,21 +7,17 @@ struct aiNodeAnim;
 
 struct AnimationKey
 {
-	float Time;
+	float Time = 0.0f;
 	Vector3 Position;
 	Quaternion Rotation;
 	Vector3 Scaling;
 };
 
-class Animation
+struct NodeAnimation
 {
-public:
-	Animation();
-	~Animation();
-public:
-	float m_TimeLength;
-	string m_NodeName;
-	vector<AnimationKey> m_AnimationKeys;
+	float TimeLength = 0.0f;
+	string NodeName;
+	vector<AnimationKey> AnimationKeys;
 	void Create(aiNodeAnim* nodeAnimation);
 };
 

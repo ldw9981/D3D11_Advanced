@@ -62,5 +62,5 @@ void Material::Create(ID3D11Device* device,aiMaterial* pMaterial)
 		path = ToWString(string(texturePath.C_Str()));
 		finalPath = basePath + path.filename().wstring();
 		HR_T(CreateTextureFromFile(device, finalPath.c_str(), &m_pOpacityRV));
-	}
+	}	
 }

@@ -54,26 +54,27 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh)
 	m_MaterialIndex = mesh->mMaterialIndex;
 
 	// 버텍스 정보 생성
-	unique_ptr<Vertex[]> vertices(new Vertex[mesh->mNumVertices]);
+	m_Vertices.resize(mesh->mNumVertices);
+
 	for (UINT i = 0; i < mesh->mNumVertices; ++i)
 	{
-		vertices[i].Position  = Vector3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-		vertices[i].Normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-		vertices[i].TexCoord = Vector2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-		vertices[i].Tangent = Vector3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);	
+		m_Vertices[i].Position  = Vector3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		m_Vertices[i].Normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		m_Vertices[i].TexCoord = Vector2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+		m_Vertices[i].Tangent = Vector3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
 	}
-	CreateVertexBuffer(device, vertices.get(), mesh->mNumVertices);
+	CreateVertexBuffer(device, &m_Vertices[0], m_Vertices.size());
 
 	// 인덱스 정보 생성
-	unique_ptr<WORD[]> indices(new WORD[mesh->mNumFaces * 3]);
-
+	m_Indices.resize(mesh->mNumFaces * 3);
+	
 	for (UINT i = 0; i < mesh->mNumFaces; ++i)
 	{
-		indices[i * 3 + 0] = mesh->mFaces[i].mIndices[0];
-		indices[i * 3 + 1] = mesh->mFaces[i].mIndices[1];
-		indices[i * 3 + 2] = mesh->mFaces[i].mIndices[2];
+		m_Indices[i * 3 + 0] = mesh->mFaces[i].mIndices[0];
+		m_Indices[i * 3 + 1] = mesh->mFaces[i].mIndices[1];
+		m_Indices[i * 3 + 2] = mesh->mFaces[i].mIndices[2];
 	}
 
-	CreateIndexBuffer(device, indices.get(), mesh->mNumFaces * 3);
+	CreateIndexBuffer(device, &m_Indices[0], m_Indices.size());
 }
 

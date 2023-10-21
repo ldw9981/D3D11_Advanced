@@ -1,11 +1,7 @@
 #pragma once
 
-
-using namespace Microsoft::WRL;
-using namespace DirectX::SimpleMath;
-using namespace std;
-
 struct aiMaterial;
+
 
 
 class Material

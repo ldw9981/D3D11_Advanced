@@ -19,4 +19,8 @@
 #include <filesystem>
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
+
+
+namespace Math = DirectX::SimpleMath;
+
 #endif //PCH_H

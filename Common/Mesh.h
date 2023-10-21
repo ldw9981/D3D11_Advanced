@@ -23,6 +23,11 @@ public:
 	void CreateVertexBuffer(ID3D11Device* device, Vertex* vertices, UINT vertexCount);
 	void CreateIndexBuffer(ID3D11Device* device,WORD* indies, UINT indexCount);
 	void Create(ID3D11Device* device, aiMesh* mesh);
+	void SetWorld(Matrix* world) { m_pWorldMatrix = world; }
+
+	std::vector<Vertex> m_Vertices;
+	std::vector<WORD> m_Indices;
+	Matrix* m_pWorldMatrix = nullptr;
 
 	ID3D11Buffer* m_pVertexBuffer;
 	ID3D11Buffer* m_pIndexBuffer;
