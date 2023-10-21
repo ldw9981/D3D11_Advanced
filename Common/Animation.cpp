@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Animation.h"
+#include "Helper.h"
 
 void NodeAnimation::Create(aiNodeAnim* nodeAnimation)
 {
@@ -8,6 +9,7 @@ void NodeAnimation::Create(aiNodeAnim* nodeAnimation)
 	assert(nodeAnimation->mNumRotationKeys == nodeAnimation->mNumScalingKeys);
 	
 	NodeName = nodeAnimation->mNodeName.C_Str();
+	LOG_MESSAGEA(NodeName.c_str());
 	size_t numkeys = nodeAnimation->mNumPositionKeys;	
 	AnimationKeys.resize(numkeys);
 	

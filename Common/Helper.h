@@ -79,8 +79,8 @@ using namespace std;
     sprintf_s(buffer, 256, "[MESSAGE] %s:%d - ", __FUNCTION__, __LINE__); \
     char message[256]; \
     sprintf_s(message, 256, __VA_ARGS__); \
-    strcat(buffer, message); \
-    strcat(buffer, "\n"); \
+    strcat_s(buffer, message); \
+    strcat_s(buffer, "\n"); \
     OutputDebugStringA(buffer); \
 }
 

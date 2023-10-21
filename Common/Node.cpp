@@ -1,10 +1,13 @@
 #include "pch.h"
 #include "Node.h"
 #include "Model.h"
+#include "Helper.h"
 
 void Node::Create(Model* model,aiNode* node)
 {
 	m_Name = node->mName.C_Str();	
+	LOG_MESSAGEA(m_Name.c_str());
+
 	// d3d는 열 우선(column-major) assimp의 행렬은 행 우선(row-major)  행렬이다.
 	m_Local = Math::Matrix(&node->mTransformation.a1).Transpose();
 		

@@ -7,6 +7,7 @@
 
 bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 {
+	LOG_MESSAGEA("Loading file: %s", filePath);
 	Assimp::Importer importer;
 	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals |
 		aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | 
@@ -14,7 +15,7 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 
 	const aiScene* scene = importer.ReadFile(filePath, importFlags);
 	if (!scene) {
-		LOG_ERRORA("Error loading FBX file: %s", importer.GetErrorString());
+		LOG_ERRORA("Error loading file: %s", importer.GetErrorString());
 		return false;
 	}
 
@@ -76,6 +77,7 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 		animation.Create(nodeAnim);
 	}
 	importer.FreeScene();
+	LOG_MESSAGEA("Complete file: %s", filePath);
 	return true;
 }
 
