@@ -27,39 +27,42 @@ void Material::Create(ID3D11Device* device,aiMaterial* pMaterial)
 	std::filesystem::path path;
 	wstring finalPath;
 	string name = pMaterial->GetName().C_Str();
-	/* 
+	
 	//프로퍼티 테스트 코드
-	std::vector<std::string> properties;
+	std::vector<std::pair<std::string,int>> propertiesInt;
+	std::vector<std::pair<std::string,float>> propertiesFloat;
+	std::vector<std::pair<std::string,Vector2>> propertiesFloat2;
+	std::vector<std::pair<std::string,Vector3>> propertiesFloat3;
+	std::vector<std::pair<std::string,Vector4>> propertiesFloat4;
+	std::vector<std::pair<std::string,std::string>> propertiesString;
 	for(size_t i=0; i<pMaterial->mNumProperties; i++)
 	{
 		aiMaterialProperty* pProperty = pMaterial->mProperties[i];
-		aiString * propertyName = &pProperty->mKey;
-		float* propertyValueFloat = nullptr;
-		const char* propertyValueString = nullptr;
-		int* propertyValueInt=nullptr;
+	
 		if (pProperty->mType == aiPTI_Float) {
-			// Handle float type
-			propertyValueFloat = (float*)pProperty->mData;
-			// Store floatValue in a variable or use it as needed
+			if (pProperty->mDataLength == 4)
+				propertiesFloat.push_back({ pProperty->mKey.C_Str(),*(float*)pProperty->mData });
+			else if (pProperty->mDataLength == 8)
+				propertiesFloat2.push_back({ pProperty->mKey.C_Str(),*(Vector2*)pProperty->mData });
+			else if (pProperty->mDataLength == 12)
+				propertiesFloat3.push_back({ pProperty->mKey.C_Str(),*(Vector3*)pProperty->mData });
+			else if (pProperty->mDataLength == 16)
+				propertiesFloat4.push_back({ pProperty->mKey.C_Str(),*(Vector4*)pProperty->mData });
 		}
 		else if (pProperty->mType == aiPTI_String) {
-			// Handle string type
-			propertyValueString = pProperty->mData;
-			// Store stringValue in a variable or use it as needed
+			propertiesString.push_back({pProperty->mKey.C_Str(),pProperty->mData});	
 		}
 		else if (pProperty->mType == aiPTI_Integer) {
-			// Handle integer type
-			propertyValueInt = (int*)pProperty->mData;
-			// Store intValue in a variable or use it as needed
-		}
-		properties.push_back(pProperty->mKey.C_Str());
+			propertiesInt.push_back({pProperty->mKey.C_Str(),*(int*)pProperty->mData});
+		}		
 	}
-	*/
+	
 	aiColor3D color(1.f, 1.f, 1.f);
 	if(AI_SUCCESS == pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color))
 	{
 		m_Color ={ color.r, color.g, color.b , 1};
 	}
+
 	if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath)) 
 	{
 		path = ToWString(string(texturePath.C_Str()));		
