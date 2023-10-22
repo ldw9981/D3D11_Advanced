@@ -12,8 +12,7 @@ public:
 	Model() {}
 	~Model() {}
 	
-	std::vector<Mesh> m_Meshes;
-	std::vector<Matrix*> m_MeshesWorldMatrix;
+	std::vector<Mesh> m_Meshes;	
 	std::vector<Material> m_Materials;
 	std::vector<ClipAnimation> m_ClipAnimations;
 	float m_AnimationProressTime = 0.0f;
@@ -26,5 +25,6 @@ public:
 	void Update(float deltaTime);	
 
 	void UpdateNodeAnimationReference(UINT clipIndex);
+	void SetWorldTransform(const Math::Matrix& transform);
 };
 

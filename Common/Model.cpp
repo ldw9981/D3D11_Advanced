@@ -14,7 +14,7 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 	Assimp::Importer importer;
 	
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS,0);	// $assimp_fbx$ 노드 생성안함
-	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_MATERIALS,1);
+	
 	
 	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals |
 		aiProcess_GenUVCoords | aiProcess_CalcTangentSpace |
@@ -119,4 +119,9 @@ void Model::UpdateNodeAnimationReference(UINT clipIndex)
 		Node* node = m_RootNode.FindNode(nodeAnimation.NodeName);
 		node->m_pNodeAnimation = &clipAnimation.NodeAnimations[i];
 	}
+}
+
+void Model::SetWorldTransform(const Math::Matrix& transform)
+{
+	m_RootNode.m_Local = transform;
 }
