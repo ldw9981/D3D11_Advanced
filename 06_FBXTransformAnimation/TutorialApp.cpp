@@ -150,6 +150,7 @@ void TutorialApp::ApplyMaterial(Material* pMaterial)
 	m_pDeviceContext->PSSetShaderResources(3, 1, &pMaterial->m_pEmissiveRV);
 	m_pDeviceContext->PSSetShaderResources(4, 1, &pMaterial->m_pOpacityRV);
 
+	m_CBMaterial.Diffuse = pMaterial->m_Color;
 	m_CBMaterial.UseDiffuseMap = pMaterial->m_pDiffuseRV != nullptr ? true : false;
 	m_CBMaterial.UseNormalMap = pMaterial->m_pNormalRV != nullptr ? true : false;
 	m_CBMaterial.UseSpecularMap = pMaterial->m_pSpecularRV != nullptr ? true : false;
@@ -370,7 +371,7 @@ bool TutorialApp::InitScene()
 
 	// 8. FBX Loading
 
-	m_Model.ReadFile(m_pDevice,"../Resource/1CubeAnim.fbx");
+	m_Model.ReadFile(m_pDevice,"../Resource/SkinningTest.fbx");
 	
 	return true;
 }
