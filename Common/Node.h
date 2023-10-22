@@ -9,12 +9,12 @@ public:
 	Node() {}
 	~Node() {}
 
-	Node* m_pParent=nullptr;
-	std::string m_Name;
-	std::vector<Node> m_Children;
+	std::string m_Name;	
+	Math::Matrix m_Local;	
 	Math::Matrix m_World;
-	Math::Matrix m_Local;
+	std::vector<Node> m_Children;
 	std::vector<UINT> m_MeshIndices;
+	Node* m_pParent = nullptr;
 	NodeAnimation* m_pNodeAnimation = nullptr;
 
 	void Create(Model* model,aiNode* node);

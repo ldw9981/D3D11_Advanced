@@ -2,7 +2,7 @@
 #include "Animation.h"
 #include "Helper.h"
 
-void NodeAnimation::Create(aiNodeAnim* nodeAnimation)
+void NodeAnimation::Create(aiNodeAnim* nodeAnimation,double tickPerSecond)
 {
 	assert(nodeAnimation != nullptr);
 	assert(nodeAnimation->mNumPositionKeys == nodeAnimation->mNumRotationKeys);
@@ -22,7 +22,7 @@ void NodeAnimation::Create(aiNodeAnim* nodeAnimation)
 		assert(pos.mTime == rot.mTime);
 		assert(rot.mTime == scl.mTime);
 
-		AnimationKeys[i].Time = pos.mTime;
+		AnimationKeys[i].Time = (float)(pos.mTime / tickPerSecond);
 		AnimationKeys[i].Position = { pos.mValue.x,pos.mValue.y,pos.mValue.z };
 		AnimationKeys[i].Rotation = { rot.mValue.x,rot.mValue.y,rot.mValue.z, rot.mValue.w };
 		AnimationKeys[i].Scaling =  { scl.mValue.x,scl.mValue.y,scl.mValue.z };

@@ -371,7 +371,7 @@ bool TutorialApp::InitScene()
 	// 8. FBX Loading
 
 	m_Model.ReadFile(m_pDevice,"../Resource/1CubeAnim.fbx");
-	m_Model.UpdateNodeAnimationReference(0);
+	
 	return true;
 }
 

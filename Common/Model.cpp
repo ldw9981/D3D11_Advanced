@@ -72,14 +72,16 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 
 	m_ClipAnimations.resize(1);
 	m_ClipAnimations[0].NodeAnimations.resize(animation->mNumChannels);
-	
+	m_ClipAnimations[0].Duration = (float)(animation->mDuration / animation->mTicksPerSecond);
 	for (size_t iChannel = 0; iChannel < animation->mNumChannels; iChannel++)
 	{
-		aiNodeAnim* nodeAnim = animation->mChannels[iChannel];
-		NodeAnimation& animation = m_ClipAnimations[0].NodeAnimations[iChannel];
-		animation.Create(nodeAnim);
+		aiNodeAnim* pAiNodeAnim = animation->mChannels[iChannel];
+		NodeAnimation& refNodeAnim = m_ClipAnimations[0].NodeAnimations[iChannel];
+		refNodeAnim.Create(pAiNodeAnim, animation->mTicksPerSecond);
 	}
 	importer.FreeScene();
+	UpdateNodeAnimationReference(0);
+
 	LOG_MESSAGEA("Complete file: %s", filePath);
 	return true;
 }
