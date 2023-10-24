@@ -14,7 +14,7 @@ public:
 	
 	std::vector<Mesh> m_Meshes;	
 	std::vector<Material> m_Materials;
-	std::vector<ClipAnimation> m_ClipAnimations;
+	std::vector<Animation> m_Animations;
 	float m_AnimationProressTime = 0.0f;
 	Node m_RootNode;
 
@@ -24,7 +24,7 @@ public:
 
 	void Update(float deltaTime);	
 
-	void UpdateNodeAnimationReference(UINT clipIndex);
+	void UpdateNodeAnimationReference(UINT index);
 	void SetWorldTransform(const Math::Matrix& transform);
 };
 

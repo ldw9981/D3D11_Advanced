@@ -91,7 +91,7 @@ void TutorialApp::Render()
 		Mesh& mesh = m_Model.m_Meshes[i];
 
 		// Update Trasnform
-		m_Transform.mWorld = mesh.m_pWorldMatrix->Transpose();
+		m_Transform.mWorld = mesh.m_pNodeWorld->Transpose();
 		m_Transform.mView = m_View.Transpose();
 		m_Transform.mProjection = m_Projection.Transpose();
 		m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &m_Transform, 0, 0);

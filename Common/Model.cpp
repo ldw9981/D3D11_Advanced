@@ -77,16 +77,18 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 	// 채널수는 aiAnimation 안에서 애니메이션 정보를  표현하는 aiNode의 개수이다.
 	assert(animation->mNumChannels > 1); // 애니메이션이 있다면 aiNode 는 하나 이상 있어야한다.
 
-	m_ClipAnimations.resize(1);
-	m_ClipAnimations[0].NodeAnimations.resize(animation->mNumChannels);
-	m_ClipAnimations[0].Duration = (float)(animation->mDuration / animation->mTicksPerSecond);
+	m_Animations.resize(1);
+	m_Animations[0].NodeAnimations.resize(animation->mNumChannels);
+	m_Animations[0].Duration = (float)(animation->mDuration / animation->mTicksPerSecond);
 	for (size_t iChannel = 0; iChannel < animation->mNumChannels; iChannel++)
 	{
 		aiNodeAnim* pAiNodeAnim = animation->mChannels[iChannel];
-		NodeAnimation& refNodeAnim = m_ClipAnimations[0].NodeAnimations[iChannel];
+		NodeAnimation& refNodeAnim = m_Animations[0].NodeAnimations[iChannel];
 		refNodeAnim.Create(pAiNodeAnim, animation->mTicksPerSecond);
 	}
 	importer.FreeScene();
+
+	// 각 노드는 참조하는 노드애니메이션 ptr가 null이므로 0번 Index 애니메이션의 노드애니메이션을 연결한다.
 	UpdateNodeAnimationReference(0);
 
 	LOG_MESSAGEA("Complete file: %s", filePath);
@@ -100,24 +102,24 @@ Material* Model::GetMaterial(UINT index)
 }
 void Model::Update(float deltaTime)
 {
-	if (!m_ClipAnimations.empty())
+	if (!m_Animations.empty())
 	{
 		m_AnimationProressTime += deltaTime;
-		m_AnimationProressTime = fmod(m_AnimationProressTime, m_ClipAnimations[0].Duration);
+		m_AnimationProressTime = fmod(m_AnimationProressTime, m_Animations[0].Duration);
 		m_RootNode.UpdateAnimation(m_AnimationProressTime);
 		return;
 	}
 }
 
-void Model::UpdateNodeAnimationReference(UINT clipIndex)
+void Model::UpdateNodeAnimationReference(UINT index)
 {
-	assert(clipIndex < m_ClipAnimations.size());
-	ClipAnimation& clipAnimation = m_ClipAnimations[clipIndex];
-	for (size_t i = 0; i < clipAnimation.NodeAnimations.size(); i++)
+	assert(index < m_Animations.size());
+	Animation& animation = m_Animations[index];
+	for (size_t i = 0; i < animation.NodeAnimations.size(); i++)
 	{
-		NodeAnimation& nodeAnimation = clipAnimation.NodeAnimations[i];
+		NodeAnimation& nodeAnimation = animation.NodeAnimations[i];
 		Node* node = m_RootNode.FindNode(nodeAnimation.NodeName);
-		node->m_pNodeAnimation = &clipAnimation.NodeAnimations[i];
+		node->m_pNodeAnimation = &animation.NodeAnimations[i];
 	}
 }
 
