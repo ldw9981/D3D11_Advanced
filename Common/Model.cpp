@@ -79,6 +79,7 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 
 	m_Animations.resize(1);
 	m_Animations[0].NodeAnimations.resize(animation->mNumChannels);
+	// 전체 시간길이 = 프레임수 / 1초당 프레임수
 	m_Animations[0].Duration = (float)(animation->mDuration / animation->mTicksPerSecond);
 	for (size_t iChannel = 0; iChannel < animation->mNumChannels; iChannel++)
 	{
