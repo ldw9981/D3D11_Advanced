@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.6.33829.357
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.33920.266
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{4CA8DF6A-4F5D-4F44-A590-43D541AD684E}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05_FBXLoading", "05_FBXLoading\05_FBXLoading.vcxproj", "{7BF43943-92B4-4D16-8775-D21889D10176}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06_FBXTransformAnimation", "06_FBXTransformAnimation\06_FBXTransformAnimation.vcxproj", "{D7F3B4CD-1379-41BB-B3C4-5865DFD63C65}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "07_FBXSkinningAnimation", "07_FBXSkinningAnimation\07_FBXSkinningAnimation.vcxproj", "{8854444A-C4FA-4B82-94BA-18EE4862673A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,6 +93,14 @@ Global
 		{D7F3B4CD-1379-41BB-B3C4-5865DFD63C65}.Release|x64.Build.0 = Release|x64
 		{D7F3B4CD-1379-41BB-B3C4-5865DFD63C65}.Release|x86.ActiveCfg = Release|Win32
 		{D7F3B4CD-1379-41BB-B3C4-5865DFD63C65}.Release|x86.Build.0 = Release|Win32
+		{8854444A-C4FA-4B82-94BA-18EE4862673A}.Debug|x64.ActiveCfg = Debug|x64
+		{8854444A-C4FA-4B82-94BA-18EE4862673A}.Debug|x64.Build.0 = Debug|x64
+		{8854444A-C4FA-4B82-94BA-18EE4862673A}.Debug|x86.ActiveCfg = Debug|Win32
+		{8854444A-C4FA-4B82-94BA-18EE4862673A}.Debug|x86.Build.0 = Debug|Win32
+		{8854444A-C4FA-4B82-94BA-18EE4862673A}.Release|x64.ActiveCfg = Release|x64
+		{8854444A-C4FA-4B82-94BA-18EE4862673A}.Release|x64.Build.0 = Release|x64
+		{8854444A-C4FA-4B82-94BA-18EE4862673A}.Release|x86.ActiveCfg = Release|Win32
+		{8854444A-C4FA-4B82-94BA-18EE4862673A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
