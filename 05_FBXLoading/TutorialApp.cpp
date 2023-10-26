@@ -17,6 +17,7 @@
 #pragma comment(lib,"d3dcompiler.lib")
 
 
+using namespace DirectX;
 
 TutorialApp::TutorialApp(HINSTANCE hInstance)
 	:GameApp(hInstance)

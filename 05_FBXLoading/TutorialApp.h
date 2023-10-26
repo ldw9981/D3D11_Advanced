@@ -3,24 +3,22 @@
 #include "../Common/Mesh.h"
 #include "../Common/Material.h"
 
-using namespace DirectX::SimpleMath;
-using namespace DirectX;
 
 struct CB_Transform
 {
-	Matrix mWorld;
-	Matrix mView;
-	Matrix mProjection;
+	Math::Matrix mWorld;
+	Math::Matrix mView;
+	Math::Matrix mProjection;
 }; 
 
 struct CB_DirectionLight
 {
-	Vector3 Direction = { 0.5f, 0.0f, 0.8f };
+	Math::Vector3 Direction = { 0.5f, 0.0f, 0.8f };
 	float pad0;
-	Vector4 Ambient = { 0.1f,0.1f,0.1f,0.1f };
-	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
-	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
-	Vector3 EyePosition;
+	Math::Vector4 Ambient = { 0.1f,0.1f,0.1f,0.1f };
+	Math::Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
+	Math::Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
+	Math::Vector3 EyePosition;
 	float pad1;
 };
 
@@ -28,10 +26,10 @@ struct CB_DirectionLight
 
 struct CB_Marterial
 {
-	Vector4 Ambient = { 1.0f,1.0f,1.0f,1.0f };	// 16byte
-	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };	// 16byte
-	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };  // 16byte
-	Vector4 Emissive = { 1.0f,1.0f,1.0f,1.0f };  // 16byte
+	Math::Vector4 Ambient = { 1.0f,1.0f,1.0f,1.0f };	// 16byte
+	Math::Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };	// 16byte
+	Math::Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };  // 16byte
+	Math::Vector4 Emissive = { 1.0f,1.0f,1.0f,1.0f };  // 16byte
 	float  SpecularPower = 80;					// 4
 	bool UseDiffuseMap = true;					
 	bool pad1[3];								// 8
@@ -43,7 +41,7 @@ struct CB_Marterial
 	bool pad4[3];								// 4
 	bool UseOpacityMap = true;
 	bool pad5[3];								// 8
-	Vector2 pad6;								// 16byte
+	Math::Vector2 pad6;								// 16byte
 };
 
 
@@ -77,13 +75,13 @@ public:
 	UINT m_VertexBufferStride = 0;						// 버텍스 하나의 크기.
 	UINT m_VertexBufferOffset = 0;						// 버텍스 버퍼의 오프셋.
 	int m_nIndices = 0;				// 인덱스 개수.
-	Matrix	m_World;				// 월드좌표계 공간으로 변환을 위한 행렬.
-	Matrix  m_View;					// 뷰좌표계 공간으로 변환을 위한 행렬.
-	Matrix  m_Projection;			// 단위장치좌표계( Normalized Device Coordinate) 공간으로 변환을 위한 행렬.
+	Math::Matrix  m_World;				// 월드좌표계 공간으로 변환을 위한 행렬.
+	Math::Matrix  m_View;					// 뷰좌표계 공간으로 변환을 위한 행렬.
+	Math::Matrix  m_Projection;			// 단위장치좌표계( Normalized Device Coordinate) 공간으로 변환을 위한 행렬.
 
-	Vector3 m_ClearColor ={ 0.0f, 0.0f, 0.0f};
-	Vector2 m_Rotation = Vector2(0.0f, 0.0f);	
-	Vector3 m_CameraPos = Vector3(0.0f, 200.0f, -1000.0f);
+	Math::Vector3 m_ClearColor ={ 0.0f, 0.0f, 0.0f};
+	Math::Vector2 m_Rotation = Math::Vector2(0.0f, 0.0f);
+	Math::Vector3 m_CameraPos = Math::Vector3(0.0f, 200.0f, -1000.0f);
 
 	CB_Transform m_Transform;
 	CB_Marterial m_CBMaterial;
@@ -91,8 +89,8 @@ public:
 	float m_MeshScale=1.0f;
 	
 	
-	vector<Mesh> m_Meshes;	
-	vector<Material> m_Materials;
+	std::vector<Mesh> m_Meshes;
+	std::vector<Material> m_Materials;
 
 	virtual bool Initialize(UINT Width, UINT Height);
 	virtual void Update();

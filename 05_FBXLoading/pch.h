@@ -17,4 +17,6 @@
 #include <d3d11.h>
 #include <string>
 #include <filesystem>
+
+namespace Math = DirectX::SimpleMath;
 #endif //PCH_H

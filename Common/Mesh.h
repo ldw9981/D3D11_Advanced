@@ -1,16 +1,30 @@
 #pragma once
 
-using namespace Microsoft::WRL;
-using namespace DirectX::SimpleMath;
-using namespace std;
 
 // 정점 선언.
 struct Vertex
 {
-	Vector3 Position;		// 정점 위치 정보.	
-	Vector2 TexCoord;
-	Vector3 Normal;
-	Vector3 Tangent;
+	Math::Vector3 Position;		// 정점 위치 정보.	
+	Math::Vector2 TexCoord;
+	Math::Vector3 Normal;
+	Math::Vector3 Tangent;
+};
+
+struct BoneWeightVertex
+{
+	Math::Vector3 Position;		// 정점 위치 정보.	
+	Math::Vector2 TexCoord;
+	Math::Vector3 Normal;
+	Math::Vector3 Tangent;
+	BYTE BoneIndex[4] = {};
+	float BoneWeight[3] = {};
+};
+
+struct Bone
+{
+	std::string NodeName;
+	Math::Matrix OffsetMatrix;
+	Math::Matrix* NodeWorldPtr;
 };
 
 struct aiMesh;
@@ -21,15 +35,19 @@ public:
 	~Mesh();
 public:	
 	void CreateVertexBuffer(ID3D11Device* device, Vertex* vertices, UINT vertexCount);
+	void CreateBoneWeightVertexBuffer(ID3D11Device* device, BoneWeightVertex* vertices, UINT vertexCount);
+
 	void CreateIndexBuffer(ID3D11Device* device,WORD* indies, UINT indexCount);
 	void Create(ID3D11Device* device, aiMesh* mesh);
 	// 계층 구조 노드가 소유한 World의 포인터를 설정
-	void SetNodeWorldPtr(Matrix* world) { m_pNodeWorld = world; }
+	void SetNodeWorldPtr(Math::Matrix* world) { m_pNodeWorld = world; }
 
 	std::vector<Vertex> m_Vertices;
+	std::vector<BoneWeightVertex> m_BoneWeightVertices;
 	std::vector<WORD> m_Indices;
-	Matrix* m_pNodeWorld = nullptr;
 
+
+	Math::Matrix* m_pNodeWorld = nullptr;
 	ID3D11Buffer* m_pVertexBuffer;
 	ID3D11Buffer* m_pIndexBuffer;
 
