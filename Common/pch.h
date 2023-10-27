@@ -11,6 +11,7 @@
 #include "framework.h"
 #include <windows.h>
 #include <vector>
+#include <map>
 #include <DirectXMath.h>
 #include <wrl/client.h>
 #include <directxtk/SimpleMath.h>

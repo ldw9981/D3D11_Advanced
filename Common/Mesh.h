@@ -16,11 +16,26 @@ struct BoneWeightVertex
 	Math::Vector2 TexCoord;
 	Math::Vector3 Normal;
 	Math::Vector3 Tangent;
-	BYTE BoneIndex[4] = {};
-	float BoneWeight[3] = {};
+	int BoneIndex[4] = {};
+	float BoneWeight[4] = {};
+
+	void AddBoneData(int boneIndex, float weight)
+	{
+		// 4개중 하나는 데이터가 비어있어야...
+		assert(BoneWeight[0] == 0.0f || BoneWeight[1] == 0.0f || BoneWeight[2] == 0.0f || BoneWeight[3] == 0.0f);
+		for (int i = 0; i < 4; i++)
+		{
+			if (BoneWeight[i] == 0.0f)
+			{
+				BoneIndex[i] = boneIndex;
+				BoneWeight[i] = weight;
+				return;
+			}
+		}
+	}
 };
 
-struct Bone
+struct BoneInfo
 {
 	std::string NodeName;
 	Math::Matrix OffsetMatrix;
@@ -46,6 +61,8 @@ public:
 	std::vector<BoneWeightVertex> m_BoneWeightVertices;
 	std::vector<WORD> m_Indices;
 
+	std::vector<BoneInfo> m_BoneInfo;
+	std::map<std::string,int> m_BoneMapping;
 
 	Math::Matrix* m_pNodeWorld = nullptr;
 	ID3D11Buffer* m_pVertexBuffer;
@@ -56,5 +73,6 @@ public:
 	UINT m_VertexBufferOffset = 0;						// 버텍스 버퍼의 오프셋.
 	UINT m_IndexCount = 0;				// 인덱스 개수.
 	UINT m_MaterialIndex = 0;			// 메테리얼 인덱스.
+	UINT m_BoneCount=0;
 };
 

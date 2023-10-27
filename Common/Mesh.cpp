@@ -86,14 +86,6 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh)
 	}
 	else
 	{
-	/*
-		UINT meshBoneCount = mesh->mNumBones;
-		m_Bones.resize(meshBoneCount);
-		for (UINT j = 0; j < mesh->mNumBones; ++j)
-		{
-			m_Bones[j].NodeName = mesh->mBones[j]->mName.C_Str();
-		}
-		*/
 		// 버텍스 정보 생성
 		m_BoneWeightVertices.resize(mesh->mNumVertices);
 		for (UINT i = 0; i < mesh->mNumVertices; ++i)
@@ -102,7 +94,42 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh)
 			m_BoneWeightVertices[i].Normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 			m_BoneWeightVertices[i].TexCoord = Vector2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
 			m_BoneWeightVertices[i].Tangent = Vector3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
+
 		}
+
+		UINT meshBoneCount = mesh->mNumBones;
+		for (UINT i = 0; i < mesh->mNumBones; ++i)
+		{
+		
+			aiBone* bone = mesh->mBones[i];			
+			std::string boneName = bone->mName.C_Str();
+			UINT boneIndex = 0;
+			
+			if (m_BoneMapping.find(boneName) == m_BoneMapping.end())
+			{
+				// Map bone name to bone index
+				boneIndex = m_BoneCount;
+				m_BoneCount++;
+				BoneInfo bi;
+				m_BoneInfo.push_back(bi);
+				m_BoneInfo[boneIndex].OffsetMatrix = Math::Matrix(&bone->mOffsetMatrix.a1).Transpose();
+				m_BoneMapping[boneName] = boneIndex;
+			}
+			else
+			{
+				boneIndex = m_BoneMapping[boneName];
+			}
+						
+			for (UINT j = 0; j < bone->mNumWeights; ++j)
+			{
+				UINT vertexID = bone->mWeights[j].mVertexId;
+				float weight = bone->mWeights[j].mWeight;
+				m_BoneWeightVertices[vertexID].AddBoneData(boneIndex, weight);
+			}
+		}
+		
+		
+		
 		CreateBoneWeightVertexBuffer(device, &m_BoneWeightVertices[0], m_BoneWeightVertices.size());
 	}
 	

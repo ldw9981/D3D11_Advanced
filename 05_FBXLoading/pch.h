@@ -16,6 +16,8 @@
 #include <directxtk/SimpleMath.h>
 #include <d3d11.h>
 #include <string>
+#include <map>
+#include <vector>
 #include <filesystem>
 
 namespace Math = DirectX::SimpleMath;
