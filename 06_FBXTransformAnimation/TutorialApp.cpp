@@ -85,7 +85,7 @@ void TutorialApp::Render()
 	m_Light.Direction.Normalize();
 	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &m_Light, 0, 0);
 	
-
+	/*
 	for (size_t i = 0; i < m_Model.m_Meshes.size(); i++)
 	{
 		Mesh& mesh = m_Model.m_Meshes[i];
@@ -101,6 +101,7 @@ void TutorialApp::Render()
 		m_pDeviceContext->IASetVertexBuffers(0, 1,&mesh.m_pVertexBuffer, &mesh.m_VertexBufferStride, &mesh.m_VertexBufferOffset);
 		m_pDeviceContext->DrawIndexed(mesh.m_IndexCount, 0, 0);
 	}
+	*/
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -372,7 +373,7 @@ bool TutorialApp::InitScene()
 
 	// 8. FBX Loading
 
-	m_Model.ReadFile(m_pDevice,"../Resource/BoxHuman.fbx");
+	m_Model.ReadFile(m_pDevice,"../Resource/Zeldaposed001.fbx");
 	
 	return true;
 }
