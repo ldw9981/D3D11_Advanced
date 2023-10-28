@@ -43,4 +43,7 @@
   <ItemGroup>
     <Text Include="readme.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shared.hlsli" />
+  </ItemGroup>
 </Project>

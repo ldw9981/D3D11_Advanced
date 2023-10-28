@@ -17,6 +17,7 @@
 #include <d3d11.h>
 #include <string>
 #include <map>
+#include <memory>
 #include <vector>
 #include <filesystem>
 

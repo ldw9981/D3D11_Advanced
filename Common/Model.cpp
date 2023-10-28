@@ -88,6 +88,12 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 		// 각 노드는 참조하는 노드애니메이션 ptr가 null이므로 0번 Index 애니메이션의 노드애니메이션을 연결한다.
 		UpdateNodeAnimationReference(0);
 	}
+	
+	for (auto& mesh : m_Meshes)
+	{
+		mesh.UpdateBoneNodePtr(&m_RootNode);
+	}
+
 	importer.FreeScene();
 	LOG_MESSAGEA("Complete file: %s", filePath);
 	return true;
@@ -104,9 +110,8 @@ void Model::Update(float deltaTime)
 	{
 		m_AnimationProressTime += deltaTime;
 		m_AnimationProressTime = fmod(m_AnimationProressTime, m_Animations[0].Duration);
-		m_RootNode.UpdateAnimation(m_AnimationProressTime);
-		return;
-	}
+		m_RootNode.UpdateAnimation(m_AnimationProressTime);	
+	}	
 }
 
 void Model::UpdateNodeAnimationReference(UINT index)

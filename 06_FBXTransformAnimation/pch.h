@@ -12,6 +12,7 @@
 #include <windows.h>
 #include <vector>
 #include <map>
+#include <memory>
 #include <DirectXMath.h>
 #include <wrl/client.h>
 #include <directxtk/SimpleMath.h>

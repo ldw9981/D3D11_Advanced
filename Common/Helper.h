@@ -96,12 +96,23 @@ void SAFE_RELEASE(T* p)
 	}
 }
 
+
 template <typename T>
 void SAFE_DELETE(T* p)
 {
 	if (p)
 	{
 		delete p;
+		p = nullptr;
+	}
+}
+
+template <typename T>
+void SAFE_DELETE_ARRAY(T* p)
+{
+	if (p)
+	{
+		delete[] p;
 		p = nullptr;
 	}
 }

@@ -14,6 +14,8 @@ cbuffer Transform : register(b0)
     matrix World;
     matrix View;
     matrix Projection;
+    int IsSkeletalMesh;
+    int pad[3];
 }
 
 cbuffer DirectionLight : register(b1)
@@ -40,6 +42,11 @@ cbuffer Material : register(b2)
     bool UseEmissiveMap;
     bool UseOpacityMap;
     float2 MaterialPad0;
+}
+
+cbuffer MatrixPallete : register(b3)
+{
+    matrix MatrixPalleteArray[64];
 }
 
 

@@ -13,7 +13,6 @@ public:
 	~Model() {}
 	
 	std::vector<Mesh> m_Meshes;	
-	//std::vector<Bone> m_Bones;
 	std::vector<Material> m_Materials;
 	std::vector<Animation> m_Animations;
 	float m_AnimationProressTime = 0.0f;

@@ -35,36 +35,28 @@ struct BoneWeightVertex
 	}
 };
 
-struct BoneInfo
+struct Bone
 {
-	std::string NodeName;
-	Math::Matrix OffsetMatrix;
-	Math::Matrix* NodeWorldPtr;
+	std::string NodeName;		 
+	Math::Matrix OffsetMatrix;	 // 본기준의 메쉬 오프셋 행렬
+	Math::Matrix* NodeWorldMatrixPtr;
 };
 
 struct aiMesh;
+class Node;
 class Mesh
 {
 public:
 	Mesh();
 	~Mesh();
 public:	
-	void CreateVertexBuffer(ID3D11Device* device, Vertex* vertices, UINT vertexCount);
-	void CreateBoneWeightVertexBuffer(ID3D11Device* device, BoneWeightVertex* vertices, UINT vertexCount);
+	std::vector<Vertex>				m_Vertices;
+	std::vector<BoneWeightVertex>	m_BoneWeightVertices;
+	std::vector<WORD>				m_Indices;
 
-	void CreateIndexBuffer(ID3D11Device* device,WORD* indies, UINT indexCount);
-	void Create(ID3D11Device* device, aiMesh* mesh);
-	// 계층 구조 노드가 소유한 World의 포인터를 설정
-	void SetNodeWorldPtr(Math::Matrix* world) { m_pNodeWorld = world; }
+	std::vector<Bone>				m_Bones;
 
-	std::vector<Vertex> m_Vertices;
-	std::vector<BoneWeightVertex> m_BoneWeightVertices;
-	std::vector<WORD> m_Indices;
-
-	std::vector<BoneInfo> m_BoneInfo;
-	std::map<std::string,int> m_BoneMapping;
-
-	Math::Matrix* m_pNodeWorld = nullptr;
+	Math::Matrix* m_pNodeWorldTransform = nullptr;		// StaticMesh의 월드행렬을 가진 노드의 포인터
 	ID3D11Buffer* m_pVertexBuffer;
 	ID3D11Buffer* m_pIndexBuffer;
 
@@ -73,6 +65,16 @@ public:
 	UINT m_VertexBufferOffset = 0;						// 버텍스 버퍼의 오프셋.
 	UINT m_IndexCount = 0;				// 인덱스 개수.
 	UINT m_MaterialIndex = 0;			// 메테리얼 인덱스.
-	UINT m_BoneCount=0;
+
+	void CreateVertexBuffer(ID3D11Device* device, Vertex* vertices, UINT vertexCount);
+	void CreateBoneWeightVertexBuffer(ID3D11Device* device, BoneWeightVertex* vertices, UINT vertexCount);
+
+	void CreateIndexBuffer(ID3D11Device* device, WORD* indies, UINT indexCount);
+	void Create(ID3D11Device* device, aiMesh* mesh);
+	// 계층 구조 노드가 소유한 World의 포인터를 설정
+	void SetNodeWorldPtr(Math::Matrix* world) { m_pNodeWorldTransform = world; }
+	void UpdateBoneNodePtr(Node* pRootNode);
+	void UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr);
+	bool IsSkeletalMesh() { return !m_Bones.empty(); }
 };
 

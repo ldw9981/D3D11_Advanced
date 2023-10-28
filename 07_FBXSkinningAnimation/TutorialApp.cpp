@@ -90,8 +90,15 @@ void TutorialApp::Render()
 	{
 		Mesh& mesh = m_Model.m_Meshes[i];
 
-		// Update Trasnform
-		m_Transform.mWorld = mesh.m_pNodeWorld->Transpose();
+		// Transfer Transform
+		if (mesh.IsSkeletalMesh())
+		{
+			mesh.UpdateMatrixPallete(&m_MatrixPallete.Array[0]);
+			m_pDeviceContext->UpdateSubresource(m_pCBMatrixPallete, 0, nullptr, &m_MatrixPallete.Array[0], 0, 0);
+		}
+
+		m_Transform.IsSkeletalMesh = mesh.IsSkeletalMesh();
+		m_Transform.mWorld = mesh.m_pNodeWorldTransform->Transpose();
 		m_Transform.mView = m_View.Transpose();
 		m_Transform.mProjection = m_Projection.Transpose();
 		m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &m_Transform, 0, 0);
@@ -350,6 +357,13 @@ bool TutorialApp::InitScene()
 	bd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBMaterial));
 
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(CB_MatrixPallete);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBMatrixPallete));
+
+
     // 7. 咆胶贸 基敲矾 积己
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -379,6 +393,7 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {	
+	SAFE_RELEASE(m_pCBMatrixPallete);
 	SAFE_RELEASE(m_pCBMaterial);
 	SAFE_RELEASE(m_pCBTransform);
 	SAFE_RELEASE(m_pCBDirectionLight);

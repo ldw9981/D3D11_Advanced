@@ -19,7 +19,7 @@ void Node::Create(Model* model,aiNode* node)
 		m_MeshIndices[i] = meshIndex;
 
 		// Mesh와 Node의 WorldMatrix를 연결한다.
-		model->m_Meshes[meshIndex].m_pNodeWorld = &m_World;
+		model->m_Meshes[meshIndex].m_pNodeWorldTransform = &m_World;
 	}
 
 	UINT numChild = node->mNumChildren;	
