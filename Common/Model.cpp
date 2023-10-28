@@ -16,9 +16,12 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS,0);	// $assimp_fbx$ 노드 생성안함
 	
 	
-	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals |
-		aiProcess_GenUVCoords | aiProcess_CalcTangentSpace |
-		aiProcess_ConvertToLeftHanded;
+	unsigned int importFlags = aiProcess_Triangulate | // 삼각형으로 변환
+		aiProcess_GenNormals |	// 노말 생성/
+		aiProcess_GenUVCoords |		// UV 생성
+		aiProcess_CalcTangentSpace |  // 탄젠트 생성
+		aiProcess_LimitBoneWeights |	// 본의 영향을 받는 정점의 최대 개수를 4개로 제한
+		aiProcess_ConvertToLeftHanded;	// 왼손 좌표계로 변환
 
 	const aiScene* scene = importer.ReadFile(filePath, importFlags);
 	if (!scene) {
