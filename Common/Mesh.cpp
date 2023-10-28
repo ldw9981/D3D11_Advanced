@@ -160,7 +160,7 @@ void Mesh::UpdateBoneNodePtr(Node* pRootNode)
 
 void Mesh::UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr)
 {
-	assert(m_Bones.size()<256);
+	assert(m_Bones.size()< 128);
 	for (UINT i = 0; i < m_Bones.size(); ++i)
 	{
 		Math::Matrix& BoneNodeWorldMatrix = *m_Bones[i].NodeWorldMatrixPtr;

@@ -75,6 +75,9 @@ void TutorialApp::Render()
 	m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
 	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pCBTransform);
 	m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pCBDirectionLight);
+
+	m_pDeviceContext->VSSetConstantBuffers(3, 1, &m_pCBMatrixPallete);
+
 	m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pCBTransform);
 	m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pCBDirectionLight);
@@ -200,7 +203,8 @@ bool TutorialApp::InitD3D()
 	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 	// 1. 장치 생성.   2.스왑체인 생성. 3.장치 컨텍스트 생성.
-	HR_T(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL,
+
+	HR_T(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, 0,
 		D3D11_SDK_VERSION, &swapDesc, &m_pSwapChain, &m_pDevice, NULL, &m_pDeviceContext));
 
 	// 4. 렌더타겟뷰 생성.  (백버퍼를 이용하는 렌더타겟뷰)	
@@ -298,7 +302,7 @@ bool TutorialApp::InitScene()
 
 	// 2. Render() 에서 파이프라인에 바인딩할 InputLayout 생성 	
 	ID3D10Blob* vertexShaderBuffer = nullptr;
-	hr = CompileShaderFromFile(L"07_VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer);
+	hr = CompileShaderFromFile(L"07_VertexShader.hlsl", "main", "vs_5_0", &vertexShaderBuffer);
 	if (FAILED(hr))
 	{
 		hr = D3DReadFileToBlob(L"07_VertexShader.cso", &vertexShaderBuffer);
@@ -311,6 +315,8 @@ bool TutorialApp::InitScene()
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL" , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TANGENT" , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES" , 0, DXGI_FORMAT_R32G32B32A32_SINT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDWEIGHTS" , 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 	hr = m_pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
 		vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout);
@@ -323,7 +329,7 @@ bool TutorialApp::InitScene()
 
 	// 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성
 	ID3D10Blob* pixelShaderBuffer = nullptr;
-	hr = CompileShaderFromFile(L"07_PixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer);
+	hr = CompileShaderFromFile(L"07_PixelShader.hlsl", "main", "ps_5_0", &pixelShaderBuffer);
 	if (FAILED(hr))
 	{
 		hr = D3DReadFileToBlob(L"07_PixelShader.cso", &pixelShaderBuffer);

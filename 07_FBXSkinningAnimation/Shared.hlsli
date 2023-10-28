@@ -46,7 +46,7 @@ cbuffer Material : register(b2)
 
 cbuffer MatrixPallete : register(b3)
 {
-    matrix MatrixPalleteArray[64];
+    matrix MatrixPalleteArray[128];
 }
 
 
@@ -56,7 +56,9 @@ struct VS_INPUT
     float4 PositionModel : POSITION;    
     float2 TexCoord : TEXCOORD0;
     float3 NormalModel : NORMAL;
-    float3 TangentModel : TANGENT;
+    float3 TangentModel : TANGENT; 
+    int4 BlendIndices : BLENDINDICES;
+    float4 BlendWeights : BLENDWEIGHTS;
 };
 
 struct PS_INPUT

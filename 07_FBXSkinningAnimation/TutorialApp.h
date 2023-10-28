@@ -30,7 +30,7 @@ struct CB_DirectionLight
 
 struct CB_MatrixPallete
 {
-	Matrix Array[256];
+	Matrix Array[128];
 };
 
 struct CB_Marterial
