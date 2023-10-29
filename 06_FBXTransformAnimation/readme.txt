@@ -1,5 +1,6 @@
 목표
 
-엔진을 위한 FBX 파일 변환(나중에)보다는 Assimp 를 활용하여 FBX의 데이터를 이해하여 기존에 알고있는 버텍스,노말,탄젠트,uv, 텍스처 맵핑소스를
-처리하여 StaticMesh 모델 자체를 렌더링 해보는것을 목표로 한다. 텍스처 맵핑소스는 최대 활용 가능한 맵이 Diffuse,Normal,Specular,Emmisive 이고
-이를 처리하는 쉐이더는 하나만 작성하여 내부 if문(if문으로 인한 병렬성 문제는 나중에설명)으로 사용 텍스처에 따라 조합을 처리한다.
+블렌더의 Scenegraph 에서 Transform 정보를 갖는 오브젝트는 모두 aiNode가 될수 있다.
+이 오브젝트들은 부모자식 관계를 연결 시켜 트리 구조의 형태를 이루게 되며
+부모의 WorldTransform과 자신의 LocalTransform을 곱하여 자신의 WorldTransform을 계산한다.
+이 LocalTransform은 aiAnimation의 aiNodeAnim에서 애니메이션이 진행되는 시간에 해당되는 행렬을 구할수있다.
