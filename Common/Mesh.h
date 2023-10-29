@@ -75,6 +75,6 @@ public:
 	void SetNodeWorldPtr(Math::Matrix* world) { m_pNodeWorldTransform = world; }
 	void UpdateBoneNodePtr(Node* pRootNode);
 	void UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr);
-	bool IsSkeletalMesh() { return !m_Bones.empty(); }
+	bool IsSkeletalMesh() { return !m_Bones.empty(); }	
 };
 

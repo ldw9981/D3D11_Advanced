@@ -13,8 +13,6 @@ struct CB_Transform
 	Matrix mWorld;
 	Matrix mView;
 	Matrix mProjection;
-	int IsSkeletalMesh = 0;
-	int pad[3];
 }; 
 
 struct CB_DirectionLight

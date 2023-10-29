@@ -14,8 +14,6 @@ cbuffer Transform : register(b0)
     matrix World;
     matrix View;
     matrix Projection;
-    int IsSkeletalMesh;
-    int pad[3];
 }
 
 cbuffer DirectionLight : register(b1)

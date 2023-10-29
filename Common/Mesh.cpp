@@ -164,6 +164,7 @@ void Mesh::UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr)
 	for (UINT i = 0; i < m_Bones.size(); ++i)
 	{
 		Math::Matrix& BoneNodeWorldMatrix = *m_Bones[i].NodeWorldMatrixPtr;
+		// HLSL 상수버퍼에 업데이트할때 바로 복사할수있도록 전치해서 저장한다.
 		MatrixPalletePtr[i] = (m_Bones[i].OffsetMatrix * BoneNodeWorldMatrix).Transpose();
 	}
 }

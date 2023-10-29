@@ -93,22 +93,25 @@ void TutorialApp::Render()
 	{
 		Mesh& mesh = m_Model.m_Meshes[i];
 
-		// Transfer Transform
+		// 머터리얼 적용
+		ApplyMaterial(m_Model.GetMaterial(mesh.m_MaterialIndex));
+
+		// 스켈레탈 메쉬(본이있으면) 행렬팔레트 업데이트
 		if (mesh.IsSkeletalMesh())
 		{
-			mesh.UpdateMatrixPallete(&m_MatrixPallete.Array[0]);
+			mesh.UpdateMatrixPallete(&m_MatrixPallete.Array[0]);			
 			m_pDeviceContext->UpdateSubresource(m_pCBMatrixPallete, 0, nullptr, &m_MatrixPallete.Array[0], 0, 0);
 		}
 
-		m_Transform.IsSkeletalMesh = mesh.IsSkeletalMesh();
+		// MVP Matrix 전송
 		m_Transform.mWorld = mesh.m_pNodeWorldTransform->Transpose();
 		m_Transform.mView = m_View.Transpose();
 		m_Transform.mProjection = m_Projection.Transpose();
 		m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &m_Transform, 0, 0);
-
-		ApplyMaterial( m_Model.GetMaterial(mesh.m_MaterialIndex));
+		
+		// Draw
 		m_pDeviceContext->IASetIndexBuffer(mesh.m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-		m_pDeviceContext->IASetVertexBuffers(0, 1,&mesh.m_pVertexBuffer, &mesh.m_VertexBufferStride, &mesh.m_VertexBufferOffset);
+		m_pDeviceContext->IASetVertexBuffers(0, 1, &mesh.m_pVertexBuffer, &mesh.m_VertexBufferStride, &mesh.m_VertexBufferOffset);
 		m_pDeviceContext->DrawIndexed(mesh.m_IndexCount, 0, 0);
 	}
 
