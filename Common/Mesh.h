@@ -16,19 +16,21 @@ struct BoneWeightVertex
 	Math::Vector2 TexCoord;
 	Math::Vector3 Normal;
 	Math::Vector3 Tangent;
-	int BoneIndex[4] = {};
-	float BoneWeight[4] = {};
+	// 영향받는 본수는 최대4개로 제한한다.
+	int BlendIndeces[4] = {};		// 참조하는 본의 인덱스의 범위는 최대128개로 일단처리하자
+	float BlendWeights[4] = {};	// 가중치 총합은 1이 되어야한다.
 
 	void AddBoneData(int boneIndex, float weight)
 	{
-		// 4개중 하나는 데이터가 비어있어야...
-		assert(BoneWeight[0] == 0.0f || BoneWeight[1] == 0.0f || BoneWeight[2] == 0.0f || BoneWeight[3] == 0.0f);
+		// 적어도 하나는 데이터가 비어있어야 한다.
+		assert(BlendWeights[0] == 0.0f || BlendWeights[1] == 0.0f ||
+		BlendWeights[2] == 0.0f || BlendWeights[3] == 0.0f);
 		for (int i = 0; i < 4; i++)
 		{
-			if (BoneWeight[i] == 0.0f)
+			if (BlendWeights[i] == 0.0f)
 			{
-				BoneIndex[i] = boneIndex;
-				BoneWeight[i] = weight;
+				BlendIndeces[i] = boneIndex;
+				BlendWeights[i] = weight;
 				return;
 			}
 		}
