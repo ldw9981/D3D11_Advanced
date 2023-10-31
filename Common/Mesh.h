@@ -35,7 +35,7 @@ struct BoneWeightVertex
 	}
 };
 
-struct Bone
+struct BoneReference
 {
 	std::string NodeName;		 
 	Math::Matrix OffsetMatrix;	 // 본기준의 메쉬 오프셋 행렬
@@ -54,7 +54,7 @@ public:
 	std::vector<BoneWeightVertex>	m_BoneWeightVertices;
 	std::vector<WORD>				m_Indices;
 
-	std::vector<Bone>				m_Bones;
+	std::vector<BoneReference>		m_BoneReferences;
 
 	Math::Matrix* m_pNodeWorldTransform = nullptr;		// StaticMesh의 월드행렬을 가진 노드의 포인터
 	ID3D11Buffer* m_pVertexBuffer;
@@ -75,6 +75,6 @@ public:
 	void SetNodeWorldPtr(Math::Matrix* world) { m_pNodeWorldTransform = world; }
 	void UpdateBoneNodePtr(Node* pRootNode);
 	void UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr);
-	bool IsSkeletalMesh() { return !m_Bones.empty(); }	
+	bool IsSkeletalMesh() { return !m_BoneReferences.empty(); }	
 };
 

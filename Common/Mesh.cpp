@@ -100,7 +100,7 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh)
 		
 		UINT meshBoneCount = mesh->mNumBones;
 		// 본정보 컨테이너 크기 조절
-		m_Bones.resize(meshBoneCount);
+		m_BoneReferences.resize(meshBoneCount);
 		
 		// 메쉬와 연결된 본들을 처리
 		UINT boneIndexCounter = 0;
@@ -117,8 +117,8 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh)
 				// Map bone name to bone index
 				boneIndex = boneIndexCounter;
 				boneIndexCounter++;
-				m_Bones[boneIndex].NodeName = boneName;
-				m_Bones[boneIndex].OffsetMatrix = Math::Matrix(&bone->mOffsetMatrix.a1).Transpose();
+				m_BoneReferences[boneIndex].NodeName = boneName;
+				m_BoneReferences[boneIndex].OffsetMatrix = Math::Matrix(&bone->mOffsetMatrix.a1).Transpose();
 				BoneMapping[boneName] = boneIndex;
 			}
 			else
@@ -152,7 +152,7 @@ void Mesh::UpdateBoneNodePtr(Node* pRootNode)
 {
 	assert(pRootNode != nullptr);
 	
-	for (auto& bone : m_Bones)
+	for (auto& bone : m_BoneReferences)
 	{
 		bone.NodeWorldMatrixPtr = &pRootNode->FindNode(bone.NodeName)->m_World;
 	}
@@ -160,11 +160,11 @@ void Mesh::UpdateBoneNodePtr(Node* pRootNode)
 
 void Mesh::UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr)
 {
-	assert(m_Bones.size()< 128);
-	for (UINT i = 0; i < m_Bones.size(); ++i)
+	assert(m_BoneReferences.size()< 128);
+	for (UINT i = 0; i < m_BoneReferences.size(); ++i)
 	{
-		Math::Matrix& BoneNodeWorldMatrix = *m_Bones[i].NodeWorldMatrixPtr;
+		Math::Matrix& BoneNodeWorldMatrix = *m_BoneReferences[i].NodeWorldMatrixPtr;
 		// HLSL 상수버퍼에 업데이트할때 바로 복사할수있도록 전치해서 저장한다.
-		MatrixPalletePtr[i] = (m_Bones[i].OffsetMatrix * BoneNodeWorldMatrix).Transpose();
+		MatrixPalletePtr[i] = (m_BoneReferences[i].OffsetMatrix * BoneNodeWorldMatrix).Transpose();
 	}
 }
