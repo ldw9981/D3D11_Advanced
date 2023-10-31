@@ -98,20 +98,16 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh)
 
 		}
 		
-		UINT meshBoneCount = mesh->mNumBones;
-		// 본정보 컨테이너 크기 조절
-		m_BoneReferences.resize(meshBoneCount);
-		
+		UINT meshBoneCount = mesh->mNumBones;	// 메쉬와 연결된 본개수
+		m_BoneReferences.resize(meshBoneCount); // 본 연결 정보 컨테이너 크기 조절		
 		// 메쉬와 연결된 본들을 처리
 		UINT boneIndexCounter = 0;
 		std::map<std::string, int> BoneMapping;
-		for (UINT i = 0; i < mesh->mNumBones; ++i)
-		{
-		
+		for (UINT i = 0; i < meshBoneCount; ++i)
+		{		
 			aiBone* bone = mesh->mBones[i];			
 			std::string boneName = bone->mName.C_Str();
-			UINT boneIndex = 0;
-			
+			UINT boneIndex = 0;			
 			if (BoneMapping.find(boneName) == BoneMapping.end())
 			{
 				// Map bone name to bone index
@@ -122,9 +118,7 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh)
 				BoneMapping[boneName] = boneIndex;
 			}
 			else
-			{
 				boneIndex = BoneMapping[boneName];
-			}
 					
 			// 본과 연결된 버텍스들을 처리
 			for (UINT j = 0; j < bone->mNumWeights; ++j)
