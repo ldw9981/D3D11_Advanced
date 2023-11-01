@@ -9,10 +9,10 @@ PS_INPUT main(VS_INPUT input)
     float4 pos = input.PositionModel;
 
     float4x4 matWorldBlended;
-    matWorldBlended = mul(input.BlendWeights.x, MatrixPalleteArray[input.BlendIndices.x]);
-    matWorldBlended += mul(input.BlendWeights.y, MatrixPalleteArray[input.BlendIndices.y]);
-    matWorldBlended += mul(input.BlendWeights.z, MatrixPalleteArray[input.BlendIndices.z]);
-    matWorldBlended += mul(input.BlendWeights.w, MatrixPalleteArray[input.BlendIndices.w]);
+    matWorldBlended = mul(input.BlendWeights.x, MatrixPaletteArray[input.BlendIndices.x]);
+    matWorldBlended += mul(input.BlendWeights.y, MatrixPaletteArray[input.BlendIndices.y]);
+    matWorldBlended += mul(input.BlendWeights.z, MatrixPaletteArray[input.BlendIndices.z]);
+    matWorldBlended += mul(input.BlendWeights.w, MatrixPaletteArray[input.BlendIndices.w]);
     
     pos = mul(pos, matWorldBlended);
     output.PositionWorld = pos.xyz;

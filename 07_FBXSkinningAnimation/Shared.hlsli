@@ -42,9 +42,9 @@ cbuffer Material : register(b2)
     float2 MaterialPad0;
 }
 
-cbuffer MatrixPallete : register(b3)
+cbuffer MatrixPalette : register(b3)
 {
-    matrix MatrixPalleteArray[128];
+    matrix MatrixPaletteArray[128];
 }
 
 

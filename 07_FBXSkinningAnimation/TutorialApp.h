@@ -26,7 +26,7 @@ struct CB_DirectionLight
 	float pad1 = 0.0f;
 };
 
-struct CB_MatrixPallete
+struct CB_MatrixPalette
 {
 	Matrix Array[128];
 };
@@ -77,7 +77,7 @@ public:
 	ID3D11Buffer* m_pCBMaterial = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBTransform = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBDirectionLight = nullptr;		// 상수 버퍼: 방향광
-	ID3D11Buffer* m_pCBMatrixPallete = nullptr;			// 상수 버퍼: 매트릭스팔레트
+	ID3D11Buffer* m_pCBMatrixPalette = nullptr;			// 상수 버퍼: 매트릭스팔레트
 
 	// 렌더링 파이프라인에 적용하는 정보
 	UINT m_VertexBufferStride = 0;						// 버텍스 하나의 크기.
@@ -94,7 +94,7 @@ public:
 	CB_Transform m_Transform;
 	CB_Marterial m_CBMaterial;
 	CB_DirectionLight m_Light;
-	CB_MatrixPallete m_MatrixPallete;
+	CB_MatrixPalette m_MatrixPalette;
 	float m_MeshScale=1.0f;
 	
 	Model m_Model;
