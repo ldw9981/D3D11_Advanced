@@ -161,18 +161,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/,
 
 	// Retrieve the model file path.
     std::wstring filename(argv[1]);
-    
-	char *targetStart = new char[filename.size()+1];
-    memset(targetStart, '\0', filename.size() + 1);
-
-
-	int bufferSize = WideCharToMultiByte(CP_UTF8, 0, filename.c_str(), -1, nullptr, 0, nullptr, nullptr);
-	std::string koreanString(bufferSize, 0);
-	WideCharToMultiByte(CP_UTF8, 0, filename.c_str(), -1, &koreanString[0], bufferSize, nullptr, nullptr);
-		
   
-   g_ModelPath = koreanString;
-    delete[] targetStart;
+	std::string mbString(filename.length(), 0);
+	WideCharToMultiByte(CP_UTF8, 0, filename.c_str(), -1, &mbString[0], filename.length(), nullptr, nullptr);
+	g_ModelPath = mbString;
+
 	free_command_line_allocated_memory();
 
 	WNDCLASSEX wc;
