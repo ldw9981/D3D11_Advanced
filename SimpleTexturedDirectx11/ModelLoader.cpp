@@ -75,9 +75,13 @@ Mesh ModelLoader::processMesh(aiMesh * mesh, const aiScene * scene) {
 
 	if (mesh->mMaterialIndex >= 0) {
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-
-		std::vector<Texture> diffuseMaps = this->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
-		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	
+		// 텍스처 모든 종류 다 처리해서 내장된 텍스처 저장하게 한다. 셰이더는 구현하지 않았으므로 맵핑소스를 전부 사용하지는 않음
+		for (UINT typeIndex = aiTextureType_DIFFUSE ; typeIndex <= (UINT)aiTextureType_AMBIENT_OCCLUSION  ; typeIndex++)
+		{
+			std::vector<Texture> diffuseMaps = this->loadMaterialTextures(material, (aiTextureType)typeIndex, "texture_diffuse", scene);
+			textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+		}
 	}
 
 	return Mesh(dev_, vertices, indices, textures);
@@ -102,34 +106,18 @@ std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial * mat, aiTextu
 			Texture texture;
 			std::wstring wsDirectory_(directory_.length(), 0);
 			MultiByteToWideChar(CP_UTF8, 0, directory_.c_str(), -1, &wsDirectory_[0], directory_.length());
-#ifdef _EXPORT_EMBEDDED_TEXTURES
+
 			const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
 			if (embeddedTexture != nullptr)
-			{
-				bool result  = saveEmbeddedTexture(embeddedTexture);
-				assert(result == true);
+			{  
+				bool result  = saveEmbeddedTexture(embeddedTexture); // loadEmbeddedTexture()사용을 제거하고 내장된 텍스처를 파일로 저장후 로드
 			}
 			std::filesystem::path path = std::string(str.C_Str());
 			std::wstring filenamews = wsDirectory_ + L"/" + path.filename().wstring();
 			hr = CreateWICTextureFromFile(dev_, devcon_, filenamews.c_str(), nullptr, &texture.texture); //wstring
 			if (FAILED(hr))
-				MessageBox(hwnd_, "Texture couldn't be loaded", "Error!", MB_ICONERROR | MB_OK);
-			
-#else
-			const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
-			if (embeddedTexture != nullptr)
-			{
-				texture.texture = loadEmbeddedTexture(embeddedTexture);
-			}
-			else
-			{
-				std::filesystem::path path = std::string(str.C_Str());
-				std::wstring filenamews = wsDirectory_ + path.filename().wstring();
-				hr = CreateWICTextureFromFile(dev_, devcon_, filenamews.c_str(), nullptr, &texture.texture); //wstring
-				if (FAILED(hr))
-					MessageBox(hwnd_, "Texture couldn't be loaded", "Error!", MB_ICONERROR | MB_OK);
-			}
-#endif // _EXPORT_EMBEDDED_TEXTURES
+				MessageBox(hwnd_, "Texture couldn't be loaded", "Error!", MB_ICONERROR | MB_OK);			
+
 			texture.type = typeName;
 			texture.path = str.C_Str();
 			textures.push_back(texture);
