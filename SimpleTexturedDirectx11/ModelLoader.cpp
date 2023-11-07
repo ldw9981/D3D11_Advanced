@@ -91,7 +91,8 @@ std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextur
 	std::vector<Texture> textures;
 	// aiMaterial에는 특정타입의 texture가 여러개 있을수 있다. 
 	// 그 개수를 얻고 인덱스로 접근해서 텍스처 경로를 얻는다.
-	for (UINT i = 0; i < mat->GetTextureCount(type); i++)
+	UINT textureCount = mat->GetTextureCount(type);
+	for (UINT i = 0; i < textureCount; i++)
 	{
 		aiString str;
 

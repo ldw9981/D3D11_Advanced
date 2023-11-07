@@ -68,6 +68,7 @@ void Material::Create(ID3D11Device* device,aiMaterial* pMaterial)
 		path = ToWString(string(texturePath.C_Str()));		
 		finalPath = basePath + path.filename().wstring();
 		HR_T(CreateTextureFromFile( device, finalPath.c_str(),&m_pDiffuseRV));
+		m_FilePathDiffuse = finalPath;
 	}
 
 	if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_NORMALS, 0, &texturePath))
@@ -75,6 +76,7 @@ void Material::Create(ID3D11Device* device,aiMaterial* pMaterial)
 		path = ToWString(string(texturePath.C_Str()));
 		finalPath = basePath + path.filename().wstring();
 		HR_T(CreateTextureFromFile(device, finalPath.c_str(), &m_pNormalRV));
+		m_FilePathNormal = finalPath;
 	}
 
 	if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_SPECULAR, 0, &texturePath))
@@ -82,6 +84,7 @@ void Material::Create(ID3D11Device* device,aiMaterial* pMaterial)
 		path = ToWString(string(texturePath.C_Str()));
 		finalPath = basePath + path.filename().wstring();
 		HR_T(CreateTextureFromFile(device, finalPath.c_str(), &m_pSpecularRV));
+		m_FilePathSpecular = finalPath;
 	}
 
 	if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_EMISSIVE, 0, &texturePath))
@@ -89,6 +92,7 @@ void Material::Create(ID3D11Device* device,aiMaterial* pMaterial)
 		path = ToWString(string(texturePath.C_Str()));
 		finalPath = basePath + path.filename().wstring();
 		HR_T(CreateTextureFromFile(device, finalPath.c_str(), &m_pEmissiveRV));
+		m_FilePathEmissive = finalPath;
 	}
 
 	if (AI_SUCCESS == pMaterial->GetTexture(aiTextureType_OPACITY, 0, &texturePath))
@@ -96,5 +100,6 @@ void Material::Create(ID3D11Device* device,aiMaterial* pMaterial)
 		path = ToWString(string(texturePath.C_Str()));
 		finalPath = basePath + path.filename().wstring();
 		HR_T(CreateTextureFromFile(device, finalPath.c_str(), &m_pOpacityRV));
+		m_FilePathOpacity = finalPath;
 	}	
 }
