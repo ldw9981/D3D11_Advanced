@@ -87,42 +87,39 @@ Mesh ModelLoader::processMesh(aiMesh * mesh, const aiScene * scene) {
 	return Mesh(dev_, vertices, indices, textures);
 }
 
-std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial * mat, aiTextureType type, std::string typeName, const aiScene * scene) {
+std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene) {
 	std::vector<Texture> textures;
-	for (UINT i = 0; i < mat->GetTextureCount(type); i++) {
+	// aiMaterial에는 특정타입의 texture가 여러개 있을수 있다. 
+	// 그 개수를 얻고 인덱스로 접근해서 텍스처 경로를 얻는다.
+	for (UINT i = 0; i < mat->GetTextureCount(type); i++)
+	{
 		aiString str;
+
 		mat->GetTexture(type, i, &str);
-		// Check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-		bool skip = false;
-		for (UINT j = 0; j < textures_loaded_.size(); j++) {
-			if (std::strcmp(textures_loaded_[j].path.c_str(), str.C_Str()) == 0) {
-				textures.push_back(textures_loaded_[j]);
-				skip = true; // A texture with the same filepath has already been loaded, continue to next one. (optimization)
-				break;
-			}
-		}
-		if (!skip) {   // If texture hasn't been loaded already, load it
-			HRESULT hr;
-			Texture texture;
-			std::wstring wsDirectory_(directory_.length(), 0);
-			MultiByteToWideChar(CP_UTF8, 0, directory_.c_str(), -1, &wsDirectory_[0], directory_.length());
+		// 중복 로딩 방지 코드 제거 
 
-			const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
-			if (embeddedTexture != nullptr)
-			{  
-				bool result  = saveEmbeddedTexture(embeddedTexture); // loadEmbeddedTexture()사용을 제거하고 내장된 텍스처를 파일로 저장후 로드
-			}
-			std::filesystem::path path = std::string(str.C_Str());
-			std::wstring filenamews = wsDirectory_ + L"/" + path.filename().wstring();
-			hr = CreateWICTextureFromFile(dev_, devcon_, filenamews.c_str(), nullptr, &texture.texture); //wstring
-			if (FAILED(hr))
-				MessageBox(hwnd_, "Texture couldn't be loaded", "Error!", MB_ICONERROR | MB_OK);			
+		HRESULT hr;
+		Texture texture;
+		std::wstring wsDirectory_(directory_.length(), 0);
+		MultiByteToWideChar(CP_UTF8, 0, directory_.c_str(), -1, &wsDirectory_[0], directory_.length());
 
-			texture.type = typeName;
-			texture.path = str.C_Str();
-			textures.push_back(texture);
-			this->textures_loaded_.push_back(texture);  // Store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+		const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
+		if (embeddedTexture != nullptr)
+		{
+			//texture.texture = loadEmbeddedTexture(embeddedTexture);	//메모리로 부터 텍스처 생성을 변경했다.
+			bool result = saveEmbeddedTexture(embeddedTexture);
+			assert(result == true);
 		}
+		std::filesystem::path path = std::string(str.C_Str());
+		std::wstring filenamews = wsDirectory_ + L"/" + path.filename().wstring();
+		hr = CreateWICTextureFromFile(dev_, devcon_, filenamews.c_str(), nullptr, &texture.texture); //wstring
+		if (FAILED(hr))
+			MessageBox(hwnd_, "Texture couldn't be loaded", "Error!", MB_ICONERROR | MB_OK);
+
+		texture.type = typeName;
+		texture.path = str.C_Str();
+		textures.push_back(texture);
+		// 중복 로딩 방지 코드 제거
 	}
 	return textures;
 }
