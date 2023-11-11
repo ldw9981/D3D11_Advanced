@@ -304,8 +304,13 @@ bool TutorialApp::InitScene()
 	// 1. Render() 에서 파이프라인에 바인딩할 버텍스 버퍼및 버퍼 정보 준비	
 
 	// 2. Render() 에서 파이프라인에 바인딩할 InputLayout 생성 	
+	D3D_SHADER_MACRO defines[] =
+	{
+	 	{"VERTEX_SKINNING",""}, // 매크로 이름과 값을 설정
+		{nullptr, nullptr}    // 배열의 끝을 나타내기 위해 nullptr로 끝낸다.
+	};
 	ID3D10Blob* vertexShaderBuffer = nullptr;
-	hr = CompileShaderFromFile(L"07_VertexShader.hlsl", "main", "vs_5_0", &vertexShaderBuffer);
+	hr = CompileShaderFromFile(L"07_VertexShader.hlsl",defines, "main", "vs_5_0", &vertexShaderBuffer);
 	if (FAILED(hr))
 	{
 		hr = D3DReadFileToBlob(L"07_VertexShader.cso", &vertexShaderBuffer);
@@ -332,7 +337,7 @@ bool TutorialApp::InitScene()
 
 	// 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성
 	ID3D10Blob* pixelShaderBuffer = nullptr;
-	hr = CompileShaderFromFile(L"07_PixelShader.hlsl", "main", "ps_5_0", &pixelShaderBuffer);
+	hr = CompileShaderFromFile(L"07_PixelShader.hlsl", nullptr, "main", "ps_5_0", &pixelShaderBuffer);
 	if (FAILED(hr))
 	{
 		hr = D3DReadFileToBlob(L"07_PixelShader.cso", &pixelShaderBuffer);

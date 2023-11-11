@@ -55,8 +55,10 @@ struct VS_INPUT
     float2 TexCoord : TEXCOORD0;
     float3 NormalModel : NORMAL;
     float3 TangentModel : TANGENT; 
+#ifdef VERTEX_SKINNING 
     int4 BlendIndices : BLENDINDICES;
     float4 BlendWeights : BLENDWEIGHTS;
+#endif
 };
 
 struct PS_INPUT

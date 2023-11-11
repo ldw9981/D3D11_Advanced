@@ -284,7 +284,7 @@ bool TutorialApp::InitScene()
 
 	// 2. Render() 에서 파이프라인에 바인딩할 InputLayout 생성 	
 	ID3D10Blob* vertexShaderBuffer = nullptr;
-	hr = CompileShaderFromFile(L"01_LambertLight_VS.hlsl", "main", "vs_4_0", &vertexShaderBuffer);
+	hr = CompileShaderFromFile(L"01_LambertLight_VS.hlsl",nullptr, "main", "vs_4_0", &vertexShaderBuffer);
 	if (FAILED(hr))
 	{
 		hr = D3DReadFileToBlob(L"01_LambertLight_VS.cso", &vertexShaderBuffer);
@@ -333,7 +333,7 @@ bool TutorialApp::InitScene()
 
 	// 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성	
 	ID3D10Blob* pixelShaderBuffer = nullptr;
-	hr = CompileShaderFromFile(L"01_LambertLight_PS.hlsl", "main", "ps_4_0", &pixelShaderBuffer);
+	hr = CompileShaderFromFile(L"01_LambertLight_PS.hlsl", nullptr, "main", "ps_4_0", &pixelShaderBuffer);
 	if (FAILED(hr))
 	{
 		hr = D3DReadFileToBlob(L"01_LambertLight_PS.cso", &pixelShaderBuffer);
