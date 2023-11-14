@@ -390,7 +390,7 @@ bool TutorialApp::InitScene()
 	m_Meshes.resize(scene->mNumMeshes);
 	for (unsigned int i = 0; i < scene->mNumMeshes; ++i) 
 	{
-		m_Meshes[i].Create(m_pDevice, scene->mMeshes[i]);
+		m_Meshes[i].Create(m_pDevice, scene->mMeshes[i],nullptr);
 	}
 	importer.FreeScene();
 	return true;

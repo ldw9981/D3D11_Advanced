@@ -4,7 +4,7 @@
 #include "Material.h"
 #include "Animation.h"
 #include "Node.h"
-
+#include "Skeleton.h"
 
 class Model
 {
@@ -12,11 +12,16 @@ public:
 	Model() {}
 	~Model() {}
 	
+	// 공유 가능한 데이터
 	std::vector<Mesh> m_Meshes;	
 	std::vector<Material> m_Materials;
-	std::vector<Animation> m_Animations;
+	std::vector<Animation> m_Animations;	
+	Skeleton m_Skeleton;
+	
+	// 인스턴스 데이터
 	float m_AnimationProressTime = 0.0f;
 	Node m_RootNode;
+    
 
 	bool ReadFile(ID3D11Device* device,const char* filePath);
 		

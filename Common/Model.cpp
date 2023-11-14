@@ -55,6 +55,7 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 		}
 	}
 	
+	m_Skeleton.Create(scene->mRootNode);
 
 	m_Materials.resize(scene->mNumMaterials);
 	for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
@@ -65,7 +66,7 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 	m_Meshes.resize(scene->mNumMeshes);
 	for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 	{
-		m_Meshes[i].Create(device, scene->mMeshes[i]);
+		m_Meshes[i].Create(device, scene->mMeshes[i],&m_Skeleton);
 	}
 
 	assert(scene->mNumAnimations < 2); // 애니메이션은 없거나 1개여야한다. 
@@ -94,7 +95,7 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 	
 	for (auto& mesh : m_Meshes)
 	{
-		mesh.UpdateBoneNodePtr(&m_RootNode);
+		mesh.UpdateBoneNodePtr(&m_RootNode,&m_Skeleton);
 	}
 
 	importer.FreeScene();

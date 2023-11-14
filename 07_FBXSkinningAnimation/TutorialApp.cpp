@@ -99,7 +99,7 @@ void TutorialApp::Render()
 		// 스켈레탈 메쉬(본이있으면) 행렬팔레트 업데이트
 		if (mesh.IsSkeletalMesh())
 		{
-			mesh.UpdateMatrixPallete(&m_MatrixPalette.Array[0]);			
+			mesh.UpdateMatrixPallete(&m_MatrixPalette.Array[0],&m_Model.m_Skeleton);			
 			m_pDeviceContext->UpdateSubresource(m_pCBMatrixPalette, 0, nullptr, &m_MatrixPalette.Array[0], 0, 0);
 		}
 

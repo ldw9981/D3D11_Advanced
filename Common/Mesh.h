@@ -40,11 +40,12 @@ struct BoneWeightVertex
 struct BoneReference
 {
 	std::string NodeName;		 
-	Math::Matrix OffsetMatrix;	 // 본기준의 메쉬 오프셋 행렬
+	int BoneIndex = -1;			 // 본 인덱스
 	Math::Matrix* NodeWorldMatrixPtr;
 };
 
 struct aiMesh;
+struct Skeleton;
 class Node;
 class Mesh
 {
@@ -72,11 +73,11 @@ public:
 	void CreateBoneWeightVertexBuffer(ID3D11Device* device, BoneWeightVertex* vertices, UINT vertexCount);
 
 	void CreateIndexBuffer(ID3D11Device* device, WORD* indies, UINT indexCount);
-	void Create(ID3D11Device* device, aiMesh* mesh);
+	void Create(ID3D11Device* device,aiMesh* mesh, Skeleton* skeleton);
 	// 계층 구조 노드가 소유한 World의 포인터를 설정
 	void SetNodeWorldPtr(Math::Matrix* world) { m_pNodeWorldTransform = world; }
-	void UpdateBoneNodePtr(Node* pRootNode);
-	void UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr);
+	void UpdateBoneNodePtr(Node* pRootNode, Skeleton* skeleton);
+	void UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr, Skeleton* skeleton);
 	bool IsSkeletalMesh() { return !m_BoneReferences.empty(); }	
 };
 
