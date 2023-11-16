@@ -2,8 +2,15 @@
 #include "Node.h"
 #include "Model.h"
 #include "Helper.h"
+#include "Skeleton.h"
 
-void Node::Create(Model* model,aiNode* node)
+
+Node::~Node()
+{
+	LOG_MESSAGEA("~Node() %s", m_Name.c_str());	
+}
+
+void Node::LoadSkeleton(Model* model,aiNode* node)
 {
 	m_Name = node->mName.C_Str();	
 	LOG_MESSAGEA(m_Name.c_str());
@@ -27,7 +34,32 @@ void Node::Create(Model* model,aiNode* node)
 	for (UINT i = 0; i < numChild; ++i)
 	{
 		m_Children[i].m_pParent = this;
-		m_Children[i].Create(model,node->mChildren[i]);
+		m_Children[i].LoadSkeleton(model,node->mChildren[i]);
+	}
+}
+
+void Node::LoadSkeleton(Skeleton* skeleton)
+{
+	UINT count = skeleton->GetBoneCount();
+
+	Bone* pBone = skeleton->GetBone(0);
+	m_Name = pBone->Name;
+	m_Children.reserve(pBone->NumChildren);	
+		
+	for (int i = 1; i < count; i++)
+	{
+		Bone* pBone = skeleton->GetBone(i);
+		assert(pBone != nullptr);
+		assert(pBone->ParentBoneIndex != -1);
+
+		Node* pParentNode = FindNode(skeleton->GetBoneName(pBone->ParentBoneIndex));
+		assert(pParentNode != nullptr);
+
+		auto& node = pParentNode->m_Children.emplace_back();
+		node.m_Name = pBone->Name;
+		node.m_Local = pBone->RelativeTransform;
+		node.m_Children.reserve(pBone->NumChildren);
+		node.m_pParent = pParentNode;
 	}
 }
 

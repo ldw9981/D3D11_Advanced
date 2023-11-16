@@ -3,11 +3,13 @@
 struct aiNode;
 class Model;
 struct NodeAnimation;
+struct Skeleton;
+struct Bone;
 class Node
 {
 public:
-	Node() {}
-	~Node() {}
+	Node() {};
+	~Node();
 
 	std::string m_Name;	
 	Math::Matrix m_Local;	
@@ -17,9 +19,11 @@ public:
 	Node* m_pParent = nullptr;
 	NodeAnimation* m_pNodeAnimation = nullptr; // 노드가 사용할 NodeAnimation가 있는 주소
 
-	void Create(Model* model,aiNode* node);
+	void LoadSkeleton(Model* model,aiNode* node);
+	void LoadSkeleton(Skeleton* skeleton);
+
 	void UpdateAnimation(float progressTime);
-	
 	Node* FindNode(const std::string& name);
+	void CreateChild(Bone* pBone);
 };	
 

@@ -6,7 +6,7 @@
 #include "Node.h"
 #include "Skeleton.h"
 
-class Model
+class Model: public Node
 {
 public:
 	Model() {}
@@ -20,7 +20,6 @@ public:
 	
 	// 인스턴스 데이터
 	float m_AnimationProressTime = 0.0f;
-	Node m_RootNode;
     
 
 	bool ReadFile(ID3D11Device* device,const char* filePath);

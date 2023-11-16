@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "Skeleton.h"
+#include "Node.h"
 
 Bone* Skeleton::Create(const aiNode* pNode)
-{
-	
+{ 	
 	Bones.push_back(Bone(pNode));
 	int BoneIndex = (int)(Bones.size() - 1);	
 	Bone& bone = Bones[BoneIndex];
 	BoneMappingTable[bone.Name] = BoneIndex;
-	UINT numChild = pNode->mNumChildren;
+	UINT numChild = pNode->mNumChildren;	
 	for (UINT i = 0; i < numChild; ++i)
 	{
 		Bone* child = Create(pNode->mChildren[i]);
@@ -16,6 +16,7 @@ Bone* Skeleton::Create(const aiNode* pNode)
 	}
 	return &Bones[BoneIndex];
 }
+
 
 Bone* Skeleton::FindBone(const std::string& name)
 {

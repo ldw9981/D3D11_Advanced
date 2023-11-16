@@ -102,9 +102,12 @@ void TutorialApp::Render()
 			mesh.UpdateMatrixPallete(&m_MatrixPalette.Array[0],&m_Model.m_Skeleton);			
 			m_pDeviceContext->UpdateSubresource(m_pCBMatrixPalette, 0, nullptr, &m_MatrixPalette.Array[0], 0, 0);
 		}
+		else
+		{
+			// MVP Matrix 전송
+			m_Transform.mWorld = mesh.m_pNodeWorldTransform->Transpose();
+		}
 
-		// MVP Matrix 전송
-		m_Transform.mWorld = mesh.m_pNodeWorldTransform->Transpose();
 		m_Transform.mView = m_View.Transpose();
 		m_Transform.mProjection = m_Projection.Transpose();
 		m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &m_Transform, 0, 0);

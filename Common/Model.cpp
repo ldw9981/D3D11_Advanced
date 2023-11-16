@@ -55,7 +55,9 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 		}
 	}
 	
-	m_Skeleton.Create(scene->mRootNode);
+	m_Skeleton.Create(scene->mRootNode);	
+	LoadSkeleton(&m_Skeleton);
+
 
 	m_Materials.resize(scene->mNumMaterials);
 	for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
@@ -69,10 +71,12 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 		m_Meshes[i].Create(device, scene->mMeshes[i],&m_Skeleton);
 	}
 
+	//LoadSkeleton(this, scene->mRootNode);
+
 	assert(scene->mNumAnimations < 2); // 애니메이션은 없거나 1개여야한다. 
 	// 노드의 애니메이션을 하나로 합치는 방법은 FBX export에서 NLA스트립,모든 액션 옵션을 끕니다.
 
-	m_RootNode.Create(this,scene->mRootNode);
+	
 	if (scene->HasAnimations())
 	{
 		const aiAnimation* animation = scene->mAnimations[0];
@@ -95,7 +99,7 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 	
 	for (auto& mesh : m_Meshes)
 	{
-		mesh.UpdateBoneNodePtr(&m_RootNode,&m_Skeleton);
+		mesh.UpdateBoneNodePtr(this,&m_Skeleton);
 	}
 
 	importer.FreeScene();
@@ -114,7 +118,7 @@ void Model::Update(float deltaTime)
 	{
 		m_AnimationProressTime += deltaTime;
 		m_AnimationProressTime = fmod(m_AnimationProressTime, m_Animations[0].Duration);
-		m_RootNode.UpdateAnimation(m_AnimationProressTime);	
+		UpdateAnimation(m_AnimationProressTime);
 	}	
 }
 
@@ -125,12 +129,14 @@ void Model::UpdateNodeAnimationReference(UINT index)
 	for (size_t i = 0; i < animation.NodeAnimations.size(); i++)
 	{
 		NodeAnimation& nodeAnimation = animation.NodeAnimations[i];
-		Node* node = m_RootNode.FindNode(nodeAnimation.NodeName);
+		Node* node = FindNode(nodeAnimation.NodeName);
 		node->m_pNodeAnimation = &animation.NodeAnimations[i];
 	}
 }
 
 void Model::SetWorldTransform(const Math::Matrix& transform)
 {
-	m_RootNode.m_Local = transform;
+	m_Local = transform;
 }
+
+
