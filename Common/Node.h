@@ -24,6 +24,5 @@ public:
 
 	void UpdateAnimation(float progressTime);
 	Node* FindNode(const std::string& name);
-	void CreateChild(Bone* pBone);
 };	
 

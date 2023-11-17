@@ -68,6 +68,7 @@ public:
 	UINT m_VertexBufferOffset = 0;						// 버텍스 버퍼의 오프셋.
 	UINT m_IndexCount = 0;				// 인덱스 개수.
 	UINT m_MaterialIndex = 0;			// 메테리얼 인덱스.
+	std::string m_Name;					// 메쉬 이름.
 
 	void CreateVertexBuffer(ID3D11Device* device, Vertex* vertices, UINT vertexCount);
 	void CreateBoneWeightVertexBuffer(ID3D11Device* device, BoneWeightVertex* vertices, UINT vertexCount);
@@ -76,7 +77,7 @@ public:
 	void Create(ID3D11Device* device,aiMesh* mesh, Skeleton* skeleton);
 	// 계층 구조 노드가 소유한 World의 포인터를 설정
 	void SetNodeWorldPtr(Math::Matrix* world) { m_pNodeWorldTransform = world; }
-	void UpdateBoneNodePtr(Node* pRootNode, Skeleton* skeleton);
+	void UpdateNodeInstancePtr(Node* pRootNode, Skeleton* skeleton);
 	void UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr, Skeleton* skeleton);
 	bool IsSkeletalMesh() { return !m_BoneReferences.empty(); }	
 };

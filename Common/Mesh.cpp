@@ -71,6 +71,7 @@ void Mesh::CreateIndexBuffer(ID3D11Device* device, WORD* indices, UINT indexCoun
 void Mesh::Create(ID3D11Device* device, aiMesh* mesh, Skeleton* skeleton)
 {
 	m_MaterialIndex = mesh->mMaterialIndex;
+	m_Name = mesh->mName.C_Str();
 
 	// 버텍스 정보 생성
 	if (!mesh->HasBones())
@@ -106,7 +107,7 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh, Skeleton* skeleton)
 		{		
 			aiBone* bone = mesh->mBones[i];			
 			
-			UINT boneIndex = skeleton->GetBoneIndex(bone->mName.C_Str());			
+			UINT boneIndex = skeleton->GetBoneIndexByBoneName(bone->mName.C_Str());			
 			assert(boneIndex != -1);
 			Bone* pBone = skeleton->GetBone(boneIndex);
 			assert(pBone != nullptr);
@@ -139,16 +140,28 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh, Skeleton* skeleton)
 	CreateIndexBuffer(device, &m_Indices[0], (UINT)m_Indices.size());
 }
 
-void Mesh::UpdateBoneNodePtr(Node* pRootNode,Skeleton* skeleton)
+void Mesh::UpdateNodeInstancePtr(Node* pRootNode,Skeleton* skeleton)
 {
 	assert(pRootNode != nullptr);
-	
-	for (auto& bone : m_BoneReferences)
+	if (m_BoneReferences.empty())
 	{
-		Node* pNode = pRootNode->FindNode(bone.NodeName);
-		assert(pNode!=nullptr);
-		bone.NodeWorldMatrixPtr = &pNode->m_World;
+		Bone* pBone = skeleton->GetBone(skeleton->GetBoneIndexByMeshName(m_Name));
+		assert(pBone != nullptr);
+
+		Node* pNode = pRootNode->FindNode(pBone->Name);
+		assert(pNode != nullptr);
+		m_pNodeWorldTransform = &pNode->m_World;
 	}
+	else
+	{
+		for (auto& bone : m_BoneReferences)
+		{
+			Node* pNode = pRootNode->FindNode(bone.NodeName);
+			assert(pNode != nullptr);
+			bone.NodeWorldMatrixPtr = &pNode->m_World;
+		}
+	}
+
 }
 
 void Mesh::UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr, Skeleton* skeleton)
