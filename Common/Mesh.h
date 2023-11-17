@@ -79,6 +79,7 @@ public:
 	void SetNodeWorldPtr(Math::Matrix* world) { m_pNodeWorldTransform = world; }
 	void UpdateNodeInstancePtr(Node* pRootNode, Skeleton* skeleton);
 	void UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr, Skeleton* skeleton);
-	bool IsSkeletalMesh() { return !m_BoneReferences.empty(); }	
+	bool IsSkeletalMesh() { return !m_BoneReferences.empty(); }		
+	void Render(ID3D11DeviceContext* deviceContext);
 };
 

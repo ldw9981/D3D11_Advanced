@@ -78,7 +78,7 @@ void TutorialApp::Render()
 	m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pCBTransform);
 	m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pCBDirectionLight);
-	m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pCBMaterial);
+	m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pGpuCbMaterial);
 
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
@@ -91,39 +91,14 @@ void TutorialApp::Render()
 	m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &m_Transform, 0, 0);
 
 	m_Light.Direction.Normalize();
-	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &m_Light, 0, 0);
-	
-	
+	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &m_Light, 0, 0);	
 	
 	for (size_t i = 0; i < m_Meshes.size(); i++)
 	{
-		size_t mi = m_Meshes[i].m_MaterialIndex;
-		
-		m_pDeviceContext->PSSetShaderResources(0, 1, &m_Materials[mi].m_pDiffuseRV);
-		m_pDeviceContext->PSSetShaderResources(1, 1, &m_Materials[mi].m_pNormalRV);
-		m_pDeviceContext->PSSetShaderResources(2, 1, &m_Materials[mi].m_pSpecularRV);
-		m_pDeviceContext->PSSetShaderResources(3, 1, &m_Materials[mi].m_pEmissiveRV);
-		m_pDeviceContext->PSSetShaderResources(4, 1, &m_Materials[mi].m_pOpacityRV);
-		
-		m_CBMaterial.UseDiffuseMap = m_Materials[mi].m_pDiffuseRV != nullptr ? true : false ;
-		m_CBMaterial.UseNormalMap = m_Materials[mi].m_pNormalRV != nullptr ? true : false;
-		m_CBMaterial.UseSpecularMap = m_Materials[mi].m_pSpecularRV != nullptr ? true : false;
-		m_CBMaterial.UseEmissiveMap = m_Materials[mi].m_pEmissiveRV != nullptr ? true : false;
-		m_CBMaterial.UseOpacityMap = m_Materials[mi].m_pOpacityRV != nullptr ? true : false;
-
-		if(m_CBMaterial.UseOpacityMap)
-			m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState, nullptr, 0xffffffff); // 알파블렌드 상태설정 , 다른옵션은 기본값 
-		else
-			m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);	// 설정해제 , 다른옵션은 기본값
-
-		m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_CBMaterial, 0, 0);
-		m_pDeviceContext->IASetIndexBuffer(m_Meshes[i].m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-		m_pDeviceContext->IASetVertexBuffers(0, 1,&m_Meshes[i].m_pVertexBuffer, &m_Meshes[i].m_VertexBufferStride, &m_Meshes[i].m_VertexBufferOffset);
-		m_pDeviceContext->DrawIndexed(m_Meshes[i].m_IndexCount, 0, 0);
+		size_t mi = m_Meshes[i].m_MaterialIndex;		
+		m_Materials[mi].ApplyDeviceContext(m_pDeviceContext,&m_CpuCbMaterial,m_pGpuCbMaterial,m_pAlphaBlendState);
+		m_Meshes[i].Render(m_pDeviceContext);		
 	}
-	
-	
-
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -147,11 +122,11 @@ void TutorialApp::Render()
 		ImGui::ColorEdit4("LightSpecular", (float*)&m_Light.Specular);
 
 		ImGui::Text("Material");
-		ImGui::ColorEdit4("MaterialAmbient", (float*)&m_CBMaterial.Ambient);
-		ImGui::ColorEdit4("MaterialDiffuse", (float*)&m_CBMaterial.Diffuse);
-		ImGui::ColorEdit4("MaterialSpecular", (float*)&m_CBMaterial.Specular);
-		ImGui::ColorEdit4("MaterialEmissive", (float*)&m_CBMaterial.Emissive);
-		ImGui::SliderFloat("MaterialSpecularPower", (float*)&m_CBMaterial.SpecularPower, 2.0f, 4096.0f);
+		ImGui::ColorEdit4("MaterialAmbient", (float*)&m_CpuCbMaterial.Ambient);
+		ImGui::ColorEdit4("MaterialDiffuse", (float*)&m_CpuCbMaterial.Diffuse);
+		ImGui::ColorEdit4("MaterialSpecular", (float*)&m_CpuCbMaterial.Specular);
+		ImGui::ColorEdit4("MaterialEmissive", (float*)&m_CpuCbMaterial.Emissive);
+		ImGui::SliderFloat("MaterialSpecularPower", (float*)&m_CpuCbMaterial.SpecularPower, 2.0f, 4096.0f);
 
 		ImGui::Text("Camera");
 		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -2000.0f, 2000.0f);		
@@ -347,7 +322,7 @@ bool TutorialApp::InitScene()
 	bd.ByteWidth = sizeof(CB_Marterial);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
-	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBMaterial));
+	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pGpuCbMaterial));
 
     // 7. 텍스처 샘플러 생성
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -401,7 +376,7 @@ void TutorialApp::UninitScene()
 	m_Meshes.clear();
 	m_Materials.clear();
 
-	SAFE_RELEASE(m_pCBMaterial);
+	SAFE_RELEASE(m_pGpuCbMaterial);
 	SAFE_RELEASE(m_pCBTransform);
 	SAFE_RELEASE(m_pCBDirectionLight);
 	SAFE_RELEASE(m_pAlphaBlendState);

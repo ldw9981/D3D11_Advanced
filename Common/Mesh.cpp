@@ -178,3 +178,10 @@ void Mesh::UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr, Skeleton* skeleto
 		MatrixPalletePtr[BoneIndex] = (pBone->OffsetMatrix * BoneNodeWorldMatrix).Transpose();
 	}
 }
+
+void Mesh::Render(ID3D11DeviceContext* deviceContext)
+{
+	deviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+	deviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertexBufferStride, &m_VertexBufferOffset);
+	deviceContext->DrawIndexed(m_IndexCount, 0, 0);
+}

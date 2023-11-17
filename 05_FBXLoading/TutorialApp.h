@@ -23,29 +23,6 @@ struct CB_DirectionLight
 };
 
 
-
-struct CB_Marterial
-{
-	Math::Vector4 Ambient = { 1.0f,1.0f,1.0f,1.0f };	// 16byte
-	Math::Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };	// 16byte
-	Math::Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };  // 16byte
-	Math::Vector4 Emissive = { 1.0f,1.0f,1.0f,1.0f };  // 16byte
-	float  SpecularPower = 80;					// 4
-	bool UseDiffuseMap = true;					
-	bool pad1[3];								// 8
-	bool UseNormalMap = true;
-	bool pad2[3];								// 12
-	bool UseSpecularMap = true;
-	bool pad3[3];								// 16byte				
-	bool UseEmissiveMap = true;			
-	bool pad4[3];								// 4
-	bool UseOpacityMap = true;
-	bool pad5[3];								// 8
-	Math::Vector2 pad6;								// 16byte
-};
-
-
-
 class TutorialApp :
     public GameApp
 {
@@ -67,7 +44,7 @@ public:
 	ID3D11InputLayout* m_pInputLayout = nullptr;		// 입력 레이아웃.
 	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 상태.
 	ID3D11BlendState* m_pAlphaBlendState = nullptr;		// 블렌드 상태 변경 (반투명처리를위한 블렌드상태)
-	ID3D11Buffer* m_pCBMaterial = nullptr;				// 상수 버퍼: 변환행렬
+	ID3D11Buffer* m_pGpuCbMaterial = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBTransform = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBDirectionLight = nullptr;		// 상수 버퍼: 방향광
 
@@ -84,7 +61,7 @@ public:
 	Math::Vector3 m_CameraPos = Math::Vector3(0.0f, 200.0f, -1000.0f);
 
 	CB_Transform m_Transform;
-	CB_Marterial m_CBMaterial;
+	CB_Marterial m_CpuCbMaterial;
 	CB_DirectionLight m_Light;
 	float m_MeshScale=1.0f;
 	

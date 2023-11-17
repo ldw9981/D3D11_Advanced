@@ -103,3 +103,26 @@ void Material::Create(ID3D11Device* device,aiMaterial* pMaterial)
 		m_FilePathOpacity = finalPath;
 	}	
 }
+
+void Material::ApplyDeviceContext(ID3D11DeviceContext* deviceContext , CB_Marterial* cpuCbMaterial,ID3D11Buffer* gpuCbMarterial, ID3D11BlendState* alphaBlendState )
+{
+	deviceContext->PSSetShaderResources(0, 1, &m_pDiffuseRV);
+	deviceContext->PSSetShaderResources(1, 1, &m_pNormalRV);
+	deviceContext->PSSetShaderResources(2, 1, &m_pSpecularRV);
+	deviceContext->PSSetShaderResources(3, 1, &m_pEmissiveRV);
+	deviceContext->PSSetShaderResources(4, 1, &m_pOpacityRV);
+
+	cpuCbMaterial->Diffuse = m_Color;
+	cpuCbMaterial->UseDiffuseMap = m_pDiffuseRV != nullptr ? true : false;
+	cpuCbMaterial->UseNormalMap = m_pNormalRV != nullptr ? true : false;
+	cpuCbMaterial->UseSpecularMap = m_pSpecularRV != nullptr ? true : false;
+	cpuCbMaterial->UseEmissiveMap = m_pEmissiveRV != nullptr ? true : false;
+	cpuCbMaterial->UseOpacityMap = m_pOpacityRV != nullptr ? true : false;
+
+	if (cpuCbMaterial->UseOpacityMap && alphaBlendState != nullptr)
+		deviceContext->OMSetBlendState(alphaBlendState, nullptr, 0xffffffff); // 알파블렌드 상태설정 , 다른옵션은 기본값 
+	else
+		deviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);	// 설정해제 , 다른옵션은 기본값
+
+	deviceContext->UpdateSubresource(gpuCbMarterial, 0, nullptr, cpuCbMaterial, 0, 0);
+}

@@ -81,7 +81,7 @@ void TutorialApp::Render()
 	m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pCBTransform);
 	m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pCBDirectionLight);
-	m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pCBMaterial);
+	m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pGpuCbMaterial);
 
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
@@ -94,7 +94,9 @@ void TutorialApp::Render()
 		Mesh& mesh = m_Model.m_Meshes[i];
 
 		// 머터리얼 적용
-		ApplyMaterial(m_Model.GetMaterial(mesh.m_MaterialIndex));
+		Material* pMaterial = m_Model.GetMaterial(mesh.m_MaterialIndex);
+		assert(pMaterial != nullptr);
+		pMaterial->ApplyDeviceContext(m_pDeviceContext, &m_CpuCbMaterial, m_pGpuCbMaterial, m_pAlphaBlendState);
 
 		// 스켈레탈 메쉬(본이있으면) 행렬팔레트 업데이트
 		if (mesh.IsSkeletalMesh())
@@ -113,9 +115,7 @@ void TutorialApp::Render()
 		m_pDeviceContext->UpdateSubresource(m_pCBTransform, 0, nullptr, &m_Transform, 0, 0);
 		
 		// Draw
-		m_pDeviceContext->IASetIndexBuffer(mesh.m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-		m_pDeviceContext->IASetVertexBuffers(0, 1, &mesh.m_pVertexBuffer, &mesh.m_VertexBufferStride, &mesh.m_VertexBufferOffset);
-		m_pDeviceContext->DrawIndexed(mesh.m_IndexCount, 0, 0);
+		mesh.Render(m_pDeviceContext);
 	}
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -140,11 +140,11 @@ void TutorialApp::Render()
 		ImGui::ColorEdit4("LightSpecular", (float*)&m_Light.Specular);
 
 		ImGui::Text("Material");
-		ImGui::ColorEdit4("MaterialAmbient", (float*)&m_CBMaterial.Ambient);
-		ImGui::ColorEdit4("MaterialDiffuse", (float*)&m_CBMaterial.Diffuse);
-		ImGui::ColorEdit4("MaterialSpecular", (float*)&m_CBMaterial.Specular);
-		ImGui::ColorEdit4("MaterialEmissive", (float*)&m_CBMaterial.Emissive);
-		ImGui::SliderFloat("MaterialSpecularPower", (float*)&m_CBMaterial.SpecularPower, 2.0f, 4096.0f);
+		ImGui::ColorEdit4("MaterialAmbient", (float*)&m_CpuCbMaterial.Ambient);
+		ImGui::ColorEdit4("MaterialDiffuse", (float*)&m_CpuCbMaterial.Diffuse);
+		ImGui::ColorEdit4("MaterialSpecular", (float*)&m_CpuCbMaterial.Specular);
+		ImGui::ColorEdit4("MaterialEmissive", (float*)&m_CpuCbMaterial.Emissive);
+		ImGui::SliderFloat("MaterialSpecularPower", (float*)&m_CpuCbMaterial.SpecularPower, 2.0f, 4096.0f);
 
 		ImGui::Text("Camera");
 		ImGui::SliderFloat3("Position", (float*)&m_CameraPos, -2000.0f, 2000.0f);		
@@ -157,29 +157,6 @@ void TutorialApp::Render()
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 	m_pSwapChain->Present(0, 0);	// Present our back buffer to our front buffer
-}
-
-void TutorialApp::ApplyMaterial(Material* pMaterial)
-{
-	m_pDeviceContext->PSSetShaderResources(0, 1, &pMaterial->m_pDiffuseRV);
-	m_pDeviceContext->PSSetShaderResources(1, 1, &pMaterial->m_pNormalRV);
-	m_pDeviceContext->PSSetShaderResources(2, 1, &pMaterial->m_pSpecularRV);
-	m_pDeviceContext->PSSetShaderResources(3, 1, &pMaterial->m_pEmissiveRV);
-	m_pDeviceContext->PSSetShaderResources(4, 1, &pMaterial->m_pOpacityRV);
-
-	m_CBMaterial.Diffuse = pMaterial->m_Color;
-	m_CBMaterial.UseDiffuseMap = pMaterial->m_pDiffuseRV != nullptr ? true : false;
-	m_CBMaterial.UseNormalMap = pMaterial->m_pNormalRV != nullptr ? true : false;
-	m_CBMaterial.UseSpecularMap = pMaterial->m_pSpecularRV != nullptr ? true : false;
-	m_CBMaterial.UseEmissiveMap = pMaterial->m_pEmissiveRV != nullptr ? true : false;
-	m_CBMaterial.UseOpacityMap = pMaterial->m_pOpacityRV != nullptr ? true : false;
-
-	if (m_CBMaterial.UseOpacityMap)
-		m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState, nullptr, 0xffffffff); // 알파블렌드 상태설정 , 다른옵션은 기본값 
-	else
-		m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);	// 설정해제 , 다른옵션은 기본값
-
-	m_pDeviceContext->UpdateSubresource(m_pCBMaterial, 0, nullptr, &m_CBMaterial, 0, 0);
 }
 
 
@@ -372,7 +349,7 @@ bool TutorialApp::InitScene()
 	bd.ByteWidth = sizeof(CB_Marterial);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
-	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBMaterial));
+	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pGpuCbMaterial));
 
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(CB_MatrixPalette);
@@ -411,7 +388,7 @@ bool TutorialApp::InitScene()
 void TutorialApp::UninitScene()
 {	
 	SAFE_RELEASE(m_pCBMatrixPalette);
-	SAFE_RELEASE(m_pCBMaterial);
+	SAFE_RELEASE(m_pGpuCbMaterial);
 	SAFE_RELEASE(m_pCBTransform);
 	SAFE_RELEASE(m_pCBDirectionLight);
 	SAFE_RELEASE(m_pAlphaBlendState);
