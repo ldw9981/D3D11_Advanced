@@ -76,7 +76,9 @@ void TutorialApp::Render()
 	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pCBTransform);
 	m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pCBDirectionLight);
 
-	m_pDeviceContext->VSSetConstantBuffers(3, 1, &m_pCBMatrixPalette);
+	//m_pDeviceContext->VSSetConstantBuffers(3, 1, &m_pCBMatrixPalette);
+	auto buffer = m_cbMatrixPallete.GetBuffer();
+	m_pDeviceContext->VSSetConstantBuffers(3, 1,&buffer);
 
 	m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pCBTransform);
@@ -101,8 +103,8 @@ void TutorialApp::Render()
 		// 스켈레탈 메쉬(본이있으면) 행렬팔레트 업데이트
 		if (mesh.IsSkeletalMesh())
 		{
-			mesh.UpdateMatrixPallete(&m_MatrixPalette.Array[0],&m_Model.m_Skeleton);			
-			m_pDeviceContext->UpdateSubresource(m_pCBMatrixPalette, 0, nullptr, &m_MatrixPalette.Array[0], 0, 0);
+			mesh.UpdateMatrixPallete(&m_MatrixPalette,&m_Model.m_Skeleton);			
+			m_cbMatrixPallete.SetData(m_pDeviceContext, m_MatrixPalette);
 		}
 		else
 		{
@@ -351,12 +353,7 @@ bool TutorialApp::InitScene()
 	bd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pGpuCbMaterial));
 
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(CB_MatrixPalette);
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bd.CPUAccessFlags = 0;
-	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBMatrixPalette));
-
+	m_cbMatrixPallete.Create(m_pDevice);	
 
     // 7. 텍스처 샘플러 생성
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -387,7 +384,7 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {	
-	SAFE_RELEASE(m_pCBMatrixPalette);
+	SAFE_RELEASE(m_cbMatrixPallete.GetBuffer());
 	SAFE_RELEASE(m_pGpuCbMaterial);
 	SAFE_RELEASE(m_pCBTransform);
 	SAFE_RELEASE(m_pCBDirectionLight);

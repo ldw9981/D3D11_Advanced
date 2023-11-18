@@ -164,7 +164,7 @@ void Mesh::UpdateNodeInstancePtr(Node* pRootNode,Skeleton* skeleton)
 
 }
 
-void Mesh::UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr, Skeleton* skeleton)
+void Mesh::UpdateMatrixPallete(CB_MatrixPalette* pMatrixPallete, Skeleton* skeleton)
 {
 	assert(m_BoneReferences.size()< 128);
 	for (UINT i = 0; i < m_BoneReferences.size(); ++i)
@@ -175,7 +175,7 @@ void Mesh::UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr, Skeleton* skeleto
 		int BoneIndex = m_BoneReferences[i].BoneIndex;
 		Bone* pBone = skeleton->GetBone(BoneIndex); 
 
-		MatrixPalletePtr[BoneIndex] = (pBone->OffsetMatrix * BoneNodeWorldMatrix).Transpose();
+		pMatrixPallete->Array[BoneIndex] = (pBone->OffsetMatrix * BoneNodeWorldMatrix).Transpose();
 	}
 }
 

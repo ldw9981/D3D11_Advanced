@@ -5,8 +5,13 @@
 #include "../Common/Animation.h"
 #include "../Common/Node.h"
 #include "../Common/Model.h"
+#include <DirectXtk/BufferHelpers.h>
+
+
+
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
+
 
 struct CB_Transform
 {
@@ -26,21 +31,14 @@ struct CB_DirectionLight
 	float pad1 = 0.0f;
 };
 
-struct CB_MatrixPalette
-{
-	Matrix Array[128];
-};
-
-
-
-
-
 class TutorialApp :
     public GameApp
 {
 public:
 	TutorialApp(HINSTANCE hInstance);
 	~TutorialApp();
+
+
 
 	// 렌더링 파이프라인을 구성하는 필수 객체의 인터페이스
 	ID3D11Device* m_pDevice = nullptr;						// 디바이스
@@ -59,7 +57,7 @@ public:
 	ID3D11Buffer* m_pGpuCbMaterial = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBTransform = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBDirectionLight = nullptr;		// 상수 버퍼: 방향광
-	ID3D11Buffer* m_pCBMatrixPalette = nullptr;			// 상수 버퍼: 매트릭스팔레트
+	ConstantBuffer<CB_MatrixPalette> m_cbMatrixPallete; // DirectXTK의 상수버퍼 클래스 활용
 
 	// 렌더링 파이프라인에 적용하는 정보
 	UINT m_VertexBufferStride = 0;						// 버텍스 하나의 크기.

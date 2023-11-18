@@ -44,6 +44,11 @@ struct BoneReference
 	Math::Matrix* NodeWorldMatrixPtr;
 };
 
+struct CB_MatrixPalette
+{
+	Math::Matrix Array[128];
+};
+
 struct aiMesh;
 struct Skeleton;
 class Node;
@@ -78,7 +83,7 @@ public:
 	// 계층 구조 노드가 소유한 World의 포인터를 설정
 	void SetNodeWorldPtr(Math::Matrix* world) { m_pNodeWorldTransform = world; }
 	void UpdateNodeInstancePtr(Node* pRootNode, Skeleton* skeleton);
-	void UpdateMatrixPallete(Math::Matrix* MatrixPalletePtr, Skeleton* skeleton);
+	void UpdateMatrixPallete(CB_MatrixPalette* pMatrixPallete, Skeleton* skeleton);
 	bool IsSkeletalMesh() { return !m_BoneReferences.empty(); }		
 	void Render(ID3D11DeviceContext* deviceContext);
 };
