@@ -65,8 +65,8 @@ public:
 	std::vector<BoneReference>		m_BoneReferences;
 
 	Math::Matrix* m_pNodeWorldTransform = nullptr;		// StaticMesh의 월드행렬을 가진 노드의 포인터
-	ID3D11Buffer* m_pVertexBuffer;
-	ID3D11Buffer* m_pIndexBuffer;
+	ID3D11Buffer* m_pVertexBuffer = nullptr;
+	ID3D11Buffer* m_pIndexBuffer = nullptr;
 
 	UINT m_VertexCount=0;
 	UINT m_VertexBufferStride = 0;						// 버텍스 하나의 크기.
@@ -88,3 +88,46 @@ public:
 	void Render(ID3D11DeviceContext* deviceContext);
 };
 
+class StaticMesh
+{
+public:
+	StaticMesh();
+	~StaticMesh();
+
+	std::vector<Vertex>				m_Vertices;
+	std::vector<WORD>				m_Indices;	
+
+	Math::Matrix* m_pNodeWorldTransform = nullptr;		// StaticMesh의 월드행렬을 가진 노드의 포인터
+	ID3D11Buffer* m_pVertexBuffer = nullptr;
+	ID3D11Buffer* m_pIndexBuffer = nullptr;
+
+	UINT m_VertexCount = 0;
+	UINT m_VertexBufferStride = 0;						// 버텍스 하나의 크기.
+	UINT m_VertexBufferOffset = 0;						// 버텍스 버퍼의 오프셋.
+	UINT m_IndexCount = 0;				// 인덱스 개수.
+	UINT m_MaterialIndex = 0;			// 메테리얼 인덱스.
+	std::string m_Name;					// 메쉬 이름.
+
+	template<class T>
+	void CreateVertexBuffer(ID3D11Device* device, T* vertices, UINT vertexCount);
+	void CreateIndexBuffer(ID3D11Device* device, WORD* indies, UINT indexCount);
+	virtual void Create(ID3D11Device* device, aiMesh* mesh, Skeleton* skeleton);
+	// 계층 구조 노드가 소유한 World의 포인터를 설정
+	void SetNodeWorldPtr(Math::Matrix* world) { m_pNodeWorldTransform = world; }
+	virtual void UpdateNodeInstancePtr(Node* pRootNode, Skeleton* skeleton);
+	void Render(ID3D11DeviceContext* deviceContext);
+};
+
+class SkinnedMesh:public StaticMesh
+{
+public:
+	SkinnedMesh();
+	~SkinnedMesh();
+public:
+	std::vector<BoneWeightVertex>	m_BoneWeightVertices;
+	std::vector<BoneReference>		m_BoneReferences;		
+	
+	virtual void Create(ID3D11Device* device, aiMesh* mesh, Skeleton* skeleton);
+	void UpdateMatrixPallete(CB_MatrixPalette* pMatrixPallete, Skeleton* skeleton);	
+	virtual void UpdateNodeInstancePtr(Node* pRootNode, Skeleton* skeleton);
+};
