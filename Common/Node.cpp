@@ -46,7 +46,7 @@ void Node::LoadSkeleton(Skeleton* skeleton)
 	m_Name = pBone->Name;
 	m_Children.reserve(pBone->NumChildren);	
 		
-	for (int i = 1; i < count; i++)
+	for (UINT i = 1; i < count; i++)
 	{
 		Bone* pBone = skeleton->GetBone(i);
 		assert(pBone != nullptr);
