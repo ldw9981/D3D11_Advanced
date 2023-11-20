@@ -55,7 +55,7 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 		}
 	}
 	
-	m_Skeleton.Create(scene,scene->mRootNode);
+	m_Skeleton.ReadFromAssimp(scene);
 	
 
 

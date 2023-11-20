@@ -34,5 +34,9 @@ int main() {
 	cout << "emplace_back 호출" << endl;
 	v.emplace_back();
 
+	cout << "emplace_back 호출" << endl;
+	v.emplace_back();
+
+
 	cout << "끝" << endl;
 }

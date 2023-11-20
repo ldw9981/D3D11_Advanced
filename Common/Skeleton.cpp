@@ -4,22 +4,30 @@
 
 
 
-Bone* Skeleton::Create(const aiScene* pScene,const aiNode* pNode)
-{ 	
-	Bones.push_back(Bone(pNode));
-	int BoneIndex = (int)(Bones.size() - 1);	
-	Bone& bone = Bones[BoneIndex];
-	BoneMappingTable[bone.Name] = BoneIndex;
+void Skeleton::ReadFromAssimp(const aiScene* pScene)
+{
+	int NumNode = 0;	
+	CountNode(NumNode, pScene->mRootNode);
+	Bones.reserve(NumNode);	// 본이 매번 재할당되지않도록 공간만 확보. 추가할때마다 인덱스가 결정되므로 크기는 결정하지 않는다.
+	CreateBone(pScene, pScene->mRootNode);
+}
 
+Bone* Skeleton::CreateBone(const aiScene* pScene,const aiNode* pNode)
+{ 	
+	Bone& bone = Bones.emplace_back();
+	bone.Set(pNode);
+	
+	int BoneIndex = (int)(Bones.size() - 1);		
+	BoneMappingTable[bone.Name] = BoneIndex;
 	UINT numMesh = pNode->mNumMeshes;
 	if (numMesh > 0)
 	{
-		bone.Meshes.resize(numMesh);
+		bone.MeshNames.resize(numMesh);
 		for (UINT i = 0; i < numMesh; ++i)
 		{
 			UINT meshIndex = pNode->mMeshes[i];
 			std::string meshName = pScene->mMeshes[meshIndex]->mName.C_Str();
-			bone.Meshes[i] = meshName;
+			bone.MeshNames[i] = meshName;			
 			MeshMappingTable[meshName] = BoneIndex;
 		}
 	}
@@ -27,7 +35,7 @@ Bone* Skeleton::Create(const aiScene* pScene,const aiNode* pNode)
 	UINT numChild = pNode->mNumChildren;	
 	for (UINT i = 0; i < numChild; ++i)
 	{
-		Bone* child = Create(pScene,pNode->mChildren[i]);
+		Bone* child = CreateBone(pScene,pNode->mChildren[i]);
 		child->ParentBoneIndex = BoneIndex;
 	}
 	return &Bones[BoneIndex];
@@ -63,4 +71,17 @@ int Skeleton::GetBoneIndexByMeshName(const std::string& meshName)
 	if (iter == MeshMappingTable.end())
 		return -1;
 	return iter->second;
+}
+
+void Skeleton::CountNode(int& Count,const aiNode* pNode)
+{
+	Count++;
+	std::string name = pNode->mName.C_Str();
+	BoneMappingTable[name] = Count;
+
+	UINT numChild = pNode->mNumChildren;
+	for (UINT i = 0; i < numChild; ++i)
+	{
+		CountNode(Count,pNode->mChildren[i]);
+	}
 }
