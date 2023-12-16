@@ -20,9 +20,10 @@ public:
 	
 	// 인스턴스 데이터
 	float m_AnimationProressTime = 0.0f;
-    
+    int m_AnimationsIndex =-1;
 
-	bool ReadFile(ID3D11Device* device,const char* filePath);
+	bool ReadSceneFile(ID3D11Device* device,const char* filePath);
+	bool ReadAnimation(ID3D11Device* device, const char* filePath);
 		
 	Material* GetMaterial(UINT index);
 

@@ -10,7 +10,7 @@
 
 //#define ANIMATION_ONLY
 
-bool Model::ReadFile(ID3D11Device* device,const char* filePath)
+bool Model::ReadSceneFile(ID3D11Device* device,const char* filePath)
 {
 	LOG_MESSAGEA("Loading file: %s", filePath);
 	Assimp::Importer importer;
@@ -117,6 +117,57 @@ bool Model::ReadFile(ID3D11Device* device,const char* filePath)
 	return true;
 }
 
+bool Model::ReadAnimation(ID3D11Device* device, const char* filePath)
+{
+	LOG_MESSAGEA("Loading file: %s", filePath);
+	Assimp::Importer importer;
+
+	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);	// $assimp_fbx$ 노드 생성안함
+
+	GameTimer timer;
+	timer.Tick();
+
+	unsigned int importFlags = aiProcess_ConvertToLeftHanded;//	// 왼손 좌표계로 변환		
+
+	const aiScene* scene = importer.ReadFile(filePath, importFlags);
+	if (!scene) {
+		LOG_ERRORA("Error loading file: %s", importer.GetErrorString());
+		return false;
+	}
+	timer.Tick();
+	LOG_MESSAGEA("ReadFile time: %f", timer.DeltaTime());
+	if (scene->HasAnimations())
+	{
+		const aiAnimation* pAiAnimation = scene->mAnimations[0];
+		// 채널수는 aiAnimation 안에서 애니메이션 정보를  표현하는 aiNode의 개수이다.
+		assert(pAiAnimation->mNumChannels > 1); // 애니메이션이 있다면 aiNode 는 하나 이상 있어야한다.
+
+		Animation& refAnimation =  m_Animations.emplace_back();
+
+		refAnimation.NodeAnimations.resize(pAiAnimation->mNumChannels);
+		// 전체 시간길이 = 프레임수 / 1초당 프레임수
+		refAnimation.Duration = (float)(pAiAnimation->mDuration / pAiAnimation->mTicksPerSecond);
+		for (size_t iChannel = 0; iChannel < pAiAnimation->mNumChannels; iChannel++)
+		{
+			aiNodeAnim* pAiNodeAnim = pAiAnimation->mChannels[iChannel];
+			NodeAnimation& refNodeAnim = refAnimation.NodeAnimations[iChannel];
+			refNodeAnim.Create(pAiNodeAnim, pAiAnimation->mTicksPerSecond);
+		}
+		// 각 노드는 참조하는 노드애니메이션 ptr가 null이므로 0번 Index 애니메이션의 노드애니메이션을 연결한다.
+		UpdateNodeAnimationReference(m_Animations.size()-1);
+	}
+
+	for (auto& mesh : m_Meshes)
+	{
+		mesh.UpdateNodeInstancePtr(this, &m_Skeleton);
+	}
+
+
+	importer.FreeScene();
+	LOG_MESSAGEA("Complete file: %s", filePath);
+	return true;
+}
+
 Material* Model::GetMaterial(UINT index)
 {
 	assert(index < m_Materials.size());
@@ -127,7 +178,7 @@ void Model::Update(float deltaTime)
 	if (!m_Animations.empty())
 	{
 		m_AnimationProressTime += deltaTime;
-		m_AnimationProressTime = fmod(m_AnimationProressTime, m_Animations[0].Duration);
+		m_AnimationProressTime = fmod(m_AnimationProressTime, m_Animations[m_AnimationsIndex].Duration);
 		UpdateAnimation(m_AnimationProressTime);
 	}	
 }
@@ -135,6 +186,7 @@ void Model::Update(float deltaTime)
 void Model::UpdateNodeAnimationReference(UINT index)
 {
 	assert(index < m_Animations.size());
+	m_AnimationsIndex = index;
 	Animation& animation = m_Animations[index];
 	for (size_t i = 0; i < animation.NodeAnimations.size(); i++)
 	{
