@@ -377,7 +377,7 @@ bool TutorialApp::InitScene()
 
 	// 8. FBX Loading
 
-	m_Model.ReadFile(m_pDevice,"../Resource/SkinningTest.fbx");
+	m_Model.ReadFile(m_pDevice,"../Resource/Zombie.fbx");
 	
 	return true;
 }

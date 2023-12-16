@@ -32,27 +32,36 @@ void NodeAnimation::Create(aiNodeAnim* nodeAnimation,double tickPerSecond)
 void NodeAnimation::Evaluate(float time, Vector3& position, Quaternion& rotation, Vector3& scaling)
 {
 	assert(AnimationKeys.size() > 0);
-	size_t i = 0;
-	for (i=0;i< AnimationKeys.size();i++)
+	if (AnimationKeys.size() == 1)
 	{
-		if (AnimationKeys[i].Time > time)
-		{
-			break;	
-		}
-	}		
-
-	if (i == 0)
-	{
-		position = AnimationKeys[i].Position;
-		rotation = AnimationKeys[i].Rotation;
-		scaling = AnimationKeys[i].Scaling;
+		position = AnimationKeys[0].Position;
+		rotation = AnimationKeys[0].Rotation;
+		scaling = AnimationKeys[0].Scaling;
 	}
 	else
 	{
-		float t = (time - AnimationKeys[i - 1].Time) / (AnimationKeys[i].Time - AnimationKeys[i - 1].Time);
-		position = Vector3::Lerp(AnimationKeys[i - 1].Position, AnimationKeys[i].Position, t);
-		rotation = Quaternion::Slerp(AnimationKeys[i - 1].Rotation, AnimationKeys[i].Rotation, t);
-		scaling = Vector3::Lerp(AnimationKeys[i - 1].Scaling, AnimationKeys[i].Scaling, t);
+		size_t i = 0;
+		for (i = 0; i < AnimationKeys.size(); i++)
+		{
+			if (AnimationKeys[i].Time > time)
+			{
+				break;
+			}
+		}
+
+		if (i == 0)
+		{
+			position = AnimationKeys[i].Position;
+			rotation = AnimationKeys[i].Rotation;
+			scaling = AnimationKeys[i].Scaling;
+		}
+		else
+		{
+			float t = (time - AnimationKeys[i - 1].Time) / (AnimationKeys[i].Time - AnimationKeys[i - 1].Time);
+			position = Vector3::Lerp(AnimationKeys[i - 1].Position, AnimationKeys[i].Position, t);
+			rotation = Quaternion::Slerp(AnimationKeys[i - 1].Rotation, AnimationKeys[i].Rotation, t);
+			scaling = Vector3::Lerp(AnimationKeys[i - 1].Scaling, AnimationKeys[i].Scaling, t);
+		}
 	}
 }
 
