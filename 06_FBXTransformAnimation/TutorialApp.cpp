@@ -50,7 +50,7 @@ void TutorialApp::Update()
 {
 	__super::Update();
 
-	float t = GameTimer::m_Instance->TotalTime();
+	float t = m_Timer.TotalTime();
 
 	m_World =  Matrix::CreateScale(m_MeshScale) * Matrix::CreateFromYawPitchRoll(Vector3(XMConvertToRadians(m_Rotation.x), XMConvertToRadians(m_Rotation.y),0));
 	
@@ -59,7 +59,7 @@ void TutorialApp::Update()
 	m_Light.EyePosition = m_CameraPos;
 
 	m_Model.SetWorldTransform(m_World);
-	m_Model.Update(GameTimer::m_Instance->DeltaTime());	
+	m_Model.Update(m_Timer.DeltaTime());
 }
 
 void TutorialApp::Render()
@@ -352,7 +352,7 @@ bool TutorialApp::InitScene()
 
 	// 8. FBX Loading
 
-	m_Model.ReadFile(m_pDevice,"../Resource/BoxHuman.fbx");
+	m_Model.ReadSceneFile(m_pDevice,"../Resource/BoxHuman.fbx");
 	
 	return true;
 }

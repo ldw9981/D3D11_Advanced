@@ -45,7 +45,7 @@ void TutorialApp::Update()
 {
 	__super::Update();
 
-	float t = GameTimer::m_Instance->TotalTime();
+	float t = m_Timer.TotalTime();
 
 	m_World =  Matrix::CreateScale(m_MeshScale) * Matrix::CreateFromYawPitchRoll(Vector3(XMConvertToRadians(m_Rotation.x), XMConvertToRadians(m_Rotation.y),0));
 	
