@@ -105,24 +105,21 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh, Skeleton* skeleton)
 
 		for (UINT i = 0; i < meshBoneCount; ++i)
 		{
-			aiBone* bone = mesh->mBones[i];
+			aiBone* pAiBone = mesh->mBones[i];
 
-			UINT boneIndex = skeleton->GetBoneIndexByBoneName(bone->mName.C_Str());
+			UINT boneIndex = skeleton->GetBoneIndexByBoneName(pAiBone->mName.C_Str());
 			assert(boneIndex != -1);
 			Bone* pBone = skeleton->GetBone(boneIndex);
 			assert(pBone != nullptr);
 
-			m_BoneReferences[i].NodeName = bone->mName.C_Str();
-
-			pBone->OffsetMatrix = Math::Matrix(&bone->mOffsetMatrix.a1).Transpose();
-
+			m_BoneReferences[i].NodeName = pAiBone->mName.C_Str();
 			m_BoneReferences[i].BoneIndex = boneIndex;
 
 			// 본과 연결된 버텍스들을 처리
-			for (UINT j = 0; j < bone->mNumWeights; ++j)
+			for (UINT j = 0; j < pAiBone->mNumWeights; ++j)
 			{
-				UINT vertexID = bone->mWeights[j].mVertexId;
-				float weight = bone->mWeights[j].mWeight;
+				UINT vertexID = pAiBone->mWeights[j].mVertexId;
+				float weight = pAiBone->mWeights[j].mWeight;
 				m_BoneWeightVertices[vertexID].AddBoneData(boneIndex, weight);
 			}
 		}
