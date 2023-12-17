@@ -41,6 +41,7 @@ struct BoneReference
 {
 	std::string NodeName;		 
 	int BoneIndex = -1;			 // 본 인덱스
+	Math::Matrix OffsetMatrix;	 // 본에서의 메쉬의 상대적인 위치(변환)
 	Math::Matrix* NodeWorldMatrixPtr;
 };
 

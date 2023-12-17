@@ -9,22 +9,7 @@ void Skeleton::ReadFromAssimp(const aiScene* pScene)
 	int NumNode = 0;	
 	CountNode(NumNode, pScene->mRootNode);
 	Bones.reserve(NumNode);	// 본이 매번 재할당되지않도록 공간만 확보. 추가할때마다 인덱스가 결정되므로 크기는 결정하지 않는다.
-	CreateBone(pScene, pScene->mRootNode);
-
-	//본을 다 구성한 후에 OffsetMatrix설정
-	for (UINT i = 0; i < pScene->mNumMeshes; i++)
-	{
-		aiMesh* pMesh = pScene->mMeshes[i];
-		if (!pMesh->HasBones())
-			continue;
-
-		for (UINT iBone = 0; iBone < pMesh->mNumBones; iBone++)
-		{
-			aiBone* pAiBone = pMesh->mBones[iBone];
-			Bone* pBone = FindBone(pAiBone->mName.C_Str());
-			pBone->OffsetMatrix = Math::Matrix(&pAiBone->mOffsetMatrix.a1).Transpose();
-		}
-	}
+	CreateBone(pScene, pScene->mRootNode);		
 }
 
 Bone* Skeleton::CreateBone(const aiScene* pScene,const aiNode* pNode)

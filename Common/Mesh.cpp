@@ -114,6 +114,7 @@ void Mesh::Create(ID3D11Device* device, aiMesh* mesh, Skeleton* skeleton)
 
 			m_BoneReferences[i].NodeName = pAiBone->mName.C_Str();
 			m_BoneReferences[i].BoneIndex = boneIndex;
+			m_BoneReferences[i].OffsetMatrix = Math::Matrix(&pAiBone->mOffsetMatrix.a1).Transpose();
 
 			// 본과 연결된 버텍스들을 처리
 			for (UINT j = 0; j < pAiBone->mNumWeights; ++j)
@@ -170,9 +171,9 @@ void Mesh::UpdateMatrixPallete(CB_MatrixPalette* pMatrixPallete, Skeleton* skele
 		// HLSL 상수버퍼에 업데이트할때 바로 복사할수있도록 전치해서 저장한다.
 
 		int BoneIndex = m_BoneReferences[i].BoneIndex;
-		Bone* pBone = skeleton->GetBone(BoneIndex);
+		
 
-		pMatrixPallete->Array[BoneIndex] = (pBone->OffsetMatrix * BoneNodeWorldMatrix).Transpose();
+		pMatrixPallete->Array[BoneIndex] = (m_BoneReferences[i].OffsetMatrix * BoneNodeWorldMatrix).Transpose();
 	}
 }
 
@@ -308,7 +309,7 @@ void SkinnedMesh::Create(ID3D11Device* device, aiMesh* mesh, Skeleton* skeleton)
 		Bone* pBone = skeleton->GetBone(boneIndex);
 		assert(pBone != nullptr);
 		m_BoneReferences[i].NodeName = bone->mName.C_Str();
-		pBone->OffsetMatrix = Math::Matrix(&bone->mOffsetMatrix.a1).Transpose();
+		m_BoneReferences[i].OffsetMatrix = Math::Matrix(&bone->mOffsetMatrix.a1).Transpose();
 		m_BoneReferences[i].BoneIndex = boneIndex;
 		// 본과 연결된 버텍스들을 처리
 		for (UINT j = 0; j < bone->mNumWeights; ++j)
@@ -351,8 +352,8 @@ void SkinnedMesh::UpdateMatrixPallete(CB_MatrixPalette* pMatrixPallete, Skeleton
 		// HLSL 상수버퍼에 업데이트할때 바로 복사할수있도록 전치해서 저장한다.
 
 		int BoneIndex = m_BoneReferences[i].BoneIndex;
-		Bone* pBone = skeleton->GetBone(BoneIndex);
+		
 
-		pMatrixPallete->Array[BoneIndex] = (pBone->OffsetMatrix * BoneNodeWorldMatrix).Transpose();
+		pMatrixPallete->Array[BoneIndex] = (m_BoneReferences[i].OffsetMatrix * BoneNodeWorldMatrix).Transpose();
 	}
 }
