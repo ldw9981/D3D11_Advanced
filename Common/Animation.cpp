@@ -55,6 +55,12 @@ void NodeAnimation::Evaluate(float time, Vector3& position, Quaternion& rotation
 			rotation = AnimationKeys[i].Rotation;
 			scaling = AnimationKeys[i].Scaling;
 		}
+		else if (i == AnimationKeys.size())
+		{
+			position = AnimationKeys[i - 1].Position;
+			rotation = AnimationKeys[i - 1].Rotation;
+			scaling = AnimationKeys[i - 1].Scaling;
+		}
 		else
 		{
 			float t = (time - AnimationKeys[i - 1].Time) / (AnimationKeys[i].Time - AnimationKeys[i - 1].Time);
