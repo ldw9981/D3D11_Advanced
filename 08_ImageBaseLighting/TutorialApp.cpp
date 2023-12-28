@@ -265,10 +265,10 @@ bool TutorialApp::InitScene()
 
 	// 2. Render() 에서 파이프라인에 바인딩할 InputLayout 생성 	
 	ID3D10Blob* vertexShaderBuffer = nullptr;
-	hr = CompileShaderFromFile(L"05_FBXLoading_VS.hlsl", nullptr, "main", "vs_4_0", &vertexShaderBuffer);
+	hr = CompileShaderFromFile(L"08_VS.hlsl", nullptr, "main", "vs_4_0", &vertexShaderBuffer);
 	if (FAILED(hr))
 	{
-		hr = D3DReadFileToBlob(L"05_FBXLoading_VS.cso", &vertexShaderBuffer);
+		hr = D3DReadFileToBlob(L"08_VS.cso", &vertexShaderBuffer);
 	}
 	HR_T(hr);
 
@@ -290,10 +290,10 @@ bool TutorialApp::InitScene()
 
 	// 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성
 	ID3D10Blob* pixelShaderBuffer = nullptr;
-	hr = CompileShaderFromFile(L"05_FBXLoading_PS.hlsl", nullptr, "main", "ps_4_0", &pixelShaderBuffer);
+	hr = CompileShaderFromFile(L"08_PS.hlsl", nullptr, "main", "ps_4_0", &pixelShaderBuffer);
 	if (FAILED(hr))
 	{
-		hr = D3DReadFileToBlob(L"05_FBXLoading_PS.cso", &pixelShaderBuffer);
+		hr = D3DReadFileToBlob(L"08_PS.cso", &pixelShaderBuffer);
 	}
 	HR_T(hr);
 
@@ -349,7 +349,7 @@ bool TutorialApp::InitScene()
 	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace |
 		aiProcess_ConvertToLeftHanded;
 	
-	const aiScene* scene = importer.ReadFile("../Resource/cerberus.fbx", importFlags);
+	const aiScene* scene = importer.ReadFile("../Resource/Zeldaposed001.fbx", importFlags);
 	
 	if (!scene) {
 		LOG_ERRORA("Error loading FBX file: %s", importer.GetErrorString());
