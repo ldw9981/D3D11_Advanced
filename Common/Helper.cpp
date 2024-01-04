@@ -45,15 +45,15 @@ HRESULT CompileShaderFromFile(const WCHAR* szFileName,const D3D_SHADER_MACRO* pD
 	return S_OK;
 }
 
-HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11ShaderResourceView** textureView)
+HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName,ID3D11ShaderResourceView** textureView, ID3D11Resource** texture)
 {
 	HRESULT hr = S_OK;
 
 	// Load the Texture
-	hr = DirectX::CreateDDSTextureFromFile(d3dDevice, szFileName, nullptr, textureView);
+	hr = DirectX::CreateDDSTextureFromFile(d3dDevice, szFileName, texture, textureView);
 	if (FAILED(hr))
 	{
-		hr = DirectX::CreateWICTextureFromFile(d3dDevice, szFileName, nullptr, textureView);
+		hr = DirectX::CreateWICTextureFromFile(d3dDevice, szFileName, texture, textureView);
 		if (FAILED(hr))
 		{
 			MessageBoxW(NULL, GetComErrorString(hr), szFileName, MB_OK);
@@ -88,3 +88,23 @@ std::wstring ToWString(const std::string& s)
 	std::wstring wsTmp(s.begin(), s.end());
 	return wsTmp;
 }
+
+
+
+#if _WIN32
+std::string Utility::convertToUTF8(const std::wstring& wstr)
+{
+	const int bufferSize = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+	const std::unique_ptr<char[]> buffer(new char[bufferSize]);
+	WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, buffer.get(), bufferSize, nullptr, nullptr);
+	return std::string(buffer.get());
+}
+
+std::wstring Utility::convertToUTF16(const std::string& str)
+{
+	const int bufferSize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
+	const std::unique_ptr<wchar_t[]> buffer(new wchar_t[bufferSize]);
+	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, buffer.get(), bufferSize);
+	return std::wstring(buffer.get());
+}
+#endif // _WIN32

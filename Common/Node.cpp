@@ -100,4 +100,3 @@ Node* Node::FindNode(const std::string& name)
 
 	return nullptr;
 }
-

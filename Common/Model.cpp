@@ -199,6 +199,9 @@ void Model::UpdateNodeAnimationReference(UINT index)
 void Model::SetWorldTransform(const Math::Matrix& transform)
 {
 	m_Local = transform;
+	m_World = m_Local;	
 }
+
+
 
 

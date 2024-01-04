@@ -1,6 +1,7 @@
 #pragma once
 #include "Helper.h"
 
+struct aiNode;
 struct Bone
 {
 	Math::Matrix RelativeTransform;			//부모로부터의 상대적인 변환

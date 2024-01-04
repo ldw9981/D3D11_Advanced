@@ -159,7 +159,7 @@ inline void HR_T(HRESULT hr)
 //--------------------------------------------------------------------------------------
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, const D3D_SHADER_MACRO* pDefines, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 
-HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11ShaderResourceView** textureView);
+HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName,ID3D11ShaderResourceView** textureView,ID3D11Resource** texture=nullptr);
 
 Vector3 CalculateTangent(Vector3 v1,Vector3 v2,Vector3 v3,Vector2 tex1, Vector2 tex2, Vector2 tex3);
 
@@ -213,3 +213,30 @@ Vector3 CalculateTangent(Vector3 v1,Vector3 v2,Vector3 v3,Vector2 tex1, Vector2 
 
 
 	std::wstring ToWString(const std::string& s);
+
+
+	class Utility
+	{
+	public:
+		template<typename T> static constexpr bool isPowerOfTwo(T value)
+		{
+			return value != 0 && (value & (value - 1)) == 0;
+		}
+		template<typename T> static constexpr T roundToPowerOfTwo(T value, int POT)
+		{
+			return (value + POT - 1) & -POT;
+		}
+		template<typename T> static constexpr T numMipmapLevels(T width, T height)
+		{
+			T levels = 1;
+			while ((width | height) >> levels) {
+				++levels;
+			}
+			return levels;
+		}
+
+#if _WIN32
+		static std::string convertToUTF8(const std::wstring& wstr);
+		static std::wstring convertToUTF16(const std::string& str);
+#endif // _WIN32
+	};
