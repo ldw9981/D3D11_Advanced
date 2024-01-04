@@ -24,11 +24,9 @@ PS_INPUT_SKYBOX main_skybox(VS_INPUT input)
 {
     PS_INPUT_SKYBOX output = (PS_INPUT_SKYBOX) 0;        
     float4 pos = mul(input.PositionModel, World);
-    output.TexCoords = pos.xyz;
-    pos = mul(pos, View);
-    pos = mul(pos, Projection);
-    output.PositionProj = pos;
- 
-    
+    output.TexCoords = pos.xyz;  
+    float3 pos3 = mul(pos.xyz,(float3x3)View); // 역행렬에서 위치는 적용안함
+    pos = mul(float4(pos3, 1.0f), Projection);
+    output.PositionProj = pos;    
     return output;
 }

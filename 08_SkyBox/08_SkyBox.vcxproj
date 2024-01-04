@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{19c19063-88f9-4bb4-9804-c7d450f2745d}</ProjectGuid>
-    <RootNamespace>My08CubeMapping</RootNamespace>
+    <ProjectGuid>{c3e7d638-3016-4350-a79a-8023287550a3}</ProjectGuid>
+    <RootNamespace>My08SkyBox</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -152,16 +152,11 @@
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="08_CubeMapping.rc" />
+    <ResourceCompile Include="08_SkyBox.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="08_CubeMapping.ico" />
+    <Image Include="08_SkyBox.ico" />
     <Image Include="small.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vcxproj">
-      <Project>{4ca8df6a-4f5d-4f44-a590-43d541ad684e}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="08_PS.hlsl">
@@ -174,7 +169,9 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shared.hlsli" />
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{4ca8df6a-4f5d-4f44-a590-43d541ad684e}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
