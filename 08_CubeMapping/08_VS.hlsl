@@ -20,15 +20,15 @@ PS_INPUT main(VS_INPUT input)
 }
 
 
-PS_INPUT main_skybox(VS_INPUT input)
+PS_INPUT_SKYBOX main_skybox(VS_INPUT input)
 {
-    PS_INPUT output = (PS_INPUT) 0;
-    float4 pos = input.PositionModel;
-    pos = mul(pos, World);
-    output.PositionWorld = pos.xyz;
-    
+    PS_INPUT_SKYBOX output = (PS_INPUT_SKYBOX) 0;        
+    float4 pos = mul(input.PositionModel, World);
+    output.TexCoords = pos.xyz;
     pos = mul(pos, View);
     pos = mul(pos, Projection);
     output.PositionProj = pos;
+ 
+    
     return output;
 }

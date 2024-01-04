@@ -175,12 +175,16 @@ Material* Model::GetMaterial(UINT index)
 }
 void Model::Update(float deltaTime)
 {
+	m_World = Math::Matrix::CreateScale(m_WorldScale) * 
+		Math::Matrix::CreateFromYawPitchRoll( XMConvertToRadians(m_WorldRotation.y), XMConvertToRadians(m_WorldRotation.x), XMConvertToRadians(m_WorldRotation.z)) *
+		Math::Matrix::CreateTranslation(m_WorldPosistion);
+
 	if (!m_Animations.empty())
 	{
 		m_AnimationProressTime += deltaTime;
 		m_AnimationProressTime = fmod(m_AnimationProressTime, m_Animations[m_AnimationsIndex].Duration);
 		UpdateAnimation(m_AnimationProressTime);
-	}	
+	}
 }
 
 void Model::UpdateNodeAnimationReference(UINT index)

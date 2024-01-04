@@ -12,6 +12,10 @@ public:
 	Model() {}
 	~Model() {}
 	
+	Math::Vector3 m_WorldPosistion = { 0.0f,0.0f,0.0f };
+	Math::Vector3 m_WorldRotation = { 0.0f,0.0f,0.0f };// degree
+	Math::Vector3 m_WorldScale = { 1.0f,1.0f,1.0f };
+
 	// 공유 가능한 데이터
 	std::vector<Mesh> m_Meshes;	
 	std::vector<Material> m_Materials;

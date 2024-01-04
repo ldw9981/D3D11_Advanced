@@ -27,7 +27,6 @@ TutorialApp::TutorialApp(HINSTANCE hInstance)
 
 TutorialApp::~TutorialApp()
 {
-	UninitScene();	
 	UninitImGUI();
 	UninitD3D();
 }
@@ -42,9 +41,6 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
 	if (!InitImGUI())
 		return false;
 
-	if (!InitScene())
-		return false;
-
 	return true;
 }
 
@@ -54,15 +50,17 @@ void TutorialApp::Update()
 
 	float t = m_Timer.TotalTime();
 	
+	m_ModelObject.Update(t);
+	m_ModelSkyBox.m_WorldPosistion = m_CameraPos;
+	m_ModelSkyBox.Update(t);// 스카이 박스는 위치에 상관없이 카메라 위치에고정되어야한다.
+
 	Math::Matrix world = Math::Matrix::CreateFromYawPitchRoll(
 		XMConvertToRadians(m_CameraRot.y), XMConvertToRadians(m_CameraRot.x), XMConvertToRadians(m_CameraRot.z))
 		* Math::Matrix::CreateTranslation(m_CameraPos);
 
 
 	m_View = XMMatrixLookToLH(m_CameraPos, -world.Forward(), world.Up());
-
 	m_Light.EyePosition = m_CameraPos;
-
 }
 
 void TutorialApp::Render()
@@ -84,7 +82,7 @@ void TutorialApp::Render()
 	m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pGpuCbMaterial);
 
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
-	m_pDeviceContext->PSSetSamplers(0, 2, &m_pSamplerCube);
+	m_pDeviceContext->PSSetSamplers(1, 1, &m_pSamplerCube);
 	
 
 	//
@@ -96,18 +94,18 @@ void TutorialApp::Render()
 
 	m_Light.Direction.Normalize();
 	m_pDeviceContext->UpdateSubresource(m_pCBDirectionLight, 0, nullptr, &m_Light, 0, 0);	
-	
-
-	m_pDeviceContext->RSSetState(m_CCWcullMode);
-	m_pDeviceContext->PSSetShader(m_pPS_SkyBox,nullptr,0);
-	m_pDeviceContext->VSSetShader(m_pVS_SkyBox, nullptr, 0);
-	RenderModel(m_Cube);
 
 	
 	m_pDeviceContext->RSSetState(m_CWcullMode);
 	m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
 	m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
-	RenderModel(m_Sphere);
+	RenderModel(m_ModelObject);
+
+	m_pDeviceContext->RSSetState(m_CCWcullMode);
+	m_pDeviceContext->PSSetShader(m_PixelShaderSkyBox.Get(), nullptr, 0);
+	m_pDeviceContext->VSSetShader(m_VertexShaderSkyBox.Get(), nullptr, 0);
+	RenderModel(m_ModelSkyBox);
+
 
 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -140,6 +138,11 @@ void TutorialApp::Render()
 
 		ImGui::Text("BackBuffer");
 		ImGui::ColorEdit4("clear color", (float*)&m_ClearColor); // Edit 3 floats representing a color	
+
+		ImGui::Text("Model");
+		ImGui::SliderFloat3("ModelPosition", (float*)&m_ModelObject.m_WorldPosistion, -2000.0f, 2000.0f);
+		ImGui::SliderFloat3("ModelRotation", (float*)&m_ModelObject.m_WorldRotation, -180.f, 180.0f);
+
 		ImGui::End();
 	}
 	ImGui::Render();
@@ -222,7 +225,60 @@ bool TutorialApp::InitD3D()
 
 	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
 
-	
+	CreateConstantBuffer();
+	CreateBlendState();
+	CreateSamplerState();
+	CreateRasterizerState();
+
+	CreateD3D_StaticMesh();
+	CreateD3D_SkyBox();
+
+	m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_ClientWidth / (FLOAT)m_ClientHeight, 1.0f, 1000000.0f);
+
+
+	return true;
+}
+
+void TutorialApp::UninitD3D()
+{
+	SAFE_RELEASE(m_CCWcullMode);
+	SAFE_RELEASE(m_CWcullMode);
+	SAFE_RELEASE(m_pGpuCbMaterial);
+	SAFE_RELEASE(m_pCBTransform);
+	SAFE_RELEASE(m_pCBDirectionLight);
+	SAFE_RELEASE(m_pAlphaBlendState);
+	SAFE_RELEASE(m_pVertexShader);
+	SAFE_RELEASE(m_pPixelShader);
+	SAFE_RELEASE(m_pInputLayout);
+	SAFE_RELEASE(m_pSamplerLinear);
+
+	// Cleanup DirectX
+	SAFE_RELEASE(m_pRenderTargetView);
+	SAFE_RELEASE(m_pDepthStencilView);
+	SAFE_RELEASE(m_pDevice);
+	SAFE_RELEASE(m_pDeviceContext);
+	SAFE_RELEASE(m_pSwapChain);
+}
+
+
+
+void TutorialApp::CreateRasterizerState()
+{
+	HRESULT hr = 0;
+	//RasterizerState  반대로 스카이큐브 그리기용
+	D3D11_RASTERIZER_DESC cmdesc;
+	ZeroMemory(&cmdesc, sizeof(D3D11_RASTERIZER_DESC));
+	cmdesc.FillMode = D3D11_FILL_SOLID;
+	cmdesc.CullMode = D3D11_CULL_BACK;
+	cmdesc.FrontCounterClockwise = true;
+	HR_T( m_pDevice->CreateRasterizerState(&cmdesc, &m_CCWcullMode));
+
+	cmdesc.FrontCounterClockwise = false;
+	HR_T( m_pDevice->CreateRasterizerState(&cmdesc, &m_CWcullMode));
+}
+
+void TutorialApp::CreateBlendState()
+{
 	//7. 알파블렌딩을 위한 블렌드 상태 생성
 	D3D11_BLEND_DESC blendDesc = {};
 	blendDesc.AlphaToCoverageEnable = false;
@@ -240,134 +296,8 @@ bool TutorialApp::InitD3D()
 	rtBlendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; // 렌더타겟에 RGBA 모두 Write
 	blendDesc.RenderTarget[0] = rtBlendDesc;
 	HR_T(m_pDevice->CreateBlendState(&blendDesc, &m_pAlphaBlendState));
-
-
-	return true;
 }
 
-void TutorialApp::UninitD3D()
-{
-	// Cleanup DirectX
-	SAFE_RELEASE(m_pRenderTargetView);
-	SAFE_RELEASE(m_pDepthStencilView);
-	SAFE_RELEASE(m_pDevice);
-	SAFE_RELEASE(m_pDeviceContext);
-	SAFE_RELEASE(m_pSwapChain);
-}
-
-// 1. Render() 에서 파이프라인에 바인딩할 버텍스 버퍼및 버퍼 정보 준비
-// 2. Render() 에서 파이프라인에 바인딩할 InputLayout 생성 	
-// 3. Render() 에서 파이프라인에 바인딩할  버텍스 셰이더 생성
-// 4. Render() 에서 파이프라인에 바인딩할 인덱스 버퍼 생성
-// 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성
-// 6. Render() 에서 파이프라인에 바인딩할 상수 버퍼 생성
-// 7. Render() 에서 파이프라인에 바인딩할 텍스처 샘플러 생성
-// 8. assimp를 이용한  FBX 로딩
-bool TutorialApp::InitScene()
-{
-	HRESULT hr=0; // 결과값.
-	
-
-	// 1. Render() 에서 파이프라인에 바인딩할 버텍스 버퍼및 버퍼 정보 준비	
-
-	// 2. Render() 에서 파이프라인에 바인딩할 InputLayout 생성 	
-	CreateStaticMesh_VS_IL();
-	CreateStaticMesh_PS();
-
-	CreateSkyBox();
-	
-
-	// 6. Render() 에서 파이프라인에 바인딩할 상수 버퍼 생성
-	// Create the constant buffer
-	D3D11_BUFFER_DESC bd = {};
-	bd = {};
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(CB_Transform);
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bd.CPUAccessFlags = 0;
-	HR_T( m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBTransform));
-
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(CB_DirectionLight);
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bd.CPUAccessFlags = 0;
-	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBDirectionLight));
-
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(CB_Marterial);
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bd.CPUAccessFlags = 0;
-	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pGpuCbMaterial));
-
-    // 7. 텍스처 샘플러 생성
-	D3D11_SAMPLER_DESC sampDesc = {};
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	HR_T( m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
-
-	// Describe the Sample State
-	ZeroMemory(&sampDesc, sizeof(sampDesc));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	//Create the Sample State
-	HR_T(m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerCube));
-	
-
-	//RasterizerState  반대로 스카이큐브 그리기용
-	D3D11_RASTERIZER_DESC cmdesc;
-	ZeroMemory(&cmdesc, sizeof(D3D11_RASTERIZER_DESC));
-	cmdesc.FillMode = D3D11_FILL_SOLID;
-	cmdesc.CullMode = D3D11_CULL_BACK;
-	cmdesc.FrontCounterClockwise = true;
-	hr = m_pDevice->CreateRasterizerState(&cmdesc, &m_CCWcullMode);
-
-	cmdesc.FrontCounterClockwise = false;
-	hr = m_pDevice->CreateRasterizerState(&cmdesc, &m_CWcullMode);
-
-
-	// Initialize the world matrix
-	XMVECTOR Eye = XMVectorSet(0.0f, 0.0f, -1000.0f, 0.0f);
-	XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	m_View = XMMatrixLookAtLH(Eye, At, Up);
-	m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_ClientWidth / (FLOAT)m_ClientHeight, 1.0f, 1000000.0f);
-
-	// 8. FBX Loading
-	m_Cube.ReadSceneFile(m_pDevice, "../Resource/Cube.fbx");
-	m_Cube.SetWorldTransform(XMMatrixScaling(100000, 100000, 100000));
-
-	m_Sphere.ReadSceneFile(m_pDevice, "../Resource/Sphere.fbx");
-	m_Sphere.SetWorldTransform(XMMatrixScaling(2, 2, 2));
-
-
-	return true;
-}
-
-void TutorialApp::UninitScene()
-{
-	SAFE_RELEASE(m_CCWcullMode);
-	SAFE_RELEASE(m_CWcullMode);
-	SAFE_RELEASE(m_pGpuCbMaterial);
-	SAFE_RELEASE(m_pCBTransform);
-	SAFE_RELEASE(m_pCBDirectionLight);
-	SAFE_RELEASE(m_pAlphaBlendState);
-	SAFE_RELEASE(m_pVertexShader);
-	SAFE_RELEASE(m_pPixelShader);
-	SAFE_RELEASE(m_pInputLayout);
-	SAFE_RELEASE(m_pSamplerLinear);
-
-}
 bool TutorialApp::InitImGUI()
 {
 	/*
@@ -433,7 +363,7 @@ void TutorialApp::ApplyMaterial(const Material* material)
 	m_pDeviceContext->UpdateSubresource(m_pGpuCbMaterial, 0, nullptr, &m_CpuCbMaterial, 0, 0);
 }
 
-void TutorialApp::CreateStaticMesh_VS_IL()
+void TutorialApp::CreateD3D_StaticMesh()
 {
 	ID3D10Blob* vertexShaderBuffer = nullptr;
 	HRESULT hr=0;
@@ -458,14 +388,9 @@ void TutorialApp::CreateStaticMesh_VS_IL()
 	HR_T(m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
 		vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader));
 	SAFE_RELEASE(vertexShaderBuffer);
-}
 
-
-void TutorialApp::CreateStaticMesh_PS()
-{
 	// 5. Render() 에서 파이프라인에 바인딩할 픽셀 셰이더 생성
-	ID3D10Blob* pixelShaderBuffer = nullptr;
-	HRESULT hr=0;
+	ID3D10Blob* pixelShaderBuffer = nullptr;	
 	hr = CompileShaderFromFile(L"08_PS.hlsl", nullptr, "main", "ps_5_0", &pixelShaderBuffer);
 	if (FAILED(hr))
 	{
@@ -477,39 +402,87 @@ void TutorialApp::CreateStaticMesh_PS()
 		pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
 	SAFE_RELEASE(pixelShaderBuffer);
 
+	m_ModelObject.ReadSceneFile(m_pDevice, "../Resource/cube.fbx");
+	m_ModelObject.m_WorldScale = Vector3(50, 50, 50);
 }
 
-void TutorialApp::CreateSkyBox()
+
+
+void TutorialApp::CreateD3D_SkyBox()
 {
 	ComPtr<ID3D10Blob> vertexShaderBuffer = nullptr;
 	HRESULT hr = 0;
-	hr = CompileShaderFromFile(L"08_VS.hlsl", nullptr, "main_skybox", "vs_5_0", vertexShaderBuffer.GetAddressOf());
-	if (FAILED(hr))
-	{
-		hr = D3DReadFileToBlob(L"08_VS.cso", vertexShaderBuffer.GetAddressOf());
-	}
-	HR_T(hr);
+	HR_T( CompileShaderFromFile(L"08_VS.hlsl", nullptr, "main_skybox", "vs_5_0", vertexShaderBuffer.GetAddressOf()) );
+	HR_T( m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
+		vertexShaderBuffer->GetBufferSize(), NULL, &m_VertexShaderSkyBox));
 
-	// 3. Render() 에서 파이프라인에 바인딩할  버텍스 셰이더 생성
-	HR_T(m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
-		vertexShaderBuffer->GetBufferSize(), NULL, &m_pVS_SkyBox));
-	
 
 	ComPtr<ID3D10Blob> pixelShaderBuffer = nullptr;
-	hr = CompileShaderFromFile(L"08_PS.hlsl", nullptr, "main_skybox", "ps_5_0", pixelShaderBuffer.GetAddressOf());
-	if (FAILED(hr))
-	{
-		hr = D3DReadFileToBlob(L"08_PS.cso", pixelShaderBuffer.GetAddressOf());
-	}
+	HR_T( CompileShaderFromFile(L"08_PS.hlsl", nullptr, "main_skybox", "ps_5_0", pixelShaderBuffer.GetAddressOf()));
+	HR_T( m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
+		pixelShaderBuffer->GetBufferSize(), NULL, &m_PixelShaderSkyBox));
+
+	hr = CreateTextureFromFile(m_pDevice, L"../Resource/cubemap.dds", m_ShaderResourceViewCubeMap.GetAddressOf(),
+		(ID3D11Resource**)m_TextureCubeMap.GetAddressOf());
 	HR_T(hr);
 
-	HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
-		pixelShaderBuffer->GetBufferSize(), NULL, &m_pPS_SkyBox));
+	m_pDeviceContext->PSSetShaderResources(7, 1, m_ShaderResourceViewCubeMap.GetAddressOf());
 
-	hr = CreateTextureFromFile(m_pDevice, L"../Resource/cubemap.dds", m_pTexture3DSRV.GetAddressOf(),(ID3D11Resource**)m_pTexture3D.GetAddressOf());
-	HR_T(hr);
+	// 8. FBX Loading
+	m_ModelSkyBox.ReadSceneFile(m_pDevice, "../Resource/Cube.fbx");
+	m_ModelSkyBox.m_WorldScale = Vector3(100000, 100000, 100000);
+}
 
-	m_pDeviceContext->PSSetShaderResources(7, 1, m_pTexture3DSRV.GetAddressOf());
+void TutorialApp::CreateConstantBuffer()
+{
+	// 6. Render() 에서 파이프라인에 바인딩할 상수 버퍼 생성
+	// Create the constant buffer
+	D3D11_BUFFER_DESC bd = {};
+	bd = {};
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(CB_Transform);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBTransform));
+
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(CB_DirectionLight);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pCBDirectionLight));
+
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(CB_Marterial);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pGpuCbMaterial));
+}
+
+void TutorialApp::CreateSamplerState()
+{
+	// 7. 텍스처 샘플러 생성
+	D3D11_SAMPLER_DESC sampDesc = {};
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	HR_T(m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
+
+	// Describe the Sample State
+	ZeroMemory(&sampDesc, sizeof(sampDesc));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	//Create the Sample State
+	HR_T(m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerCube));
 }
 
 Texture TutorialApp::CreateCubeMapTexture(UINT width, UINT height, DXGI_FORMAT format, UINT levels)

@@ -64,3 +64,10 @@ struct PS_INPUT
     float3 NormalWorld : NORMAL;
     float3 TangentWorld : TANGENT;
 };
+
+
+struct PS_INPUT_SKYBOX
+{  
+    float4 PositionProj : SV_POSITION;
+    float3 TexCoords : TEXCOORD0;
+};

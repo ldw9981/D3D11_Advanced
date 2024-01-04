@@ -49,15 +49,13 @@ float4 main(PS_INPUT input) : SV_Target
         Opacity = txOpacity.Sample(samLinear, input.TexCoord).a;
     }    
     
-    float3 envVector = normalize(input.PositionWorld);
-    float4 texCube = txCube.Sample(samLinear, envVector);
-    float4 FinalColor = Diffuse + Ambient + Specular + Emissive + texCube;
-    return float4(FinalColor.rgb,Opacity);
+    //float4 FinalColor = Diffuse + Ambient + Specular + Emissive;
+    float4 CubeColor = txCube.Sample(samTexture3D, reflect(-vView, vNormal));
+    return CubeColor;
 }
 
 
-float4 main_skybox(PS_INPUT input) : SV_Target
+float4 main_skybox(PS_INPUT_SKYBOX input) : SV_Target
 {
-    float3 envVector = normalize(input.PositionWorld);
-    return txCube.Sample(samLinear, envVector);
+    return txCube.Sample(samTexture3D, input.TexCoords);
 }

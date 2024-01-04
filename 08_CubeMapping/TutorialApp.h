@@ -45,8 +45,6 @@ public:
 	ID3D11VertexShader* m_pVertexShader = nullptr;		// 정점 셰이더.
 	ID3D11PixelShader* m_pPixelShader = nullptr;		// 픽셀 셰이더.
 
-	ID3D11VertexShader* m_pVS_SkyBox = nullptr;		// 정점 셰이더.
-	ID3D11PixelShader* m_pPS_SkyBox = nullptr;		// 픽셀 셰이더.
 
 	ID3D11InputLayout* m_pInputLayout = nullptr;		// 입력 레이아웃.
 	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 상태.
@@ -56,18 +54,11 @@ public:
 	ID3D11Buffer* m_pGpuCbMaterial = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBTransform = nullptr;				// 상수 버퍼: 변환행렬
 	ID3D11Buffer* m_pCBDirectionLight = nullptr;		// 상수 버퍼: 방향광
-
-
-	// 렌더링 파이프라인에 적용하는 정보
-	UINT m_VertexBufferStride = 0;						// 버텍스 하나의 크기.
-	UINT m_VertexBufferOffset = 0;						// 버텍스 버퍼의 오프셋.
-	int m_nIndices = 0;				// 인덱스 개수.
-	
+			
 	Math::Matrix  m_View;					// 뷰좌표계 공간으로 변환을 위한 행렬.
 	Math::Matrix  m_Projection;			// 단위장치좌표계( Normalized Device Coordinate) 공간으로 변환을 위한 행렬.
 
 	Math::Vector3 m_ClearColor ={ 0.0f, 0.0f, 0.0f};
-	Math::Vector2 m_Rotation = Math::Vector2(0.0f, 0.0f);
 
 	Math::Vector3 m_CameraRot = { 0.0f, 0.0f, 0.0f }; // degree
 	Math::Vector3 m_CameraPos = Math::Vector3(0.0f, 200.0f, -1000.0f);
@@ -79,12 +70,14 @@ public:
 	float m_MeshScale=1.0f;
 	
 	
-	Model m_Cube;
-	Model m_Sphere;
+	Model m_ModelSkyBox;
+	Model m_ModelObject;
 
-	Texture m_CubeMapTexture;
-	ComPtr<ID3D11Texture3D> m_pTexture3D;
-	ComPtr<ID3D11ShaderResourceView> m_pTexture3DSRV;
+
+	ComPtr<ID3D11VertexShader> m_VertexShaderSkyBox;		// 정점 셰이더.
+	ComPtr<ID3D11PixelShader> m_PixelShaderSkyBox;		// 픽셀 셰이더.	
+	ComPtr<ID3D11Texture3D> m_TextureCubeMap;
+	ComPtr<ID3D11ShaderResourceView> m_ShaderResourceViewCubeMap;
 
 	virtual bool Initialize(UINT Width, UINT Height);
 	virtual void Update();
@@ -93,18 +86,18 @@ public:
 	bool InitD3D();			
 	void UninitD3D();
 
-	bool InitScene();		// 쉐이더,버텍스,인덱스
-	void UninitScene();		 
-
 	bool InitImGUI();
 	void UninitImGUI();
 
 	void RenderModel(Model& model);
 	void ApplyMaterial(const Material* material);
 
-	void CreateStaticMesh_VS_IL();
-	void CreateStaticMesh_PS();
-	void CreateSkyBox();
+	void CreateD3D_StaticMesh();
+	void CreateD3D_SkyBox();
+	void CreateConstantBuffer();
+	void CreateSamplerState();
+	void CreateRasterizerState();
+	void CreateBlendState();
 
 	Texture CreateCubeMapTexture(UINT width, UINT height, DXGI_FORMAT format, UINT levels);
 
