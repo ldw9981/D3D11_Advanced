@@ -59,4 +59,7 @@
     <FxCompile Include="08_PS.hlsl" />
     <FxCompile Include="08_VS.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shared.hlsli" />
+  </ItemGroup>
 </Project>
