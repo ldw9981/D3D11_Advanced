@@ -2,8 +2,7 @@
 #include "Helper.h"
 #include <comdef.h>
 #include <d3dcompiler.h>
-#include <Directxtk/DDSTextureLoader.h>
-#include <Directxtk/WICTextureLoader.h>
+#include <DirectXTex.h>
 
 LPCWSTR GetComErrorString(HRESULT hr)
 {
@@ -47,20 +46,33 @@ HRESULT CompileShaderFromFile(const WCHAR* szFileName,const D3D_SHADER_MACRO* pD
 
 HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName,ID3D11ShaderResourceView** textureView, ID3D11Resource** texture)
 {
-	HRESULT hr = S_OK;
+	std::filesystem::path path(szFileName);
+	std::wstring strExtension = path.extension();
+	std::transform(strExtension.begin(), strExtension.end(), strExtension.begin(), ::towlower);
 
-	// Load the Texture
-	hr = DirectX::CreateDDSTextureFromFile(d3dDevice, szFileName, texture, textureView);
-	if (FAILED(hr))
+	DirectX::TexMetadata metadata1;
+	DirectX::ScratchImage scratchImage;
+
+	HRESULT hr = S_OK;
+	if (strExtension == L".dds")
 	{
-		hr = DirectX::CreateWICTextureFromFile(d3dDevice, szFileName, texture, textureView);
-		if (FAILED(hr))
-		{
-			MessageBoxW(NULL, GetComErrorString(hr), szFileName, MB_OK);
-			return hr;
-		}		
+		HR_T(hr = DirectX::LoadFromDDSFile(szFileName, DirectX::DDS_FLAGS_NONE, &metadata1, scratchImage));
 	}
-	return S_OK;
+	else if (strExtension == L".tga")
+	{
+		HR_T(hr = DirectX::LoadFromTGAFile(szFileName, &metadata1, scratchImage));
+	}
+	else if (strExtension == L".hdr")
+	{
+		HR_T(hr = DirectX::LoadFromHDRFile(szFileName, &metadata1, scratchImage));
+	}
+	else // ±‚≈∏..
+	{
+		HR_T(hr = DirectX::LoadFromWICFile(szFileName, DirectX::WIC_FLAGS_NONE, &metadata1, scratchImage));
+	}
+
+	HR_T(hr = DirectX::CreateShaderResourceView(d3dDevice, scratchImage.GetImages(), scratchImage.GetImageCount(), metadata1, textureView));
+	return hr;
 }
 
 
